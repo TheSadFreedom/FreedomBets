@@ -137,6 +137,42 @@ export const BetActionsRow = styled.div`
   gap: 6px;
 `;
 
+export const SettleBetsRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+export const SettleBetsButton = styled.button`
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(102, 187, 106, 0.35);
+  background: rgba(76, 175, 80, 0.12);
+  color: #a5d6a7;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(76, 175, 80, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+`;
+
+export const SettlementNote = styled.p`
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.42);
+`;
+
 export const CardHeader = styled.div`
   display: flex;
   align-items: flex-start;

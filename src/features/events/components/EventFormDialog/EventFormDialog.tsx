@@ -38,7 +38,7 @@ interface EventFormDialogProps {
   bets: Bet[];
   title?: string;
   initial?: EventStats;
-  /** Показывать и сохранять даты ивента (не стадии major) */
+  /** Показывать и сохранять даты турнира (не стадии major) */
   editEventDates?: boolean;
   onClose: () => void;
   onSubmit: (values: EventEditInput) => Promise<void>;
@@ -144,7 +144,7 @@ const EventFormDialog = ({
     >
       <DialogShell>
         <DialogHeader>
-          <DialogTitle>{title ?? (initial ? "Редактировать ивент" : "Новый ивент")}</DialogTitle>
+          <DialogTitle>{title ?? (initial ? "Редактировать турнир" : "Новый турнир")}</DialogTitle>
           <IconButton onClick={onClose} aria-label="Закрыть" size="small">
             <CloseIcon />
           </IconButton>
@@ -182,7 +182,7 @@ const EventFormDialog = ({
             sx={fieldSx}
           />
           <SuggestTextField
-            label="Название ивента"
+            label="Название турнира"
             value={form.eventName}
             onChange={(v) => {
               setForm((prev) => ({

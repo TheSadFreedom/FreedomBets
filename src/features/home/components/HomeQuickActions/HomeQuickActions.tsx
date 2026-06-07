@@ -14,9 +14,9 @@ const HomeQuickActions = ({ onNewMatch, onNewEvent }: HomeQuickActionsProps) => 
       Новый матч
     </ActionButton>
 
-    <ActionButton type="button" onClick={onNewEvent} aria-label="Добавить новый ивент">
+    <ActionButton type="button" onClick={onNewEvent} aria-label="Добавить новый турнир">
       <EmojiEventsOutlinedIcon />
-      Новый ивент
+      Новый турнир
     </ActionButton>
   </ActionsRoot>
 );

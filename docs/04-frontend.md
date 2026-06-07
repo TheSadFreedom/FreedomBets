@@ -75,7 +75,7 @@ GET /profiles
 GET /matches
 GET /pickems?profileId=:id
 GET /medals?profileId=:id
-GET /events?profileId=:id
+GET /events
 ```
 
 ### Возвращаемый объект (основное)
@@ -86,11 +86,12 @@ GET /events?profileId=:id
 | `bets` | Ставки текущего профиля |
 | `allBets` | Все ставки (все профили) |
 | `matches` | Все матчи |
-| `pickems`, `medals`, `events` | Данные текущего профиля |
+| `pickems`, `medals` | Данные текущего профиля |
+| `events` | Все турниры (глобально) |
 | `addBet`, `updateBet`, `deleteBet` | CRUD ставок |
 | `settleWin`, `settleLose`, `revertToPending` | Смена статуса |
 | `addMatch`, `updateMatch`, `deleteMatch` | Матчи |
-| `addEvent`, `updateEvent` | Ивенты |
+| `addEvent`, `updateEvent` | Турниры |
 | `addPickemMajor`, `uploadPickemStageImage`, … | Pick'em |
 | `uploadMedal`, `deleteMedal` | Медали |
 | `setBalance`, `updateProfileName`, `deleteProfile` | Профиль |
@@ -108,10 +109,10 @@ GET /events?profileId=:id
 Собирает:
 
 1. **HomeTabs** — вкладки с контентом.
-2. **HomeQuickActions** — кнопки admin (новый матч / ивент).
+2. **HomeQuickActions** — кнопки admin (новый матч / турнир).
 3. Модальные окна:
    - `MatchFormDialog` — создание матча;
-   - `EventFormDialog` — создание ивента;
+   - `EventFormDialog` — создание турнира;
    - `BetFormDialog` — создание/редактирование ставки.
 
 Ставка из матча: `handleBetFromMatch` → `matchToBetSeed` → открывает `BetFormDialog` с предзаполнением.
@@ -174,9 +175,9 @@ GET /events?profileId=:id
 
 ## 4.9. Формы и подсказки
 
-`SuggestTextField` — поле с автодополнением из уже существующих названий (команды, ивенты).
+`SuggestTextField` — поле с автодополнением из уже существующих названий (команды, турниры).
 
-`BetFormDialog` — самая большая форма: выбор ивента, команд, рынка, карты, пистолетки, суммы, кэфа. Валидация баланса перед отправкой.
+`BetFormDialog` — самая большая форма: выбор турнира, команд, рынка, карты, пистолетки, суммы, кэфа. Валидация баланса перед отправкой.
 
 `DateInput` / `TimeInput` — парсинг ввода пользователя (`parseDateInput`, `parseTimeInput`).
 

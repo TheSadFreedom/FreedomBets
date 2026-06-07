@@ -11,7 +11,7 @@ function teamsMatch(bet: Bet, match: Match): boolean {
   return (a1 === b1 && a2 === b2) || (a1 === b2 && a2 === b1);
 }
 
-/** Связь по дате, формату, ивенту и парам команд — время может отличаться */
+/** Связь по дате, формату, турниру и парам команд — время может отличаться */
 export function isBetForMatch(bet: Bet, match: Match): boolean {
   return (
     bet.date === match.date &&

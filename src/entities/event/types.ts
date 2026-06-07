@@ -6,7 +6,7 @@ export interface EventIdentity {
   eventOrganization: string;
   eventName: string;
   majorStage?: MajorStage | null;
-  /** Все стадии major-ивента (без фильтра по стадии) */
+  /** Все стадии major-турнира (без фильтра по стадии) */
   allMajorStages?: boolean;
 }
 
@@ -20,9 +20,9 @@ export interface EventEditInput {
 }
 
 export interface EventStats extends EventIdentity {
-  /** Дата начала ивента или последней ставки */
+  /** Дата начала турнира или последней ставки */
   date: string;
-  /** Дата окончания ивента (из сохранённой записи) */
+  /** Дата окончания турнира (из сохранённой записи) */
   endDate: string;
   eventTier: EventTier;
   majorStage: MajorStage | null;

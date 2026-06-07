@@ -38,6 +38,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     revertToPending,
     addMatch,
     updateMatch,
+    settleMatchBets,
     deleteMatch,
     addEvent,
     updateEvent,
@@ -92,8 +93,10 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         allBets={allBets}
         activeProfileId={profile.id}
         bets={bets}
+        balance={profile.balance}
         matches={matches}
         onUpdateMatch={updateMatch}
+        onSettleMatchBets={settleMatchBets}
         onDeleteMatch={deleteMatch}
         onBetMatch={handleBetFromMatch}
         onEdit={(bet) => {

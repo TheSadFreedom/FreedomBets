@@ -67,7 +67,7 @@ const wrapTextSx = {
 
 const columns = {
   date: { label: "Дата", minWidth: 104, align: "left" as CellAlign, wrap: false },
-  event: { label: "Ивент", minWidth: 200, align: "left" as CellAlign, wrap: true },
+  event: { label: "Турнир", minWidth: 200, align: "left" as CellAlign, wrap: true },
   team1: { label: "Команда 1", minWidth: 172, align: "left" as CellAlign, wrap: true },
   team2: { label: "Команда 2", minWidth: 172, align: "left" as CellAlign, wrap: true },
   betType: { label: "Ставка", minWidth: 168, align: "left" as CellAlign, wrap: true },
@@ -232,13 +232,13 @@ const BetsHistory = ({ bets, onEdit, onDelete, onWin, onLose, onRevert }: BetsHi
               sx={{ ...filterControlSx, flex: { xs: "1 1 100%", sm: "1 1 200px" } }}
             >
               <InputLabel id="history-filter-event-label" shrink>
-                Ивент
+                Турнир
               </InputLabel>
               <Select
                 labelId="history-filter-event-label"
                 id="history-filter-event"
                 value={filterEvent}
-                label="Ивент"
+                label="Турнир"
                 displayEmpty
                 onChange={(e) => setFilterEvent(e.target.value)}
                 MenuProps={filterSelectMenuProps}

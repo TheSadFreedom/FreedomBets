@@ -2,7 +2,6 @@ import type { EventTier } from "@/entities/event";
 
 export interface EventRecord {
   id: string;
-  profileId: number;
   eventOrganization: string;
   eventName: string;
   date: string;

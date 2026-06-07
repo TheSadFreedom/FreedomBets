@@ -44,6 +44,85 @@ export const AddButton = styled.button`
   }
 `;
 
+export const MatchSection = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+`;
+
+export const MatchSectionTitle = styled.h3`
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.45);
+`;
+
+export const FutureSectionRoot = styled.details`
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+`;
+
+export const FutureSectionSummary = styled.summary`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  ${FutureSectionRoot}[open] & {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+`;
+
+export const FutureSectionHeading = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.45);
+`;
+
+export const FutureSectionCount = styled.span`
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(165, 214, 167, 0.85);
+`;
+
+export const FutureSectionChevron = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.4);
+  transition: transform 0.2s ease;
+
+  ${FutureSectionRoot}[open] & {
+    transform: rotate(180deg);
+  }
+
+  svg {
+    font-size: 20px;
+  }
+`;
+
+export const FutureSectionBody = styled.div`
+  padding: 10px 12px 12px;
+`;
+
 export const MatchList = styled.div`
   display: flex;
   flex-direction: column;

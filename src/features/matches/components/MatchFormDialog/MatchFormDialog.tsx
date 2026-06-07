@@ -280,10 +280,10 @@ const MatchFormDialog = ({
           </ScoreSection>
 
           <FormControl fullWidth size="small" sx={fieldSx} disabled={eventOptions.length === 0}>
-            <InputLabel>Ивент</InputLabel>
+            <InputLabel>Турнир</InputLabel>
             <Select
               value={selectedEventKey}
-              label="Ивент"
+              label="Турнир"
               onChange={(e) => {
                 const option = eventOptions.find((item) => item.key === e.target.value);
                 if (!option) return;
@@ -339,8 +339,8 @@ const MatchFormDialog = ({
           {eventOptions.length === 0 ? (
             <Typography variant="caption" color="text.secondary" sx={{ mt: -0.5 }}>
               {initial
-                ? "Нет ивентов — сначала добавьте ставку с указанием ивента"
-                : "Нет активных ивентов — завершённые скрыты. Создайте новый ивент или укажите дату окончания."}
+                ? "Нет турниров — сначала добавьте ставку с указанием турнира"
+                : "Нет активных турниров — завершённые скрыты. Создайте новый турнир или укажите дату окончания."}
             </Typography>
           ) : null}
           {isMajorMatch ? (

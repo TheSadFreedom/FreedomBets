@@ -1,6 +1,7 @@
 import type { Bet } from "@/entities/bet";
 import type { EventEditInput, EventIdentity } from "@/entities/event";
 import type { Match, MatchCreateInput } from "@/entities/match";
+import type { MatchSettlementResult } from "@/features/matches/lib/settleBetsForMatch";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
 import type { PickemMajor, PickemStageName } from "@/entities/pickem";
@@ -32,6 +33,7 @@ export interface ProfileBetsState {
   deleteProfile: () => Promise<void>;
   addMatch: (data: MatchCreateInput) => Promise<void>;
   updateMatch: (match: Match, data: MatchCreateInput) => Promise<void>;
+  settleMatchBets: (match: Match) => Promise<MatchSettlementResult>;
   deleteMatch: (match: Match) => Promise<void>;
   updateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
   addEvent: (data: EventEditInput) => Promise<void>;
