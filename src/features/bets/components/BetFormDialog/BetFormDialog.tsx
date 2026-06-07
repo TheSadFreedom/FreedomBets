@@ -525,7 +525,7 @@ const BetFormDialog = ({
               </Section>
 
               <Section>
-                <SectionTitle>Ивент и формат</SectionTitle>
+                <SectionTitle>Турнир и формат</SectionTitle>
                 <FieldsStack>
                   <ChipRow>
                     {MATCH_FORMATS.map((fmt) => (
@@ -546,10 +546,10 @@ const BetFormDialog = ({
                     sx={fieldSx}
                     disabled={eventOptions.length === 0}
                   >
-                    <InputLabel>Ивент</InputLabel>
+                    <InputLabel>Турнир</InputLabel>
                     <Select
                       value={selectedEventKey}
-                      label="Ивент"
+                      label="Турнир"
                       onChange={(e) => {
                         const option = eventOptions.find((item) => item.key === e.target.value);
                         if (!option) return;

@@ -95,7 +95,7 @@ const MajorEventGroupCard = ({
             {showEdit ? (
               <EventEditButton
                 type="button"
-                aria-label="Редактировать ивент"
+                aria-label="Редактировать турнир"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEditGroup();

@@ -37,8 +37,10 @@ interface HomeTabsProps {
   allBets: Bet[];
   activeProfileId: number;
   bets: Bet[];
+  balance: number;
   matches: Match[];
   onUpdateMatch: (match: Match, values: MatchCreateInput) => Promise<void>;
+  onSettleMatchBets: (match: Match) => Promise<{ settled: number; skipped: number }>;
   onDeleteMatch: (match: Match) => Promise<void>;
   onBetMatch: (match: Match, team: BetTeamSide) => void;
   onEdit: (bet: Bet) => void;
@@ -90,7 +92,7 @@ const HOME_TABS = [
     icon: <GroupsOutlinedIcon sx={tabIconSx} />,
   },
   {
-    label: "Ивенты",
+    label: "Турниры",
     id: "events",
     icon: <EventOutlinedIcon sx={tabIconSx} />,
   },
@@ -112,8 +114,10 @@ const HomeTabs = ({
   allBets,
   activeProfileId,
   bets,
+  balance,
   matches,
   onUpdateMatch,
+  onSettleMatchBets,
   onDeleteMatch,
   onBetMatch,
   onEdit,
@@ -174,6 +178,7 @@ const HomeTabs = ({
           events={events}
           matches={matches}
           onUpdateMatch={onUpdateMatch}
+          onSettleMatchBets={onSettleMatchBets}
           onDeleteMatch={onDeleteMatch}
           onBetMatch={onBetMatch}
           onEditBet={onEdit}
@@ -197,7 +202,7 @@ const HomeTabs = ({
         aria-labelledby="home-tab-summary"
         hidden={tab !== 2}
       >
-        <StatsSummary bets={bets} />
+        <StatsSummary bets={bets} balance={balance} />
       </TabsPanel>
 
       <TabsPanel

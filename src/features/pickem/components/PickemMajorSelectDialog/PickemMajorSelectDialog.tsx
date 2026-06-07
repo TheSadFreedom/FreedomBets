@@ -81,7 +81,7 @@ const PickemMajorSelectDialog = ({
         <DialogBody>
           {options.length === 0 ? (
             <p style={{ margin: 0, opacity: 0.6, fontSize: 14 }}>
-              Нет доступных major — создайте ивент с tier Major или добавьте ставку на major.
+              Нет доступных major — создайте турнир с tier Major или добавьте ставку на major.
             </p>
           ) : (
             <FormControl fullWidth size="small">

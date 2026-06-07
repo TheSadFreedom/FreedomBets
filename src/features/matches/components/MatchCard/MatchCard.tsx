@@ -1,4 +1,5 @@
 import { useState, type MouseEvent } from "react";
+import type { MatchSettlementResult } from "@/features/matches/lib/settleBetsForMatch";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -14,6 +15,9 @@ import OrganizationLogo from "@/shared/ui/OrganizationLogo/OrganizationLogo";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
 import {
   BetActionsRow,
+  SettlementNote,
+  SettleBetsButton,
+  SettleBetsRow,
   CardHeader,
   CardHeaderText,
   CardInner,
@@ -58,9 +62,11 @@ interface MatchCardProps {
   /** Меняется по таймеру, чтобы обновлять скоро → завершён */
   statusClock?: number;
   isAdmin?: boolean;
+  pendingSettlements?: number;
   onBet: (team: BetTeamSide) => void;
   onEdit: () => void;
   onDelete: () => void;
+  onSettleBets?: () => Promise<MatchSettlementResult>;
   onEditBet?: (bet: Bet) => void;
 }
 
@@ -71,12 +77,16 @@ const MatchCard = ({
   activeProfileId,
   statusClock,
   isAdmin = false,
+  pendingSettlements = 0,
   onBet,
   onEdit,
   onDelete,
+  onSettleBets,
   onEditBet,
 }: MatchCardProps) => {
   void statusClock;
+  const [settling, setSettling] = useState(false);
+  const [settlementNote, setSettlementNote] = useState<string | null>(null);
   const status = getMatchEffectiveStatus(match);
   const showScore = hasMatchScore(match);
   const team1Leading = showScore && match.score1! > match.score2!;
@@ -86,8 +96,27 @@ const MatchCard = ({
 
   const expandLabel =
     relatedBets.length > 0
-      ? `Ставки · ${relatedBets.length}${hasWait ? " · в игре" : ""}`
+      ? `Ставки · ${relatedBets.length}${hasWait ? " · в игре" : ""}${pendingSettlements > 0 ? ` · ${pendingSettlements} к расчёту` : ""}`
       : "Добавить ставку";
+
+  const handleSettleBets = async (event: MouseEvent) => {
+    event.stopPropagation();
+    if (!onSettleBets || settling) return;
+    setSettling(true);
+    setSettlementNote(null);
+    try {
+      const result = await onSettleBets();
+      if (result.settled === 0) {
+        setSettlementNote("Нет ставок на матч для авто-расчёта (нужен счёт и WAIT).");
+      } else {
+        const skippedPart =
+          result.skipped > 0 ? ` · пропущено ${result.skipped} (карта/пистолет)` : "";
+        setSettlementNote(`Рассчитано ${result.settled} ставок${skippedPart}`);
+      }
+    } finally {
+      setSettling(false);
+    }
+  };
 
   return (
     <CardRoot
@@ -187,6 +216,20 @@ const MatchCard = ({
           activeProfileId={activeProfileId}
           onEdit={onEditBet}
         />
+        {isAdmin && onSettleBets && pendingSettlements > 0 ? (
+          <SettleBetsRow>
+            <SettleBetsButton
+              type="button"
+              disabled={settling}
+              onClick={(event) => void handleSettleBets(event)}
+            >
+              {settling
+                ? "Расчёт…"
+                : `Рассчитать ставки на матч (${pendingSettlements})`}
+            </SettleBetsButton>
+            {settlementNote ? <SettlementNote>{settlementNote}</SettlementNote> : null}
+          </SettleBetsRow>
+        ) : null}
         <BetActionsRow>
           <TeamBetButton
             type="button"

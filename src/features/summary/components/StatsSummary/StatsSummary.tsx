@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import type { Bet } from "@/entities/bet";
 import { calcSummaryStats } from "@/features/bets/lib/calculations";
+import BalanceChart from "@/features/summary/components/BalanceChart/BalanceChart";
+import { buildBalanceHistory } from "@/features/summary/lib/buildBalanceHistory";
 import SummaryGeneralSection from "./SummaryGeneralSection";
 import {
   StatCard,
@@ -15,6 +17,7 @@ import {
 
 interface StatsSummaryProps {
   bets: Bet[];
+  balance: number;
 }
 
 const formatWinRate = (value: number | null, settled: number) => {
@@ -22,12 +25,21 @@ const formatWinRate = (value: number | null, settled: number) => {
   return `${value}%`;
 };
 
-const StatsSummary = ({ bets }: StatsSummaryProps) => {
+const StatsSummary = ({ bets, balance }: StatsSummaryProps) => {
   const stats = useMemo(() => calcSummaryStats(bets), [bets]);
+  const balanceHistory = useMemo(
+    () => buildBalanceHistory(bets, balance),
+    [bets, balance]
+  );
 
   return (
     <StatsRoot>
       <SummaryGeneralSection title="Общее" bets={bets} />
+
+      <StatsSection>
+        <StatsSectionTitle>График баланса</StatsSectionTitle>
+        <BalanceChart points={balanceHistory} />
+      </StatsSection>
 
       <StatsSection>
         <StatsSectionTitle>Винрейт по коэффициенту</StatsSectionTitle>

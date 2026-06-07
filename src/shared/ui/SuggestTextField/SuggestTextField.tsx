@@ -16,7 +16,7 @@ interface SuggestTextFieldProps {
   placeholder?: string;
   sx?: SxProps<Theme>;
   logo?: SuggestLogoKind;
-  /** Имя для логотипа, если оно отличается от текста опции (напр. название ивента → организация) */
+  /** Имя для логотипа, если оно отличается от текста опции (напр. название турнира → организация) */
   getLogoName?: (option: string) => string;
 }
 

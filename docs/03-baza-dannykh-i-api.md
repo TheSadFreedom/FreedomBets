@@ -28,7 +28,7 @@
 | `matches` | **нет** | Матчи общие для всех |
 | `pickems` | `profileId` | Pick'em личный |
 | `medals` | `profileId` | Медали личные |
-| `events` | `profileId` | Метаданные ивента (даты, tier) — на профиль |
+| `events` | **нет** | Метаданные турнира (даты, tier) — общие для всех |
 
 ---
 
@@ -92,7 +92,7 @@ DELETE /profiles/:id
 | `odds` | number | Коэффициент |
 | `eventOrganization` | string | Организатор турнира |
 | `eventName` | string | Название турнира |
-| `eventTier` | `"Major"` \| `"Big"` \| `"Small"` | Уровень ивента |
+| `eventTier` | `"Major"` \| `"Big"` \| `"Small"` | Уровень турнира |
 | `majorStage` | string \| null | Стадия Major или `null` |
 | `status` | `"WAIT"` \| `"WIN"` \| `"LOSE"` | Статус |
 
@@ -161,7 +161,7 @@ DELETE /bets/:id
 | `date`, `time` | string | Когда игра |
 | `format` | MatchFormat | BO1/BO3/BO5 |
 | `organization1`, `organization2` | string | Команды |
-| `eventOrganization`, `eventName` | string | Ивент |
+| `eventOrganization`, `eventName` | string | Турнир |
 | `majorStage` | string \| null | Стадия Major |
 | `score1`, `score2` | number \| null | Счёт по картам; `null` — не указан |
 | `status` | `"scheduled"` \| `"finished"` | Статус |
@@ -197,15 +197,14 @@ DELETE /matches/:id
 
 ---
 
-## 3.5. EventRecord (метаданные ивента)
+## 3.5. EventRecord (метаданные турнира)
 
-Хранит даты и tier для ивента **в контексте профиля** (кто создал/редактировал).
+Хранит даты и tier для турнира — **глобально**, без привязки к профилю.
 
 | Поле | Тип | Описание |
 |------|-----|----------|
 | `id` | string | ID |
-| `profileId` | number | Профиль-владелец записи |
-| `eventOrganization`, `eventName` | string | Ключ ивента |
+| `eventOrganization`, `eventName` | string | Ключ турнира |
 | `date` | string | Дата начала |
 | `endDate` | string | Дата окончания |
 | `eventTier` | EventTier | Major / Big / Small |
@@ -213,7 +212,7 @@ DELETE /matches/:id
 ### API
 
 ```
-GET    /events?profileId=1
+GET    /events
 POST   /events
 PATCH  /events/:id
 DELETE /events/:id

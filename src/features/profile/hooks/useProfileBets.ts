@@ -11,10 +11,17 @@ import {
 import type { ProfileMedal } from "@/entities/medal";
 import type { Profile } from "@/entities/profile";
 import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
+import { dedupeEventRecords } from "@/features/events/lib/dedupeEventRecords";
 import { findBetsForEvent, findMatchesForEvent } from "@/features/events/lib/findBetsForEvent";
 import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
 import { calcWinRate } from "@/features/bets/lib/calculations";
 import { normalizeMatch } from "@/features/matches/lib/normalizeMatch";
+import {
+  getMatchSeriesWinner,
+  planMatchBetSettlements,
+  countSkippedWaitBets,
+  type MatchSettlementResult,
+} from "@/features/matches/lib/settleBetsForMatch";
 import { httpClient } from "@/shared/api/httpClient";
 import {
   clearActiveProfileId,
@@ -84,7 +91,7 @@ export function useProfileBets() {
           httpClient.get<Match[]>("/matches"),
           httpClient.get<PickemMajor[]>(`/pickems?profileId=${activeProfileId}`),
           httpClient.get<ProfileMedal[]>(`/medals?profileId=${activeProfileId}`),
-          httpClient.get<EventRecord[]>(`/events?profileId=${activeProfileId}`),
+          httpClient.get<EventRecord[]>("/events"),
         ]);
       setProfile(normalizeProfile(profileRes.data));
       setBets((betsRes.data || []).map(normalizeBet));
@@ -108,7 +115,9 @@ export function useProfileBets() {
           .map(normalizeMedal)
           .filter((medal) => medal.profileId === activeProfileId),
       );
-      setEvents((eventsRes.data || []).map(normalizeEventRecord));
+      setEvents(
+        dedupeEventRecords((eventsRes.data || []).map(normalizeEventRecord))
+      );
     } catch (err) {
       console.error(err);
       if (activeProfileId != null) {
@@ -299,7 +308,6 @@ export function useProfileBets() {
         httpClient.delete(`/pickems/${pickem.id}`),
       ]),
       ...medals.map((medal) => httpClient.delete(`/medals/${medal.id}`)),
-      ...events.map((event) => httpClient.delete(`/events/${event.id}`)),
     ]);
     await httpClient.delete(`/profiles/${profile.id}`);
     clearActiveProfileId();
@@ -324,22 +332,23 @@ export function useProfileBets() {
   };
 
   const addEvent = async (data: EventEditInput) => {
-    if (!profile) return;
+    const organization = data.eventOrganization.trim();
+    const name = data.eventName.trim();
+    const existing = findStoredEvent({ eventOrganization: organization, eventName: name }, events);
+    if (existing) return;
+
     const res = await httpClient.post<EventRecord>("/events", {
-      profileId: profile.id,
-      eventOrganization: data.eventOrganization.trim(),
-      eventName: data.eventName.trim(),
+      eventOrganization: organization,
+      eventName: name,
       date: data.date.trim() || todayIsoDateLocal(),
       endDate: data.endDate.trim(),
       eventTier: data.eventTier,
     });
     const created = normalizeEventRecord(res.data);
-    setEvents((prev) => [...prev, created]);
+    setEvents((prev) => dedupeEventRecords([...prev, created]));
   };
 
   const updateEvent = async (identity: EventIdentity, data: EventEditInput) => {
-    if (!profile) return;
-
     const nextOrganization = data.eventOrganization.trim();
     const nextName = data.eventName.trim();
     const updateEventDates = !identity.majorStage || identity.allMajorStages;
@@ -350,7 +359,6 @@ export function useProfileBets() {
 
     if (record) {
       const res = await httpClient.patch<EventRecord>(`/events/${record.id}`, {
-        ...record,
         eventOrganization: nextOrganization,
         eventName: nextName,
         date: updateEventDates ? nextDate : record.date,
@@ -361,7 +369,6 @@ export function useProfileBets() {
       setEvents((prev) => prev.map((item) => (item.id === saved.id ? saved : item)));
     } else if (updateEventDates) {
       const res = await httpClient.post<EventRecord>("/events", {
-        profileId: profile.id,
         eventOrganization: nextOrganization,
         eventName: nextName,
         date: nextDate,
@@ -369,10 +376,10 @@ export function useProfileBets() {
         eventTier: data.eventTier,
       });
       const created = normalizeEventRecord(res.data);
-      setEvents((prev) => [...prev, created]);
+      setEvents((prev) => dedupeEventRecords([...prev, created]));
     }
 
-    const matchingBets = findBetsForEvent(identity, bets);
+    const matchingBets = findBetsForEvent(identity, allBets);
     const matchingMatches = findMatchesForEvent(identity, matches);
 
     const savedBets = await Promise.all(
@@ -403,9 +410,13 @@ export function useProfileBets() {
 
     if (savedBets.length > 0) {
       const savedById = new Map(savedBets.map((bet) => [bet.id, bet]));
-      const nextBets = bets.map((bet) => savedById.get(bet.id) ?? bet);
-      setBets(nextBets);
-      await syncProfile(profile, nextBets, 0);
+      const nextAllBets = allBets.map((bet) => savedById.get(bet.id) ?? bet);
+      setAllBets(nextAllBets);
+      if (profile) {
+        const nextBets = nextAllBets.filter((bet) => bet.profileId === profile.id);
+        setBets(nextBets);
+        await syncProfile(profile, nextBets, 0);
+      }
     }
 
     if (savedMatches.length > 0) {
@@ -464,16 +475,74 @@ export function useProfileBets() {
     setMedals((prev) => prev.filter((item) => item.id !== medal.id));
   };
 
+  const settleMatchBets = async (match: Match): Promise<MatchSettlementResult> => {
+    const plan = planMatchBetSettlements(match, allBets);
+    const skipped = countSkippedWaitBets(match, allBets);
+    if (plan.length === 0) {
+      return { settled: 0, skipped };
+    }
+
+    const savedBets = await Promise.all(
+      plan.map(async ({ bet, nextStatus }) => {
+        const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { ...bet, status: nextStatus });
+        return normalizeBet(res.data);
+      })
+    );
+
+    const savedById = new Map(savedBets.map((item) => [item.id, item]));
+    const nextAllBets = allBets.map((item) => savedById.get(item.id) ?? item);
+    setAllBets(nextAllBets);
+
+    const profileDeltas = new Map<number, number>();
+    for (const { bet, nextStatus } of plan) {
+      const delta = nextStatus === "WIN" ? bet.amount * bet.odds : 0;
+      profileDeltas.set(bet.profileId, (profileDeltas.get(bet.profileId) ?? 0) + delta);
+    }
+
+    const updatedProfiles = new Map<number, Profile>();
+    for (const [profileId, delta] of profileDeltas) {
+      const current = profiles.find((item) => item.id === profileId);
+      if (!current) continue;
+      const profileBets = nextAllBets.filter((item) => item.profileId === profileId);
+      const res = await httpClient.patch<Profile>(`/profiles/${profileId}`, {
+        balance: current.balance + delta,
+        totalBets: profileBets.length,
+        winRate: calcWinRate(profileBets),
+      });
+      updatedProfiles.set(profileId, normalizeProfile(res.data));
+    }
+
+    if (updatedProfiles.size > 0) {
+      setProfiles((prev) =>
+        prev.map((item) => updatedProfiles.get(item.id) ?? item)
+      );
+      if (profile && updatedProfiles.has(profile.id)) {
+        setProfile(updatedProfiles.get(profile.id)!);
+        setBets(nextAllBets.filter((item) => item.profileId === profile.id));
+      }
+    }
+
+    return { settled: plan.length, skipped };
+  };
+
   const updateMatch = async (match: Match, data: MatchCreateInput) => {
+    const hasWinner = getMatchSeriesWinner({
+      score1: data.score1 ?? null,
+      score2: data.score2 ?? null,
+    });
     const payload: MatchFormValues = {
       ...data,
       score1: data.score1 ?? null,
       score2: data.score2 ?? null,
-      status: match.status,
+      status: hasWinner ? "finished" : match.status,
     };
     const res = await httpClient.patch<Match>(`/matches/${match.id}`, payload);
     const saved = normalizeMatch(res.data);
     setMatches((prev) => prev.map((m) => (m.id === saved.id ? saved : m)));
+
+    if (hasWinner) {
+      await settleMatchBets(saved);
+    }
   };
 
   return {
@@ -502,6 +571,7 @@ export function useProfileBets() {
     deleteProfile,
     addMatch,
     updateMatch,
+    settleMatchBets,
     deleteMatch,
     addEvent,
     updateEvent,

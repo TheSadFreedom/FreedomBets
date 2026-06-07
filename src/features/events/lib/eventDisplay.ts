@@ -56,7 +56,7 @@ export interface EventSelectOption {
 
 export interface GetEventSelectOptionsParams {
   excludeFinished?: boolean;
-  /** Одна строка на major-ивент; стадия выбирается отдельно */
+  /** Одна строка на major-турнир; стадия выбирается отдельно */
   collapseMajorStages?: boolean;
 }
 

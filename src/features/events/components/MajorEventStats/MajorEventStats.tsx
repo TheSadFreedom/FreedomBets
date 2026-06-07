@@ -46,8 +46,8 @@ const MajorEventStats = ({
   isAdmin = false,
   bets,
   events = [],
-  emptyMessage = "Нет major ивентов — назначьте статус Major при создании или редактировании ивента",
-  notFoundMessage = "Нет major ивентов по выбранным фильтрам",
+  emptyMessage = "Нет major турниров — назначьте статус Major при создании или редактировании турнира",
+  notFoundMessage = "Нет major турниров по выбранным фильтрам",
   onUpdateEvent,
 }: MajorEventStatsProps) => {
   const [editingEvent, setEditingEvent] = useState<EventStatsItem | null>(null);

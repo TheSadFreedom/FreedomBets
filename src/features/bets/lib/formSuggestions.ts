@@ -24,7 +24,7 @@ export function getEventNameSuggestions(bets: Bet[], eventOrganization: string):
   return forOrg.length > 0 ? forOrg : uniqueSorted(bets.map((b) => b.eventName));
 }
 
-/** Организация турнира для каждого названия ивента (для логотипа в подсказках) */
+/** Организация турнира для каждого названия турнира (для логотипа в подсказках) */
 export function getEventNameOrganizationMap(bets: Bet[]): Map<string, string> {
   const map = new Map<string, string>();
   for (const bet of bets) {

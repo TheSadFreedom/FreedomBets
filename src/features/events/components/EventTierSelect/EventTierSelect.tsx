@@ -8,7 +8,7 @@ interface EventTierSelectProps {
   label?: string;
 }
 
-const EventTierSelect = ({ value, onChange, label = "Статус ивента" }: EventTierSelectProps) => (
+const EventTierSelect = ({ value, onChange, label = "Статус турнира" }: EventTierSelectProps) => (
   <div>
     <TierLabel>{label}</TierLabel>
     <TierChipRow>

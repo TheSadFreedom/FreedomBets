@@ -45,9 +45,9 @@ interface EventStatsProps {
   events?: EventRecord[];
   emptyMessage?: string;
   notFoundMessage?: string;
-  /** Сводная статистика над списком ивентов */
+  /** Сводная статистика над списком турниров */
   summarySections?: EventStatsSummarySection[];
-  /** Показывать фильтр по статусу ивента */
+  /** Показывать фильтр по статусу турнира */
   showTierFilter?: boolean;
   /** Какие статусы доступны в фильтре (по умолчанию — все) */
   tierFilterOptions?: readonly EventTier[];
@@ -72,7 +72,7 @@ const EventStats = ({
   isAdmin = false,
   bets,
   events = [],
-  emptyMessage = "Нет ивентов — нажмите «Новый ивент» в шапке",
+  emptyMessage = "Нет турниров — нажмите «Новый турнир» в шапке",
   notFoundMessage = "Ничего не найдено",
   summarySections,
   showTierFilter = true,
@@ -167,7 +167,7 @@ const EventStats = ({
       <TextField
         size="small"
         fullWidth
-        placeholder="Поиск названия ивента..."
+        placeholder="Поиск названия турнира..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         slotProps={{
