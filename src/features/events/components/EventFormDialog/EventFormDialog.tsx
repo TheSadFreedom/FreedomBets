@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Dialog, IconButton } from "@mui/material";
+import { Dialog, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { Bet } from "@/entities/bet";
 import type { EventEditInput, EventStats } from "@/entities/event";
@@ -20,9 +20,9 @@ import {
   DialogTitle,
   FooterButton,
   dialogBackdropSx,
-  dialogPaperSx,
   fieldSx,
 } from "@/features/matches/components/MatchFormDialog/MatchFormDialog.styled";
+import { resolveDialogPaperSx } from "@/shared/styles/dialogSx";
 
 const eventToFormInput = (event: EventStats): EventEditInput => ({
   eventOrganization: event.eventOrganization,
@@ -53,6 +53,8 @@ const EventFormDialog = ({
   onClose,
   onSubmit,
 }: EventFormDialogProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [form, setForm] = useState<EventEditInput>(() =>
     initial
       ? eventToFormInput(initial)
@@ -136,10 +138,11 @@ const EventFormDialog = ({
       open={open}
       onClose={onClose}
       fullWidth
+      fullScreen={isMobile}
       maxWidth="sm"
       slotProps={{
         backdrop: { sx: dialogBackdropSx },
-        paper: { sx: dialogPaperSx },
+        paper: { sx: resolveDialogPaperSx(isMobile) },
       }}
     >
       <DialogShell>

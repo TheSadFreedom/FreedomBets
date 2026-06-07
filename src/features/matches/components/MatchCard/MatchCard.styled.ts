@@ -85,6 +85,11 @@ export const CardInner = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 11px 12px 6px;
+
+  ${media.down("xs")} {
+    padding: 10px 10px 4px;
+    gap: 8px;
+  }
 `;
 
 export const ExpandRow = styled.div`
@@ -135,6 +140,10 @@ export const BetActionsRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+
+  ${media.down("xs")} {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const SettleBetsRow = styled.div`
@@ -300,6 +309,12 @@ export const CardIconButton = styled.button<{ $danger?: boolean }>`
   ${CardRoot}:hover &,
   ${CardRoot}:focus-within & {
     opacity: 1;
+  }
+
+  @media (hover: none), ${media.down("sm")} {
+    opacity: 1;
+    width: 32px;
+    height: 32px;
   }
 
   &:hover {

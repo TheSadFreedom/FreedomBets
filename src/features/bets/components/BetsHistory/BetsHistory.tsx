@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useIsMobile } from "@/shared/hooks/useIsMobile";
+import BetsHistoryMobileList from "./BetsHistoryMobileList";
 import {
   Table,
   TableBody,
@@ -135,6 +137,7 @@ const formatPayout = (bet: Bet) => {
 };
 
 const BetsHistory = ({ bets, onEdit, onDelete, onWin, onLose, onRevert }: BetsHistoryProps) => {
+  const isMobile = useIsMobile();
   const [filterStatus, setFilterStatus] = useState<StatusFilter>("все");
   const [filterEvent, setFilterEvent] = useState("");
   const [filterOrganization, setFilterOrganization] = useState("");
@@ -356,6 +359,15 @@ const BetsHistory = ({ bets, onEdit, onDelete, onWin, onLose, onRevert }: BetsHi
               ? "Ставок пока нет — добавьте первую"
               : "Нет ставок по выбранным фильтрам"}
           </EmptyState>
+        ) : isMobile ? (
+          <BetsHistoryMobileList
+            bets={filteredBets}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onWin={onWin}
+            onLose={onLose}
+            onRevert={onRevert}
+          />
         ) : (
           <TableScroll>
             <Table

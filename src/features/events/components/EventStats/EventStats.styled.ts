@@ -90,14 +90,27 @@ export const EventAccordion = styled(Accordion)`
     align-items: flex-start;
     min-height: 56px;
     padding: 4px 8px 4px 16px;
+
+    ${media.down("sm")} {
+      min-height: 52px;
+      padding: 4px 6px 4px 10px;
+    }
   }
 
   .MuiAccordionSummary-content {
     margin: 14px 0 !important;
+
+    ${media.down("sm")} {
+      margin: 10px 0 !important;
+    }
   }
 
   .MuiAccordionDetails-root {
     padding: 0 14px 14px;
+
+    ${media.down("sm")} {
+      padding: 0 10px 12px;
+    }
   }
 `;
 

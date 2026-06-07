@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { media } from "@/shared/styles/breakpoints";
 
 export const TabsRoot = styled.div`
@@ -12,11 +12,19 @@ export const TabsRoot = styled.div`
   }
 `;
 
-export const TabLabel = styled.span`
+export const TabLabel = styled.span<{ $compact?: boolean }>`
   display: inline-flex;
   align-items: center;
   line-height: 1;
   min-height: 18px;
+
+  ${({ $compact }) =>
+    $compact &&
+    css`
+      ${media.down("xs")} {
+        display: none;
+      }
+    `}
 `;
 
 export const TabsBar = styled.div`
@@ -168,18 +176,34 @@ export const TabsBar = styled.div`
     padding: 5px;
 
     .MuiTabs-flexContainer {
-      grid-auto-rows: 38px;
+      grid-auto-rows: 44px;
+      gap: 6px;
     }
 
     .MuiTab-root {
-      height: 38px !important;
-      min-height: 38px !important;
-      max-height: 38px !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
       font-size: 11px;
       border-radius: 10px;
+      padding: 0 4px !important;
+      flex-direction: column !important;
+      gap: 3px;
 
       &.MuiTab-labelIcon {
-        min-height: 38px !important;
+        min-height: 44px !important;
+        flex-direction: column !important;
+      }
+
+      .MuiTab-iconWrapper {
+        width: 20px;
+        height: 20px;
+        margin-bottom: 0 !important;
+
+        svg {
+          width: 20px;
+          height: 20px;
+        }
       }
     }
   }

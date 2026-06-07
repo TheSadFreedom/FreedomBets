@@ -1,4 +1,4 @@
-import { IconButton, Stack, Tooltip } from "@mui/material";
+import { IconButton, Stack, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -15,10 +15,23 @@ interface ActionButtonsProps {
   onRevert: (id: string) => void;
 }
 
-const iconSx = { p: 0.5 };
+const ActionButtons = ({ bet, onEdit, onDelete, onWin, onLose, onRevert }: ActionButtonsProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const iconSx = {
+    p: isMobile ? 0.75 : 0.5,
+    minWidth: isMobile ? 40 : undefined,
+    minHeight: isMobile ? 40 : undefined,
+  };
 
-const ActionButtons = ({ bet, onEdit, onDelete, onWin, onLose, onRevert }: ActionButtonsProps) => (
-  <Stack direction="row" alignItems="center" sx={{ ml: -0.5 }}>
+  return (
+  <Stack
+    direction="row"
+    alignItems="center"
+    flexWrap="wrap"
+    justifyContent={isMobile ? "flex-end" : "flex-start"}
+    sx={{ ml: isMobile ? 0 : -0.5, gap: isMobile ? 0.25 : 0 }}
+  >
     {bet.status === "WAIT" && (
       <>
         <Tooltip title="WIN" arrow>
@@ -81,6 +94,7 @@ const ActionButtons = ({ bet, onEdit, onDelete, onWin, onLose, onRevert }: Actio
       </IconButton>
     </Tooltip>
   </Stack>
-);
+  );
+};
 
 export default ActionButtons;

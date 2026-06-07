@@ -33,6 +33,9 @@ export const fieldSx = {
 export const DialogShell = styled.div`
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  max-height: inherit;
 `;
 
 export const DialogHeader = styled.div`

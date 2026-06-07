@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dialog, IconButton, TextField } from "@mui/material";
+import { Dialog, IconButton, TextField, useMediaQuery, useTheme } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -25,9 +25,9 @@ import {
   Section,
   SectionTitle,
   dialogBackdropSx,
-  dialogPaperSx,
   fieldSx,
 } from "./ProfileSettingsDialog.styled";
+import { resolveDialogPaperSx } from "@/shared/styles/dialogSx";
 
 interface ProfileSettingsDialogProps {
   open: boolean;
@@ -48,6 +48,8 @@ const ProfileSettingsDialog = ({
   onDeleteProfile,
   onExitProfile,
 }: ProfileSettingsDialogProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [nameInput, setNameInput] = useState(profile.name);
   const [savingName, setSavingName] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -100,8 +102,9 @@ const ProfileSettingsDialog = ({
         onClose={onClose}
         maxWidth="xs"
         fullWidth
+        fullScreen={isMobile}
         slotProps={{
-          paper: { sx: dialogPaperSx },
+          paper: { sx: resolveDialogPaperSx(isMobile) },
           backdrop: { sx: dialogBackdropSx },
         }}
       >

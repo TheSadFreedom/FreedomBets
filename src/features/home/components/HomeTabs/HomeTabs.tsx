@@ -154,8 +154,9 @@ const HomeTabs = ({
               key={item.id}
               icon={item.icon}
               iconPosition="start"
-              label={<TabLabel>{item.label}</TabLabel>}
+              label={<TabLabel $compact>{item.label}</TabLabel>}
               id={`home-tab-${item.id}`}
+              aria-label={item.label}
               aria-controls={`home-tabpanel-${item.id}`}
               disableRipple
             />

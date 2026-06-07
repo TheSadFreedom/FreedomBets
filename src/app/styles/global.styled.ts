@@ -30,6 +30,11 @@ export const GlobalStyles = createGlobalStyle({
   html: {
     WebkitTextSizeAdjust: "100%",
   },
+  "input, select, textarea, .MuiInputBase-input": {
+    [media.down("sm")]: {
+      fontSize: "16px",
+    },
+  },
   body: {
     fontFamily: "Play, sans-serif",
     margin: 0,
@@ -38,6 +43,7 @@ export const GlobalStyles = createGlobalStyle({
     color: "white",
     lineHeight: 1.6,
     overflowX: "hidden",
+    WebkitTapHighlightColor: "transparent",
   },
   "#root": {
     minHeight: "100dvh",

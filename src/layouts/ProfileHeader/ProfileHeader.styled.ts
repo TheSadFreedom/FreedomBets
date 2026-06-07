@@ -14,7 +14,9 @@ export const ProfileHeaderRoot = styled.div`
   }
 
   ${media.down("xs")} {
-    gap: 6px 10px;
+    gap: 6px 8px;
+    justify-content: center;
+    width: 100%;
   }
 `;
 
@@ -94,6 +96,19 @@ export const ProfileDivider = styled.span`
 
   ${media.down("xs")} {
     display: none;
+  }
+`;
+
+export const ProfileStatsRow = styled.div`
+  display: contents;
+
+  ${media.down("xs")} {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    flex-basis: 100%;
   }
 `;
 

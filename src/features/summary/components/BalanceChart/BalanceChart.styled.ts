@@ -1,8 +1,13 @@
 import styled from "styled-components";
+import { media } from "@/shared/styles/breakpoints";
 
 export const ChartCard = styled.div`
   padding: 14px 14px 10px;
   border-radius: 12px;
+
+  ${media.down("sm")} {
+    padding: 12px 10px 8px;
+  }
   background: rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.07);
 `;
@@ -34,6 +39,10 @@ export const ChartCurrent = styled.div<{ $positive: boolean }>`
 export const ChartSvgWrap = styled.div`
   width: 100%;
   height: 200px;
+
+  ${media.down("sm")} {
+    height: 160px;
+  }
 
   svg {
     display: block;

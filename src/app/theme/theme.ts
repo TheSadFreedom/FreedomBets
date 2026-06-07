@@ -1,6 +1,15 @@
 import { createTheme } from "@mui/material/styles";
 
 export const appTheme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 640,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
   palette: {
     mode: "dark",
     primary: { main: "#4caf50" },

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useIsMobile } from "@/shared/hooks/useIsMobile";
 import {
   Chip,
   FormControl,
@@ -22,6 +23,10 @@ import {
   CellContent,
   EmptyState,
   FiltersRow,
+  MobileTeamCard,
+  MobileTeamCount,
+  MobileTeamLeft,
+  MobileTeamList,
   TabRoot,
   TableScroll,
   TeamCell,
@@ -52,6 +57,7 @@ const headCellSx = {
 } as const;
 
 const TeamsTab = ({ allBets }: TeamsTabProps) => {
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortField>("totalBets");
   const [sortDir, setSortDir] = useState<SortDirection>("desc");
@@ -152,6 +158,18 @@ const TeamsTab = ({ allBets }: TeamsTabProps) => {
 
         {displayed.length === 0 ? (
           <EmptyState>Ничего не найдено</EmptyState>
+        ) : isMobile ? (
+          <MobileTeamList>
+            {displayed.map((item) => (
+              <MobileTeamCard key={item.name}>
+                <MobileTeamLeft>
+                  <TeamLogo name={item.name} size={36} />
+                  <TeamName>{item.name}</TeamName>
+                </MobileTeamLeft>
+                <MobileTeamCount>{item.totalBets}</MobileTeamCount>
+              </MobileTeamCard>
+            ))}
+          </MobileTeamList>
         ) : (
           <TableScroll>
             <Table

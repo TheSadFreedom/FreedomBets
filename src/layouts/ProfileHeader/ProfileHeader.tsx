@@ -9,6 +9,7 @@ import {
   ProfileHeaderRoot,
   ProfileItem,
   ProfileNameButton,
+  ProfileStatsRow,
   ProfileWinRate,
 } from "./ProfileHeader.styled";
 
@@ -41,23 +42,25 @@ const ProfileHeader = ({
           </ProfileNameButton>
         </ProfileItem>
 
-        <ProfileDivider />
+        <ProfileStatsRow>
+          <ProfileDivider />
 
-        <ProfileItem>
-          <ProfileBalance $positive={profile.balance >= 0}>
-            {profile.balance.toLocaleString("ru-RU", {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-            })}{" "}
-            ₽
-          </ProfileBalance>
-        </ProfileItem>
+          <ProfileItem>
+            <ProfileBalance $positive={profile.balance >= 0}>
+              {profile.balance.toLocaleString("ru-RU", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
+              })}{" "}
+              ₽
+            </ProfileBalance>
+          </ProfileItem>
 
-        <ProfileDivider />
+          <ProfileDivider />
 
-        <ProfileItem>
-          <ProfileWinRate>{winRate}%</ProfileWinRate>
-        </ProfileItem>
+          <ProfileItem>
+            <ProfileWinRate>{winRate}%</ProfileWinRate>
+          </ProfileItem>
+        </ProfileStatsRow>
       </ProfileHeaderRoot>
 
       <ProfileSettingsDialog

@@ -1,21 +1,10 @@
 import styled from "styled-components";
+import { media } from "@/shared/styles/breakpoints";
 
-export const dialogPaperSx = {
-  p: 0,
-  m: 2,
-  borderRadius: "18px",
-  background:
-    "linear-gradient(160deg, rgba(44, 52, 44, 0.98) 0%, rgba(28, 30, 28, 0.99) 42%, rgba(22, 22, 22, 1) 100%)",
-  border: "1px solid rgba(76, 175, 80, 0.22)",
-  boxShadow: "0 24px 64px rgba(0, 0, 0, 0.55)",
-  overflow: "hidden",
-  maxHeight: "92dvh",
-} as const;
-
-export const dialogBackdropSx = {
-  backdropFilter: "blur(6px)",
-  backgroundColor: "rgba(0, 0, 0, 0.65)",
-} as const;
+export {
+  dialogBackdropSx,
+  dialogPaperSx,
+} from "@/shared/styles/dialogSx";
 
 export const fieldSx = {
   "& .MuiOutlinedInput-root": {
@@ -28,6 +17,8 @@ export const DialogShell = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
+  max-height: inherit;
 `;
 
 export const DialogHeader = styled.div`
@@ -36,6 +27,11 @@ export const DialogHeader = styled.div`
   justify-content: space-between;
   padding: 18px 20px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+
+  ${media.down("sm")} {
+    padding: 14px 12px 10px;
+  }
 `;
 
 export const DialogTitle = styled.h2`
@@ -50,14 +46,32 @@ export const DialogBody = styled.div`
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+
+  ${media.down("sm")} {
+    padding: 14px 12px;
+    gap: 12px;
+  }
 `;
 
 export const DialogFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  padding: 12px 20px 18px;
+  padding: 12px 20px max(18px, env(safe-area-inset-bottom));
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+
+  ${media.down("sm")} {
+    flex-direction: column-reverse;
+    padding: 12px 12px max(14px, env(safe-area-inset-bottom));
+
+    button {
+      width: 100%;
+    }
+  }
 `;
 
 export const FooterButton = styled.button<{ $primary?: boolean }>`
@@ -97,18 +111,27 @@ export const ScoreLabel = styled.span`
   color: rgba(255, 255, 255, 0.55);
 `;
 
-export const ScoreRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 10px;
-  align-items: end;
-`;
-
 export const ScoreSeparator = styled.span`
   padding-bottom: 10px;
   font-size: 14px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.35);
+`;
+
+export const ScoreRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: end;
+
+  ${media.down("xs")} {
+    grid-template-columns: 1fr;
+    gap: 8px;
+
+    ${ScoreSeparator} {
+      display: none;
+    }
+  }
 `;
 
 export const FormatChip = styled.button<{ $active?: boolean }>`

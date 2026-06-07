@@ -243,3 +243,89 @@ export const filterSelectMenuProps = {
     sx: { maxWidth: 400, mt: 0.5 },
   },
 } as const;
+
+export const MobileBetCard = styled.article`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+`;
+
+export const MobileBetHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
+export const MobileBetMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+`;
+
+export const MobileBetMain = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+`;
+
+export const MobileBetRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+`;
+
+export const MobileBetTeams = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+`;
+
+export const MobileBetFooter = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+`;
+
+export const MobileBetValues = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+`;
+
+export const MobileBetValue = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  span {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.38);
+  }
+
+  strong {
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.9);
+  }
+`;
+
+export const MobileBetActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
