@@ -1,0 +1,109 @@
+import { useRef, useState } from "react";
+import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
+import CloseIcon from "@mui/icons-material/Close";
+import type { ProfileMedal } from "@/entities/medal";
+import PickemImageLightbox from "@/features/pickem/components/PickemImageLightbox/PickemImageLightbox";
+import {
+  DeleteMedalButton,
+  MedalImageButton,
+  MedalsBlock,
+  MedalsGrid,
+  MedalsHeader,
+  MedalsHint,
+  MedalsTitle,
+  UploadMedalButton,
+  UserMedalTile,
+} from "./PickemMedalsBlock.styled";
+
+interface PickemMedalsBlockProps {
+  medals: ProfileMedal[];
+  onUpload: (imageData: string) => Promise<void>;
+  onDelete: (medal: ProfileMedal) => Promise<void>;
+}
+
+const readImageFile = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
+const PickemMedalsBlock = ({ medals, onUpload, onDelete }: PickemMedalsBlockProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
+
+  const handleUpload = async (fileList: FileList | null) => {
+    const file = fileList?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+
+    setUploading(true);
+    try {
+      const imageData = await readImageFile(file);
+      await onUpload(imageData);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <MedalsBlock>
+      <MedalsHeader>
+        <MedalsTitle>Медали</MedalsTitle>
+        <UploadMedalButton
+          type="button"
+          disabled={uploading}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <UploadFileOutlinedIcon sx={{ fontSize: 16 }} />
+          {uploading ? "Загрузка…" : "Загрузить медаль"}
+        </UploadMedalButton>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => void handleUpload(e.target.files)}
+        />
+      </MedalsHeader>
+
+      {medals.length === 0 ? (
+        <MedalsHint>Загрузите медаль — она будет видна только в этом профиле.</MedalsHint>
+      ) : null}
+
+      <MedalsGrid>
+        {medals.map((medal) => (
+          <UserMedalTile key={medal.id}>
+            <DeleteMedalButton
+              type="button"
+              aria-label="Удалить медаль"
+              onClick={() => void onDelete(medal)}
+            >
+              <CloseIcon sx={{ fontSize: 14 }} />
+            </DeleteMedalButton>
+            <MedalImageButton
+              type="button"
+              aria-label="Развернуть медаль"
+              onClick={() =>
+                setExpandedImage({ src: medal.imageData, alt: "Загруженная медаль" })
+              }
+            >
+              <img src={medal.imageData} alt="" />
+            </MedalImageButton>
+          </UserMedalTile>
+        ))}
+      </MedalsGrid>
+
+      <PickemImageLightbox
+        open={Boolean(expandedImage)}
+        src={expandedImage?.src ?? ""}
+        alt={expandedImage?.alt ?? ""}
+        onClose={() => setExpandedImage(null)}
+      />
+    </MedalsBlock>
+  );
+};
+
+export default PickemMedalsBlock;
