@@ -5,11 +5,17 @@ import type { Bet } from "@/entities/bet";
 import type { EventEditInput, EventStats } from "@/entities/event";
 import {
   getBetFormSuggestions,
-  getEventNameOrganizationMap,
   getEventNameSuggestions,
+  getEventTeamSuggestions,
 } from "@/features/bets/lib/formSuggestions";
+import EventLogoPicker from "@/features/events/components/EventLogoPicker/EventLogoPicker";
+import EventStagesEditor from "@/features/events/components/EventStagesEditor/EventStagesEditor";
 import EventTierSelect from "@/features/events/components/EventTierSelect/EventTierSelect";
+import TeamLogoPicker from "@/features/events/components/TeamLogoPicker/TeamLogoPicker";
+import { defaultStagesForTier } from "@/features/events/lib/eventStages";
 import { inferEventTier } from "@/features/events/lib/eventTier";
+import { useTeamLogosManifest } from "@/shared/hooks/useTeamLogosManifest";
+import { teamLogoSlug } from "@/shared/lib/logos/teamLogo";
 import DateInput, { type DateInputHandle } from "@/shared/ui/DateInput/DateInput";
 import SuggestTextField from "@/shared/ui/SuggestTextField/SuggestTextField";
 import {
@@ -27,11 +33,23 @@ import { resolveDialogPaperSx } from "@/shared/styles/dialogSx";
 const eventToFormInput = (event: EventStats): EventEditInput => ({
   eventOrganization: event.eventOrganization,
   eventName: event.eventName,
+  logoSlug: event.logoSlug,
   date: event.date,
   endDate: event.endDate ?? "",
   eventTier: event.eventTier,
   majorStage: event.majorStage,
+  stages: event.stages ?? [],
+  winnerOrganization: event.winnerOrganization,
+  winnerLogoSlug: event.winnerLogoSlug,
 });
+
+const resolveWinnerLogoSlug = (
+  teamName: string,
+  logos: { id: string }[]
+): string | null => {
+  const slug = teamLogoSlug(teamName);
+  return logos.some((logo) => logo.id === slug) ? slug : null;
+};
 
 interface EventFormDialogProps {
   open: boolean;
@@ -54,32 +72,34 @@ const EventFormDialog = ({
   onSubmit,
 }: EventFormDialogProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [form, setForm] = useState<EventEditInput>(() =>
     initial
       ? eventToFormInput(initial)
       : {
           eventOrganization: "",
           eventName: "",
+          logoSlug: null,
           date: "",
           endDate: "",
           eventTier: "Small",
           majorStage: null,
+          stages: [],
+          winnerOrganization: null,
+          winnerLogoSlug: null,
         }
   );
   const [saving, setSaving] = useState(false);
+  const teamLogos = useTeamLogosManifest();
   const dateRef = useRef<DateInputHandle>(null);
   const endDateRef = useRef<DateInputHandle>(null);
   const formInitialized = useRef(false);
 
   const suggestions = useMemo(() => getBetFormSuggestions(bets), [bets]);
-  const eventNameOrgMap = useMemo(() => getEventNameOrganizationMap(bets), [bets]);
   const eventNameOptions = useMemo(
     () => getEventNameSuggestions(bets, form.eventOrganization),
     [bets, form.eventOrganization]
   );
-  const eventNameLogo = (eventName: string) =>
-    eventNameOrgMap.get(eventName.trim()) ?? form.eventOrganization;
 
   useEffect(() => {
     if (!open) {
@@ -95,19 +115,29 @@ const EventFormDialog = ({
         : {
             eventOrganization: "",
             eventName: "",
+            logoSlug: null,
             date: "",
             endDate: "",
             eventTier: "Small",
             majorStage: null,
+            stages: [],
+            winnerOrganization: null,
+            winnerLogoSlug: null,
           }
     );
   }, [open, initial]);
+
+  const teamOptions = useMemo(
+    () => getEventTeamSuggestions(bets, form.eventOrganization, form.eventName),
+    [bets, form.eventOrganization, form.eventName]
+  );
 
   const update = <K extends keyof EventEditInput>(key: K, value: EventEditInput[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const canSubmit = form.eventOrganization.trim() && form.eventName.trim();
+  const canSubmit =
+    form.eventOrganization.trim() && form.eventName.trim() && Boolean(form.logoSlug?.trim());
 
   const handleSubmit = async () => {
     if (!canSubmit || saving) return;
@@ -122,10 +152,20 @@ const EventFormDialog = ({
       await onSubmit({
         eventOrganization: form.eventOrganization.trim(),
         eventName: form.eventName.trim(),
+        logoSlug: form.logoSlug?.trim() ?? null,
         date,
         endDate,
         eventTier: form.eventTier,
         majorStage: null,
+        stages: form.stages,
+        winnerOrganization: editEventDates
+          ? form.winnerOrganization?.trim() || null
+          : (initial?.winnerOrganization ?? null),
+        winnerLogoSlug: editEventDates
+          ? form.winnerOrganization?.trim()
+            ? form.winnerLogoSlug?.trim() || null
+            : null
+          : (initial?.winnerLogoSlug ?? null),
       });
       onClose();
     } finally {
@@ -181,7 +221,6 @@ const EventFormDialog = ({
             value={form.eventOrganization}
             onChange={(v) => update("eventOrganization", v)}
             options={suggestions.eventOrganizations}
-            logo="organization"
             sx={fieldSx}
           />
           <SuggestTextField
@@ -197,9 +236,11 @@ const EventFormDialog = ({
               }));
             }}
             options={eventNameOptions}
-            logo="organization"
-            getLogoName={eventNameLogo}
             sx={fieldSx}
+          />
+          <EventLogoPicker
+            value={form.logoSlug}
+            onChange={(slug) => update("logoSlug", slug)}
           />
           <EventTierSelect
             value={form.eventTier}
@@ -208,9 +249,47 @@ const EventFormDialog = ({
                 ...prev,
                 eventTier: tier,
                 majorStage: null,
+                stages:
+                  prev.stages.length > 0
+                    ? prev.stages
+                    : tier === "Major"
+                      ? defaultStagesForTier("Major")
+                      : [],
               }));
             }}
           />
+          {editEventDates ? (
+            <>
+              <SuggestTextField
+                label="Победитель"
+                value={form.winnerOrganization ?? ""}
+                onChange={(value) => {
+                  const trimmed = value.trim();
+                  setForm((prev) => ({
+                    ...prev,
+                    winnerOrganization: trimmed || null,
+                    winnerLogoSlug: trimmed ? resolveWinnerLogoSlug(trimmed, teamLogos) : null,
+                  }));
+                }}
+                options={teamOptions}
+                logo="team"
+                placeholder="Выберите команду"
+                sx={fieldSx}
+              />
+              {form.winnerOrganization ? (
+                <TeamLogoPicker
+                  teamName={form.winnerOrganization}
+                  value={form.winnerLogoSlug}
+                  onChange={(slug) => update("winnerLogoSlug", slug)}
+                />
+              ) : null}
+              <EventStagesEditor
+                stages={form.stages}
+                eventTier={form.eventTier}
+                onChange={(stages) => update("stages", stages)}
+              />
+            </>
+          ) : null}
         </DialogBody>
 
         <DialogFooter>

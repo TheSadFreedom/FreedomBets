@@ -1,7 +1,5 @@
 import type { MatchFormat } from "@/entities/bet";
-import type { MajorStage } from "@/entities/event";
-
-export const MATCH_STATUSES = ["scheduled", "finished"] as const;
+export const MATCH_STATUSES = ["scheduled", "live", "finished"] as const;
 export type MatchStatus = (typeof MATCH_STATUSES)[number];
 
 export interface Match {
@@ -13,7 +11,7 @@ export interface Match {
   organization2: string;
   eventOrganization: string;
   eventName: string;
-  majorStage: MajorStage | null;
+  majorStage: string | null;
   /** Выигранные карты; null — счёт не указан */
   score1: number | null;
   score2: number | null;

@@ -1,18 +1,22 @@
 import styled from "styled-components";
+import { media } from "@/shared/styles/breakpoints";
 
 export const MedalsBlock = styled.section`
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 14px 16px;
-  border-radius: 14px;
-  background: linear-gradient(
-    145deg,
-    rgba(42, 42, 42, 0.98) 0%,
-    rgba(26, 26, 26, 0.99) 100%
-  );
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 193, 7, 0.12) 0%, transparent 40%),
+    linear-gradient(145deg, rgba(42, 42, 42, 0.98) 0%, rgba(26, 26, 26, 0.99) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
+
+  ${media.down("sm")} {
+    padding: 12px;
+    gap: 10px;
+  }
 `;
 
 export const MedalsHeader = styled.div`
@@ -21,15 +25,46 @@ export const MedalsHeader = styled.div`
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+
+  ${media.down("sm")} {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+`;
+
+export const MedalsTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+`;
+
+export const MedalsIcon = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(255, 193, 7, 0.14);
+  border: 1px solid rgba(255, 193, 7, 0.28);
+  color: #ffd54f;
+  flex-shrink: 0;
 `;
 
 export const MedalsTitle = styled.h3`
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.9);
+`;
+
+export const MedalsSubtitle = styled.span`
+  display: block;
+  margin-top: 1px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
 `;
 
 export const UploadMedalButton = styled.button`
@@ -46,18 +81,33 @@ export const UploadMedalButton = styled.button`
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: rgba(255, 193, 7, 0.18);
     border-color: rgba(255, 193, 7, 0.5);
   }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: wait;
+  }
+
+  ${media.down("sm")} {
+    width: 100%;
+    justify-content: center;
+    padding: 9px 12px;
+  }
 `;
 
-const SLOT_SIZE = 80;
+const SLOT_SIZE = 84;
 
 export const MedalsGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
+
+  ${media.down("sm")} {
+    gap: 8px;
+  }
 `;
 
 export const MedalTile = styled.div`
@@ -68,6 +118,18 @@ export const MedalTile = styled.div`
   width: ${SLOT_SIZE}px;
   height: ${SLOT_SIZE}px;
   flex-shrink: 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 193, 7, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 0.18s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    border-color: rgba(255, 193, 7, 0.35);
+    transform: translateY(-2px);
+  }
 `;
 
 export const MedalLabel = styled.span`
@@ -98,8 +160,9 @@ export const MedalImageButton = styled.button`
   justify-content: center;
   width: 100%;
   height: 100%;
-  padding: 0;
+  padding: 8px;
   border: none;
+  border-radius: 11px;
   background: transparent;
   cursor: zoom-in;
 
@@ -108,6 +171,7 @@ export const MedalImageButton = styled.button`
     height: 100%;
     object-fit: contain;
     display: block;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
   }
 
   &:hover ${MedalLabel},
@@ -122,12 +186,13 @@ export const DeleteMedalButton = styled.button`
   position: absolute;
   top: 4px;
   right: 4px;
+  z-index: 1;
   width: 22px;
   height: 22px;
   padding: 0;
   border: none;
   border-radius: 6px;
-  background: rgba(239, 83, 80, 0.85);
+  background: rgba(239, 83, 80, 0.9);
   color: #fff;
   cursor: pointer;
   display: flex;
@@ -140,11 +205,19 @@ export const DeleteMedalButton = styled.button`
   ${UserMedalTile}:focus-within & {
     opacity: 1;
   }
+
+  ${media.down("md")} {
+    opacity: 1;
+  }
 `;
 
 export const MedalsHint = styled.p`
   margin: 0;
+  padding: 10px 12px;
   font-size: 12px;
   line-height: 1.45;
-  opacity: 0.5;
+  color: rgba(255, 255, 255, 0.42);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
 `;

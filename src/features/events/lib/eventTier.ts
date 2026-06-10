@@ -1,6 +1,7 @@
 import type { Bet } from "@/entities/bet";
 import { type EventTier, isEventTier } from "@/entities/event";
-import { eventStatsKey } from "@/features/events/lib/eventDisplay";
+import type { EventRecord } from "@/entities/eventRecord";
+import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
 
 /** Major — если в названии есть «major»; иначе Small */
 export function inferEventTier(eventOrganization: string, eventName: string): EventTier {
@@ -18,19 +19,31 @@ export function resolveEventTier(
 }
 
 export function findEventTier(
-  bets: Bet[],
+  events: EventRecord[],
   eventOrganization: string,
   eventName: string
 ): EventTier | undefined {
-  const org = eventOrganization.trim();
-  const name = eventName.trim();
-  if (!org || !name) return undefined;
+  const record = findStoredEvent({ eventOrganization, eventName }, events);
+  return record?.eventTier;
+}
 
-  const key = eventStatsKey(org, name);
-  const match = bets.find(
-    (bet) => eventStatsKey(bet.eventOrganization.trim(), bet.eventName.trim()) === key
+export function resolveEventTierForEvent(
+  events: EventRecord[],
+  eventOrganization: string,
+  eventName: string
+): EventTier {
+  return (
+    findEventTier(events, eventOrganization, eventName) ??
+    inferEventTier(eventOrganization, eventName)
   );
-  return match?.eventTier;
+}
+
+/** Тир турнира для ставки — из сохранённой записи турнира */
+export function resolveBetEventTier(
+  bet: Pick<Bet, "eventOrganization" | "eventName" | "majorStage">,
+  events: EventRecord[] = []
+): EventTier {
+  return resolveEventTierForEvent(events, bet.eventOrganization, bet.eventName);
 }
 
 export const eventTierStyles: Record<

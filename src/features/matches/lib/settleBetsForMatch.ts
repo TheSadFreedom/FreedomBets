@@ -12,10 +12,75 @@ export function getMatchSeriesWinner(
   return match.score1! > match.score2! ? 1 : 2;
 }
 
-/** Авто-расчёт возможен только для ставок на исход матча (не карта / пистолет). */
-export function resolveAutoBetStatus(bet: Bet, winner: 1 | 2): BetStatus | null {
+/** Сыграно карт в серии (сумма счёта). */
+export function getMatchMapsPlayed(
+  match: Pick<Match, "score1" | "score2">
+): number | null {
+  if (!hasMatchScore(match)) return null;
+  return match.score1! + match.score2!;
+}
+
+/** Авто-расчёт ставки «возьмёт хотя бы одну карту». */
+export function resolveAtLeastOneMapBetStatus(
+  bet: Bet,
+  match: Pick<Match, "format" | "score1" | "score2">
+): BetStatus | null {
+  if (bet.status !== "WAIT" || bet.betMarket !== "atLeastOneMap") return null;
+  if (match.format === "BO1" || getMatchSeriesWinner(match) == null) return null;
+  if (!hasMatchScore(match)) return null;
+
+  const mapsWon = bet.betTeam === 1 ? match.score1! : match.score2!;
+  const tookAtLeastOne = mapsWon >= 1;
+  const pickedYes = bet.yesNo === true;
+  return tookAtLeastOne === pickedYes ? "WIN" : "LOSE";
+}
+
+/** Авто-расчёт ставки на точный счёт BO3. */
+export function resolveExactScoreBetStatus(
+  bet: Bet,
+  match: Pick<Match, "format" | "score1" | "score2">
+): BetStatus | null {
+  if (bet.status !== "WAIT" || bet.betMarket !== "exactScore") return null;
+  if (match.format !== "BO3" || getMatchSeriesWinner(match) == null) return null;
+  if (!hasMatchScore(match)) return null;
+  if (bet.exactScore1 == null || bet.exactScore2 == null) return null;
+
+  const matchesScore =
+    match.score1 === bet.exactScore1 && match.score2 === bet.exactScore2;
+  return matchesScore ? "WIN" : "LOSE";
+}
+
+/** Авто-расчёт ставки на количество карт (тотал 2,5 в BO3). */
+export function resolveMapsTotalBetStatus(bet: Bet, mapsPlayed: number): BetStatus | null {
+  if (bet.status !== "WAIT" || bet.betMarket !== "mapsTotal") return null;
+  const pickedUnder = bet.betTeam === 1;
+  const wins = pickedUnder ? mapsPlayed < 2.5 : mapsPlayed > 2.5;
+  return wins ? "WIN" : "LOSE";
+}
+
+/** Авто-расчёт возможен для ставок на исход матча и тотал карт. */
+export function resolveAutoBetStatus(bet: Bet, match: Match): BetStatus | null {
   if (bet.status !== "WAIT") return null;
+
+  if (bet.betMarket === "mapsTotal") {
+    if (match.format !== "BO3" || getMatchSeriesWinner(match) == null) return null;
+    const mapsPlayed = getMatchMapsPlayed(match);
+    if (mapsPlayed == null) return null;
+    return resolveMapsTotalBetStatus(bet, mapsPlayed);
+  }
+
+  if (bet.betMarket === "atLeastOneMap") {
+    return resolveAtLeastOneMapBetStatus(bet, match);
+  }
+
+  if (bet.betMarket === "exactScore") {
+    return resolveExactScoreBetStatus(bet, match);
+  }
+
   if (bet.betMarket !== "match") return null;
+
+  const winner = getMatchSeriesWinner(match);
+  if (winner == null) return null;
   return bet.betTeam === winner ? "WIN" : "LOSE";
 }
 
@@ -25,22 +90,25 @@ export interface BetSettlementPlan {
 }
 
 export function planMatchBetSettlements(match: Match, bets: Bet[]): BetSettlementPlan[] {
-  const winner = getMatchSeriesWinner(match);
-  if (winner == null) return [];
+  if (getMatchSeriesWinner(match) == null) return [];
 
   return findBetsForMatch(match, bets).flatMap((bet) => {
-    const nextStatus = resolveAutoBetStatus(bet, winner);
+    const nextStatus = resolveAutoBetStatus(bet, match);
     return nextStatus ? [{ bet, nextStatus }] : [];
   });
 }
 
 /** WAIT-ставки на карту/пистолет — без данных по картам не рассчитываются. */
 export function countSkippedWaitBets(match: Match, bets: Bet[]): number {
-  const winner = getMatchSeriesWinner(match);
-  if (winner == null) return 0;
+  if (getMatchSeriesWinner(match) == null) return 0;
 
   return findBetsForMatch(match, bets).filter(
-    (bet) => bet.status === "WAIT" && bet.betMarket !== "match"
+    (bet) =>
+      bet.status === "WAIT" &&
+      bet.betMarket !== "match" &&
+      bet.betMarket !== "mapsTotal" &&
+      bet.betMarket !== "atLeastOneMap" &&
+      bet.betMarket !== "exactScore"
   ).length;
 }
 

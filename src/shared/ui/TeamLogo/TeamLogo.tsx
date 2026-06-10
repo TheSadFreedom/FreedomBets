@@ -1,21 +1,34 @@
+import { useMemo } from "react";
 import { Avatar, Box, Typography } from "@mui/material";
-import { teamLogoSrc } from "@/shared/lib/logos/teamLogo";
+import { buildTeamLogoCandidates, teamLogoSrc } from "@/shared/lib/logos/teamLogo";
 import { useLogoWithFallback } from "@/shared/ui/logo/useLogoWithFallback";
+import { useMultiSrcLogo } from "@/shared/ui/logo/useMultiSrcLogo";
 import { logoAvatarSx } from "./TeamLogo.styled";
 
 interface TeamLogoProps {
   name: string;
+  logoSlug?: string | null;
   size?: number;
   showName?: boolean;
   /** Перенос длинного названия на новую строку (для ячеек таблицы) */
   nameWrap?: boolean;
 }
 
-const TeamLogo = ({ name, size = 28, showName = false, nameWrap = false }: TeamLogoProps) => {
-  const { src, failed, handleError } = useLogoWithFallback(
-    name,
-    (extIndex) => teamLogoSrc(name, extIndex)
+const TeamLogo = ({
+  name,
+  logoSlug,
+  size = 28,
+  showName = false,
+  nameWrap = false,
+}: TeamLogoProps) => {
+  const slugCandidates = useMemo(
+    () => (logoSlug?.trim() ? buildTeamLogoCandidates(logoSlug) : []),
+    [logoSlug]
   );
+  const slugLogo = useMultiSrcLogo(slugCandidates);
+  const nameLogo = useLogoWithFallback(name, (extIndex) => teamLogoSrc(name, extIndex));
+  const useSlug = Boolean(logoSlug?.trim());
+  const { src, failed, handleError } = useSlug ? slugLogo : nameLogo;
 
   const initials = name
     .split(/\s+/)

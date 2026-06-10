@@ -18,17 +18,16 @@ import { MATCH_FORMATS, type MatchFormat } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match, MatchCreateInput } from "@/entities/match";
 import { getBetFormSuggestions } from "@/features/bets/lib/formSuggestions";
-import MajorStageSelect from "@/features/events/components/MajorStageSelect/MajorStageSelect";
-import type { MajorStage } from "@/entities/event";
+import EventStageSelect from "@/features/events/components/EventStageSelect/EventStageSelect";
+import { collectEventStages, pickEventStage } from "@/features/events/lib/eventStages";
 import {
   eventSelectKey,
   getEventSelectOptions,
 } from "@/features/events/lib/eventDisplay";
-import { inferEventTier } from "@/features/events/lib/eventTier";
 import { normalizeScoreValue } from "@/features/matches/lib/matchScore";
 import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
 import DateInput, { type DateInputHandle } from "@/shared/ui/DateInput/DateInput";
-import OrganizationLogo from "@/shared/ui/OrganizationLogo/OrganizationLogo";
+import EventLogo from "@/shared/ui/EventLogo/EventLogo";
 import SuggestTextField from "@/shared/ui/SuggestTextField/SuggestTextField";
 import TimeInput, { type TimeInputHandle } from "@/shared/ui/TimeInput/TimeInput";
 import {
@@ -78,6 +77,8 @@ const matchToFormInput = (match: Match): MatchCreateInput => ({
 interface MatchFormDialogProps {
   open: boolean;
   bets: Bet[];
+  allBets?: Bet[];
+  matches?: Match[];
   events?: EventRecord[];
   initial?: Match;
   seed?: Partial<MatchCreateInput>;
@@ -88,6 +89,8 @@ interface MatchFormDialogProps {
 const MatchFormDialog = ({
   open,
   bets,
+  allBets,
+  matches = [],
   events = [],
   initial,
   seed,
@@ -95,7 +98,7 @@ const MatchFormDialog = ({
   onSubmit,
 }: MatchFormDialogProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [form, setForm] = useState<MatchCreateInput>(emptyMatch);
   const [saving, setSaving] = useState(false);
   const dateRef = useRef<DateInputHandle>(null);
@@ -107,7 +110,6 @@ const MatchFormDialog = ({
     return {
       eventOrganization: initial.eventOrganization,
       eventName: initial.eventName,
-      eventTier: inferEventTier(initial.eventOrganization, initial.eventName),
       majorStage: initial.majorStage,
     };
   }, [initial]);
@@ -125,14 +127,30 @@ const MatchFormDialog = ({
           {
             eventOrganization: form.eventOrganization,
             eventName: form.eventName,
-            eventTier: inferEventTier(form.eventOrganization, form.eventName),
             majorStage: form.majorStage,
           },
+          events,
           true
         )
       : "";
-  const isMajorMatch =
-    inferEventTier(form.eventOrganization, form.eventName) === "Major" || Boolean(form.majorStage);
+  const selectedEventStages = useMemo(
+    () =>
+      collectEventStages(form.eventOrganization, form.eventName, events, {
+        currentStage: form.majorStage,
+        bets: allBets ?? bets,
+        matches,
+      }),
+    [
+      allBets,
+      bets,
+      events,
+      form.eventOrganization,
+      form.eventName,
+      form.majorStage,
+      matches,
+    ]
+  );
+  const eventRequiresStage = selectedEventStages.length > 0;
   const setScore = (side: 1 | 2, raw: string) => {
     const key = side === 1 ? "score1" : "score2";
     if (raw.trim() === "") {
@@ -158,7 +176,7 @@ const MatchFormDialog = ({
     form.organization2.trim() &&
     form.eventOrganization.trim() &&
     form.eventName.trim() &&
-    (!isMajorMatch || form.majorStage);
+    (!eventRequiresStage || form.majorStage);
 
   const handleSubmit = async () => {
     if (!canSubmit || saving) return;
@@ -177,7 +195,7 @@ const MatchFormDialog = ({
         organization2: form.organization2.trim(),
         eventOrganization: form.eventOrganization.trim(),
         eventName: form.eventName.trim(),
-        majorStage: isMajorMatch ? form.majorStage : null,
+        majorStage: eventRequiresStage ? form.majorStage : null,
       });
       onClose();
     } finally {
@@ -296,10 +314,12 @@ const MatchFormDialog = ({
                   ...prev,
                   eventOrganization: option.eventOrganization,
                   eventName: option.eventName,
-                  majorStage:
-                    option.eventTier === "Major"
-                      ? option.majorStage ?? prev.majorStage ?? ("Stage 1" as MajorStage)
-                      : null,
+                  majorStage: pickEventStage(
+                    option.eventOrganization,
+                    option.eventName,
+                    events,
+                    prev.majorStage
+                  ),
                 }));
               }}
               renderValue={(value) => {
@@ -308,7 +328,11 @@ const MatchFormDialog = ({
                 if (!option) return value;
                 return (
                   <Box display="flex" alignItems="center" gap={1} minWidth={0}>
-                    <OrganizationLogo name={option.eventOrganization} size={22} />
+                    <EventLogo
+                      logoSlug={option.logoSlug}
+                      label={option.eventOrganization}
+                      size={22}
+                    />
                     <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0 }}>
                       {option.label}
                     </Typography>
@@ -319,7 +343,11 @@ const MatchFormDialog = ({
               {eventOptions.map((option) => (
                 <MenuItem key={option.key} value={option.key} sx={{ py: 0.75 }}>
                   <Box display="flex" alignItems="center" gap={1.25} minWidth={0}>
-                    <OrganizationLogo name={option.eventOrganization} size={24} />
+                    <EventLogo
+                      logoSlug={option.logoSlug}
+                      label={option.eventOrganization}
+                      size={24}
+                    />
                     <Box minWidth={0}>
                       <Typography variant="body2" noWrap title={option.eventOrganization}>
                         {option.eventOrganization}
@@ -348,8 +376,9 @@ const MatchFormDialog = ({
                 : "Нет активных турниров — завершённые скрыты. Создайте новый турнир или укажите дату окончания."}
             </Typography>
           ) : null}
-          {isMajorMatch ? (
-            <MajorStageSelect
+          {eventRequiresStage ? (
+            <EventStageSelect
+              stages={selectedEventStages}
               value={form.majorStage}
               onChange={(stage) => update("majorStage", stage)}
             />

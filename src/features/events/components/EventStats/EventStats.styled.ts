@@ -3,55 +3,140 @@ import styled, { css } from "styled-components";
 import type { EventTier } from "@/entities/event";
 import { eventTierStyles } from "@/features/events/lib/eventTier";
 import { media } from "@/shared/styles/breakpoints";
+import { mobileCardSurface, mobileEmptyState } from "@/shared/styles/mobileTokens";
 
 export const EventStatsRoot = styled.section`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
+
+  ${media.down("md")} {
+    gap: 14px;
+  }
 `;
 
-export const EventStatsToolbar = styled.div`
+export const EventStatsCard = styled.div`
+  ${mobileCardSurface};
+  border-radius: 14px;
+  overflow: hidden;
+
+  ${media.down("md")} {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+`;
+
+export const FiltersPanel = styled.div`
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  ${media.down("md")} {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+    padding: 12px;
+    margin-bottom: 4px;
+    border-radius: 14px;
+    ${mobileCardSurface};
+    border-bottom: none;
+    backdrop-filter: blur(10px);
+    background:
+      linear-gradient(145deg, rgba(36, 36, 36, 0.98) 0%, rgba(22, 22, 22, 0.99) 100%);
+  }
+`;
+
+export const FiltersHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+`;
+
+export const FiltersTitle = styled.h3`
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+`;
+
+export const FiltersWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 8px;
 
-  ${media.up("sm")} {
+  ${media.up("md")} {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
   }
+`;
+
+export const FiltersActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 `;
 
 export const filterControlSx = {
   width: { xs: "100%", sm: "auto" },
-  minWidth: { xs: 0, sm: 160 },
-  flex: { xs: "1 1 100%", sm: "1 1 160px" },
+  minWidth: { xs: 0, sm: 148 },
+  flex: { xs: "1 1 100%", sm: "1 1 148px" },
   "& .MuiOutlinedInput-root": {
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderRadius: "10px",
   },
 };
 
+export const filterSelectMenuProps = {
+  PaperProps: {
+    sx: {
+      maxHeight: 320,
+      backgroundImage: "none",
+    },
+  },
+};
+
+export const FilterOptionRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+`;
+
 export const EventScrollArea = styled.div`
   min-width: 0;
+  padding: 6px 8px 8px;
+
+  ${media.down("md")} {
+    padding: 0 0 10px;
+  }
 `;
 
 export const EventGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
+  min-width: 0;
+
+  ${media.down("md")} {
+    gap: 10px;
+  }
 `;
 
 export const EmptySearch = styled.p`
-  margin: 0;
-  padding: 24px 16px;
-  text-align: center;
-  opacity: 0.55;
-  font-size: 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  ${mobileEmptyState};
+
+  ${media.down("md")} {
+    margin: 0;
+  }
 `;
 
 export const EventAccordion = styled(Accordion)`
@@ -87,85 +172,219 @@ export const EventAccordion = styled(Accordion)`
   }
 
   .MuiAccordionSummary-root {
-    align-items: flex-start;
-    min-height: 56px;
-    padding: 4px 8px 4px 16px;
+    align-items: center;
+    min-height: 0 !important;
+    padding: 8px 10px 8px 12px;
 
-    ${media.down("sm")} {
-      min-height: 52px;
-      padding: 4px 6px 4px 10px;
+    ${media.down("md")} {
+      padding: 10px 10px 10px 12px;
     }
   }
 
   .MuiAccordionSummary-content {
-    margin: 14px 0 !important;
-
-    ${media.down("sm")} {
-      margin: 10px 0 !important;
-    }
+    margin: 0 !important;
   }
 
   .MuiAccordionDetails-root {
-    padding: 0 14px 14px;
+    padding: 0 10px 10px;
 
-    ${media.down("sm")} {
+    ${media.down("md")} {
       padding: 0 10px 12px;
     }
-  }
-`;
-
-export const EventExpandIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.7);
-  transition:
-    background 0.2s ease,
-    color 0.2s ease;
-
-  .Mui-expanded & {
-    background: rgba(76, 175, 80, 0.18);
-    color: #81c784;
   }
 `;
 
 export const EventSummaryContent = styled.div`
   width: 100%;
   min-width: 0;
-  padding-right: 4px;
 `;
 
-export const EventCardTop = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+export const EventCardLayout = styled.div`
+  display: grid;
   width: 100%;
+  min-width: 0;
+  gap: 8px 14px;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "head stats"
+    "tags stats";
+
+  ${media.down("md")} {
+    gap: 8px;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "head"
+      "tags"
+      "stats";
+  }
+
+  ${media.up("md")} {
+    ${media.down("lg")} {
+      gap: 8px;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "head"
+        "tags"
+        "stats";
+    }
+  }
 `;
 
-export const EventCardHeader = styled.div`
+export const EventCardHead = styled.div`
+  grid-area: head;
   display: flex;
   align-items: center;
-  gap: 12px;
-  width: 100%;
+  gap: 10px;
   min-width: 0;
 `;
 
-export const EventEditButton = styled.button`
+export const EventCardIdentity = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const EventCardOrg = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(129, 199, 132, 0.8);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const EventCardName = styled.div`
+  margin-top: 1px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  ${media.down("md")} {
+    font-size: 15px;
+  }
+`;
+
+export const EventCardTags = styled.div`
+  grid-area: tags;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+
+  ${media.down("md")} {
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 1px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+`;
+
+export const EventWinnerChip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  min-height: 22px;
+  padding: 0 8px 0 4px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffe082;
+  background: rgba(255, 213, 79, 0.1);
+  border: 1px solid rgba(255, 213, 79, 0.28);
+  white-space: nowrap;
+  max-width: 100%;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
+
+export const EventDateChip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+
+  svg {
+    font-size: 11px;
+    opacity: 0.65;
+    flex-shrink: 0;
+  }
+
+  ${media.up("md")} {
+    min-height: 20px;
+    padding: 0 7px;
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.48);
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    svg {
+      font-size: 12px;
+    }
+  }
+`;
+
+export const EventCardStats = styled.div`
+  grid-area: stats;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+
+  ${media.down("md")} {
+    justify-content: stretch;
+    width: 100%;
+  }
+`;
+
+export const EventCardActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+`;
+
+export const EventEditButton = styled.button<{ $danger?: boolean }>`
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.35);
   cursor: pointer;
   opacity: 0;
   transition: all 0.18s ease;
@@ -176,9 +395,18 @@ export const EventEditButton = styled.button`
     opacity: 1;
   }
 
+  ${media.down("md")} {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    opacity: 1;
+  }
+
   &:hover {
-    color: #a5d6a7;
-    background: rgba(76, 175, 80, 0.12);
+    color: ${({ $danger }) => ($danger ? "#ef9a9a" : "#a5d6a7")};
+    background: ${({ $danger }) =>
+      $danger ? "rgba(239, 83, 80, 0.12)" : "rgba(76, 175, 80, 0.12)"};
   }
 `;
 
@@ -187,82 +415,55 @@ export const EventLogoWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-`;
+  width: 40px;
+  height: 40px;
 
-export const EventTitles = styled.div`
-  min-width: 0;
-  flex: 1;
-`;
-
-export const EventTitle = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.01em;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  ${media.down("sm")} {
-    white-space: normal;
-    word-break: break-word;
-    overflow: visible;
-    text-overflow: unset;
+  ${media.down("md")} {
+    width: 36px;
+    height: 36px;
   }
-`;
 
-export const EventTitleName = styled.span`
-  font-weight: 500;
-  opacity: 0.72;
+  .MuiAvatar-root {
+    border-radius: 0;
+  }
 `;
 
 export const EventTierBadge = styled.span<{ $tier: EventTier }>`
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  padding: 3px 8px;
+  min-height: 22px;
+  padding: 0 7px;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
+  line-height: 1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: ${({ $tier }) => eventTierStyles[$tier].color};
   background: ${({ $tier }) => eventTierStyles[$tier].bg};
   border: 1px solid ${({ $tier }) => eventTierStyles[$tier].border};
-`;
 
-export const EventDateTime = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-  flex-wrap: wrap;
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.45);
-  font-variant-numeric: tabular-nums;
-
-  svg {
-    font-size: 13px;
-    opacity: 0.65;
+  ${media.up("md")} {
+    min-height: 20px;
+    padding: 2px 6px;
   }
 `;
 
 export const EventMetricsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 4px;
+  width: auto;
 
-  @media (min-width: 560px) {
-    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  ${media.down("md")} {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
   }
 `;
 
@@ -275,11 +476,17 @@ export const MetricTile = styled.div<{
   $accent?: string;
   $highlight?: boolean;
 }>`
-  padding: 10px 12px;
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 34px;
+  padding: 4px 7px;
+  border-radius: 8px;
+  min-width: 0;
+  flex: 0 0 auto;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  min-width: 0;
   transition: background 0.15s ease;
 
   ${({ $highlight }) => $highlight && metricHighlight}
@@ -291,30 +498,61 @@ export const MetricTile = styled.div<{
       border-color: ${$accent}33;
       background: ${$accent}0f;
     `}
+
+  ${media.down("md")} {
+    align-items: center;
+    text-align: center;
+    min-height: 52px;
+    padding: 8px 6px;
+    border-radius: 10px;
+  }
 `;
 
 export const MetricTileLabel = styled.div`
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   opacity: 0.5;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
+  line-height: 1;
+
+  ${media.down("md")} {
+    font-size: 9px;
+    margin-bottom: 4px;
+  }
 `;
 
 export const MetricTileValue = styled.div<{ $color?: string }>`
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 14px;
+  font-size: 11px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.1;
   color: ${({ $color }) => $color ?? "#fff"};
-  word-break: break-word;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  ${media.down("md")} {
+    justify-content: center;
+    font-size: 13px;
+    min-height: 16px;
+  }
 `;
 
 export const WldBadges = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 3px;
   align-items: center;
+  justify-content: flex-start;
+  min-height: 14px;
+
+  ${media.down("md")} {
+    justify-content: center;
+  }
 `;
 
 export const WldBadge = styled.span<{
@@ -323,12 +561,13 @@ export const WldBadge = styled.span<{
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 13px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1;
 
   ${({ $variant }) => {
     switch ($variant) {
@@ -355,8 +594,18 @@ export const WldBadge = styled.span<{
 `;
 
 export const EventDetailsPanel = styled.div`
-  padding: 12px;
+  min-width: 0;
+  padding: 8px;
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  ${media.down("md")} {
+    padding: 10px;
+    border-radius: 12px;
+    gap: 10px;
+  }
 `;

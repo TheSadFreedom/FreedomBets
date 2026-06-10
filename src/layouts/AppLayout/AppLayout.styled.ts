@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { media } from "@/shared/styles/breakpoints";
+import { mobilePageBackdrop } from "@/shared/styles/mobileTokens";
 
 /** Общая ширина контента header + main */
 const CONTENT_MAX_WIDTH = "1720px";
@@ -16,8 +17,8 @@ export const Header = styled.header`
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: #181818;
 
-  ${media.down("sm")} {
-    padding-top: env(safe-area-inset-top);
+  ${media.down("md")} {
+    display: none;
   }
 `;
 
@@ -183,12 +184,13 @@ export const Main = styled.main`
   padding: 20px 20px max(32px, env(safe-area-inset-bottom));
   box-sizing: border-box;
   min-width: 0;
+  ${mobilePageBackdrop};
 
-  ${media.down("sm")} {
-    padding: 14px 12px max(24px, env(safe-area-inset-bottom));
+  ${media.down("md")} {
+    padding: max(12px, env(safe-area-inset-top)) 12px 0;
   }
 
   ${media.down("xs")} {
-    padding: 12px 10px max(20px, env(safe-area-inset-bottom));
+    padding: max(12px, env(safe-area-inset-top)) 10px 0;
   }
 `;

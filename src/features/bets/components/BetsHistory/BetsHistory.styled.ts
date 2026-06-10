@@ -1,6 +1,7 @@
 import styled, { css } from "styled-components";
 import type { Bet } from "@/entities/bet";
 import { media } from "@/shared/styles/breakpoints";
+import { mobileCardSurface, mobileCardSurfaceRaised } from "@/shared/styles/mobileTokens";
 
 export const BetsHistoryStyled = styled.section`
   display: flex;
@@ -10,15 +11,17 @@ export const BetsHistoryStyled = styled.section`
 `;
 
 export const HistoryCard = styled.div`
-  background: linear-gradient(
-    145deg,
-    rgba(42, 42, 42, 0.98) 0%,
-    rgba(26, 26, 26, 0.99) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  ${mobileCardSurface};
   border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
   overflow: hidden;
+
+  ${media.down("md")} {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
 `;
 
 export const FiltersPanel = styled.div`
@@ -26,8 +29,14 @@ export const FiltersPanel = styled.div`
   background: rgba(0, 0, 0, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
-  ${media.down("sm")} {
+  ${media.down("md")} {
     padding: 12px;
+    margin-bottom: 4px;
+    border-radius: 14px;
+    ${mobileCardSurface};
+    border-bottom: none;
+    background:
+      linear-gradient(145deg, rgba(36, 36, 36, 0.98) 0%, rgba(22, 22, 22, 0.99) 100%);
   }
 `;
 
@@ -52,7 +61,7 @@ export const FiltersWrapper = styled.div`
   grid-template-columns: 1fr;
   gap: 10px;
 
-  ${media.up("sm")} {
+  ${media.up("md")} {
     display: flex;
     flex-wrap: wrap;
   }
@@ -63,7 +72,7 @@ export const TableScroll = styled.div`
   -webkit-overflow-scrolling: touch;
   padding: 12px 14px 14px;
 
-  ${media.down("sm")} {
+  ${media.down("md")} {
     padding: 10px 8px 12px;
   }
 
@@ -163,6 +172,13 @@ export const StatusBadge = styled.span<{ $status: Bet["status"] }>`
   font-weight: 600;
   line-height: 1.2;
 
+  ${media.down("md")} {
+    min-width: 0;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 999px;
+  }
+
   ${({ $status }) => {
     switch ($status) {
       case "WIN":
@@ -244,88 +260,181 @@ export const filterSelectMenuProps = {
   },
 } as const;
 
-export const MobileBetCard = styled.article`
+export const MobileBetList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 2px 0 6px;
+`;
+
+const mobileBetStatusAccent = {
+  WIN: "rgba(129, 199, 132, 0.55)",
+  LOSE: "rgba(239, 154, 154, 0.5)",
+  WAIT: "rgba(255, 183, 77, 0.5)",
+} as const;
+
+export const MobileBetCard = styled.article<{ $status: Bet["status"] }>`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  ${mobileCardSurfaceRaised};
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      ${({ $status }) => mobileBetStatusAccent[$status]} 40%,
+      ${({ $status }) => mobileBetStatusAccent[$status]} 60%,
+      transparent 100%
+    );
+  }
 `;
 
-export const MobileBetHeader = styled.div`
+export const MobileBetTop = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
+  padding: 8px 10px 6px;
 `;
 
-export const MobileBetMeta = styled.div`
+export const MobileBetTopRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+`;
+
+export const MobileBetDate = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  font-variant-numeric: tabular-nums;
+`;
+
+export const MobileBetPayout = styled.span<{ $status: Bet["status"] }>`
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  ${({ $status }) => {
+    switch ($status) {
+      case "WIN":
+        return css`color: #81c784;`;
+      case "LOSE":
+        return css`color: #e57373;`;
+      case "WAIT":
+        return css`color: #ffb74d;`;
+    }
+  }}
+`;
+
+export const MobileBetBody = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+  gap: 6px;
+  padding: 0 10px 8px;
 `;
 
-export const MobileBetMain = styled.div`
+export const MobileBetEventStrip = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+`;
+
+export const MobileBetEventText = styled.div`
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-width: 0;
+  gap: 2px;
 `;
 
-export const MobileBetRow = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  min-width: 0;
+export const MobileBetEventOrg = styled.span`
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: rgba(129, 199, 132, 0.8);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const MobileBetEventName = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const MobileBetStageWrap = styled.div`
+  margin-top: 2px;
 `;
 
 export const MobileBetTeams = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.82);
+`;
+
+export const MobileBetVs = styled.span`
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 0 2px;
+`;
+
+export const MobileBetPick = styled.div`
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(76, 175, 80, 0.06);
+  border: 1px solid rgba(129, 199, 132, 0.14);
+`;
+
+export const MobileBetMeta = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.42);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 `;
 
 export const MobileBetFooter = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-`;
-
-export const MobileBetValues = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
-`;
-
-export const MobileBetValue = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-
-  span {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: rgba(255, 255, 255, 0.38);
-  }
-
-  strong {
-    font-size: 13px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: rgba(255, 255, 255, 0.9);
-  }
+  padding: 6px 10px 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 `;
 
 export const MobileBetActions = styled.div`
   display: flex;
   justify-content: flex-end;
+  flex-shrink: 0;
 `;

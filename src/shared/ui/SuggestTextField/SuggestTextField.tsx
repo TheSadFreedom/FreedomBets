@@ -1,5 +1,6 @@
 import { Autocomplete, InputAdornment, TextField, Typography } from "@mui/material";
 import type { SxProps, Theme } from "@mui/material/styles";
+import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
 import OrganizationLogo from "@/shared/ui/OrganizationLogo/OrganizationLogo";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
 import { SuggestOptionRow } from "./SuggestTextField.styled";
@@ -47,8 +48,10 @@ const SuggestTextField = ({
       freeSolo
       options={options}
       inputValue={value}
-      onInputChange={(_, newValue) => onChange(newValue)}
-      onChange={(_, newValue) => onChange(typeof newValue === "string" ? newValue : "")}
+      onInputChange={(_, newValue) => onChange(limitInputLength(newValue))}
+      onChange={(_, newValue) =>
+        onChange(limitInputLength(typeof newValue === "string" ? newValue : ""))
+      }
       slotProps={{
         paper: { sx: { mt: 0.5 } },
         listbox: { sx: { maxHeight: 280 } },
@@ -75,6 +78,10 @@ const SuggestTextField = ({
           fullWidth
           sx={sx}
           slotProps={{
+            htmlInput: {
+              ...params.inputProps,
+              maxLength: MAX_INPUT_LENGTH,
+            },
             input: {
               ...params.InputProps,
               startAdornment: (

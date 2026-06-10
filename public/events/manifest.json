@@ -1,0 +1,194 @@
+[
+  {
+    "id": "bc-game-masters",
+    "src": "/events/bc-game-masters.png"
+  },
+  {
+    "id": "blast-2",
+    "src": "/events/blast-2.webp"
+  },
+  {
+    "id": "blast-tv",
+    "src": "/events/blast-tv.svg"
+  },
+  {
+    "id": "blast",
+    "src": "/events/blast.webp"
+  },
+  {
+    "id": "cct",
+    "src": "/events/cct.webp"
+  },
+  {
+    "id": "dach",
+    "src": "/events/dach.png"
+  },
+  {
+    "id": "dfrag",
+    "src": "/events/dfrag.webp"
+  },
+  {
+    "id": "digital-crusade-draculan",
+    "src": "/events/digital-crusade-draculan.webp"
+  },
+  {
+    "id": "dreamhack-2",
+    "src": "/events/dreamhack-2.webp"
+  },
+  {
+    "id": "dreamhack",
+    "src": "/events/dreamhack.webp"
+  },
+  {
+    "id": "eleague-boston-2018",
+    "src": "/events/eleague-boston-2018.webp"
+  },
+  {
+    "id": "eleague",
+    "src": "/events/eleague.webp"
+  },
+  {
+    "id": "ems-one",
+    "src": "/events/ems-one.webp"
+  },
+  {
+    "id": "esea",
+    "src": "/events/esea.webp"
+  },
+  {
+    "id": "esl-one-2",
+    "src": "/events/esl-one-2.webp"
+  },
+  {
+    "id": "esl-one-3",
+    "src": "/events/esl-one-3.webp"
+  },
+  {
+    "id": "esl-one",
+    "src": "/events/esl-one.webp"
+  },
+  {
+    "id": "esl-pro-league",
+    "src": "/events/esl-pro-league.webp"
+  },
+  {
+    "id": "esl",
+    "src": "/events/esl.webp"
+  },
+  {
+    "id": "esports-world-cup",
+    "src": "/events/esports-world-cup.png"
+  },
+  {
+    "id": "european-pro-league",
+    "src": "/events/european-pro-league.webp"
+  },
+  {
+    "id": "faceit-major-2018",
+    "src": "/events/faceit-major-2018.webp"
+  },
+  {
+    "id": "ferjee",
+    "src": "/events/ferjee.webp"
+  },
+  {
+    "id": "fissure",
+    "src": "/events/fissure.png"
+  },
+  {
+    "id": "ibuypower-masters",
+    "src": "/events/ibuypower-masters.png"
+  },
+  {
+    "id": "iem-2019",
+    "src": "/events/iem-2019.webp"
+  },
+  {
+    "id": "iem",
+    "src": "/events/iem.webp"
+  },
+  {
+    "id": "komplett",
+    "src": "/events/komplett.webp"
+  },
+  {
+    "id": "mlg-columbus-2016",
+    "src": "/events/mlg-columbus-2016.webp"
+  },
+  {
+    "id": "nodwin",
+    "src": "/events/nodwin.webp"
+  },
+  {
+    "id": "perfect-world-shanghai-major-2024",
+    "src": "/events/perfect-world-shanghai-major-2024.webp"
+  },
+  {
+    "id": "pgl-major-antwerp-2022",
+    "src": "/events/pgl-major-antwerp-2022.webp"
+  },
+  {
+    "id": "pgl-major-copenhagen-2024",
+    "src": "/events/pgl-major-copenhagen-2024.webp"
+  },
+  {
+    "id": "pgl-major-krakow-2017",
+    "src": "/events/pgl-major-krakow-2017.webp"
+  },
+  {
+    "id": "pgl-major-stockholm-2021",
+    "src": "/events/pgl-major-stockholm-2021.webp"
+  },
+  {
+    "id": "pgl",
+    "src": "/events/pgl.png"
+  },
+  {
+    "id": "power",
+    "src": "/events/power.webp"
+  },
+  {
+    "id": "rog-jorney",
+    "src": "/events/rog-jorney.webp"
+  },
+  {
+    "id": "stake-pulse",
+    "src": "/events/stake-pulse.png"
+  },
+  {
+    "id": "stake-ranked",
+    "src": "/events/stake-ranked.webp"
+  },
+  {
+    "id": "starladder-budapest-major-2025",
+    "src": "/events/starladder-budapest-major-2025.webp"
+  },
+  {
+    "id": "starladder-major-berlin-2019",
+    "src": "/events/starladder-major-berlin-2019.webp"
+  },
+  {
+    "id": "starladder",
+    "src": "/events/starladder.png"
+  },
+  {
+    "id": "Thunderpick World Championship",
+    "src": "/events/Thunderpick%20World%20Championship.webp"
+  },
+  {
+    "id": "thunderpick",
+    "src": "/events/thunderpick.png"
+  },
+  {
+    "id": "ukic",
+    "src": "/events/ukic.webp"
+  },
+  {
+    "id": "urban-riga",
+    "src": "/events/urban-riga.png"
+  },
+  {
+    "id": "xse",
+    "src": "/events/xse.webp"
+  }
+]

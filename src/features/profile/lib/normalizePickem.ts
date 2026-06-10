@@ -1,15 +1,9 @@
 import type { PickemMajor, PickemStageData } from "@/entities/pickem";
 import {
   PICKEM_STAGE_RESULTS,
-  PICKEM_STAGES,
   createDefaultPickemStages,
-  type PickemStageName,
   type PickemStageResult,
 } from "@/entities/pickem";
-
-function isPickemStageName(value: unknown): value is PickemStageName {
-  return typeof value === "string" && PICKEM_STAGES.includes(value as PickemStageName);
-}
 
 function isPickemStageResult(value: unknown): value is PickemStageResult {
   return typeof value === "string" && PICKEM_STAGE_RESULTS.includes(value as PickemStageResult);
@@ -27,27 +21,32 @@ function normalizeImageUrl(data: Partial<PickemStageData> & { imageData?: unknow
   return null;
 }
 
-function normalizeStage(data: Partial<PickemStageData>, fallbackStage: PickemStageName): PickemStageData {
-  const stage = isPickemStageName(data.stage) ? data.stage : fallbackStage;
-  const imageUrl = normalizeImageUrl(data);
-  const result = isPickemStageResult(data.result) ? data.result : null;
+function normalizeStage(data: Partial<PickemStageData>): PickemStageData | null {
+  const stage = typeof data.stage === "string" ? data.stage.trim() : "";
+  if (!stage) return null;
 
-  return { stage, imageUrl, result };
+  return {
+    stage,
+    imageUrl: normalizeImageUrl(data),
+    result: isPickemStageResult(data.result) ? data.result : null,
+  };
 }
 
 function normalizeStages(stages: unknown): PickemStageData[] {
   if (!Array.isArray(stages)) return createDefaultPickemStages();
 
-  const byStage = new Map<PickemStageName, PickemStageData>();
+  const result: PickemStageData[] = [];
+  const seen = new Set<string>();
+
   for (const item of stages) {
     if (!item || typeof item !== "object") continue;
-    const normalized = normalizeStage(item as Partial<PickemStageData>, "Stage 1");
-    byStage.set(normalized.stage, normalized);
+    const normalized = normalizeStage(item as Partial<PickemStageData>);
+    if (!normalized || seen.has(normalized.stage)) continue;
+    seen.add(normalized.stage);
+    result.push(normalized);
   }
 
-  return PICKEM_STAGES.map(
-    (stage) => byStage.get(stage) ?? { stage, imageUrl: null, result: null }
-  );
+  return result.length > 0 ? result : createDefaultPickemStages();
 }
 
 export function normalizePickemMajor(data: PickemMajor): PickemMajor {

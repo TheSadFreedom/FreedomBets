@@ -1,4 +1,5 @@
 import type { Match } from "@/entities/match";
+import { getMatchEffectiveStatus } from "@/features/matches/lib/getMatchEffectiveStatus";
 import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
 
 function matchDateTimeKey(match: Pick<Match, "date" | "time">): string {
@@ -28,6 +29,42 @@ export interface MatchesByDaySections {
   future: Match[];
   today: Match[];
   past: Match[];
+}
+
+export interface MatchesByStatusSections {
+  live: Match[];
+  scheduled: Match[];
+  finished: Match[];
+}
+
+/** Live, скоро и завершённые; live и скоро — по возрастанию даты, завершённые — по убыванию */
+export function splitMatchesByEffectiveStatus(
+  matches: Match[],
+  now = Date.now()
+): MatchesByStatusSections {
+  const live: Match[] = [];
+  const scheduled: Match[] = [];
+  const finished: Match[] = [];
+
+  for (const match of matches) {
+    const status = getMatchEffectiveStatus(match, now);
+    if (status === "finished") {
+      finished.push(match);
+    } else if (status === "live") {
+      live.push(match);
+    } else {
+      scheduled.push(match);
+    }
+  }
+
+  const sortAsc = (a: Match, b: Match) =>
+    matchDateTimeKey(a).localeCompare(matchDateTimeKey(b));
+
+  return {
+    live: live.sort(sortAsc),
+    scheduled: scheduled.sort(sortAsc),
+    finished: sortMatchesByDateTime(finished),
+  };
 }
 
 /** Будущие, сегодня и прошедшие — по календарной дате */

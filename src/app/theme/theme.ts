@@ -5,8 +5,8 @@ export const appTheme = createTheme({
     values: {
       xs: 0,
       sm: 640,
-      md: 900,
-      lg: 1200,
+      md: 1280,
+      lg: 1440,
       xl: 1536,
     },
   },

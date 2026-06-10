@@ -14,6 +14,22 @@ export function getBetFormSuggestions(bets: Bet[]) {
   };
 }
 
+export function getEventTeamSuggestions(
+  bets: Bet[],
+  eventOrganization = "",
+  eventName = ""
+): string[] {
+  const org = eventOrganization.trim();
+  const name = eventName.trim();
+  const forEvent = bets.filter((bet) => {
+    if (org && bet.eventOrganization.trim() !== org) return false;
+    if (name && bet.eventName.trim() !== name) return false;
+    return true;
+  });
+  const eventTeams = forEvent.flatMap((bet) => [bet.organization1, bet.organization2]);
+  return uniqueSorted([...eventTeams, ...getBetFormSuggestions(bets).teams]);
+}
+
 export function getEventNameSuggestions(bets: Bet[], eventOrganization: string): string[] {
   const org = eventOrganization.trim();
   if (!org) return uniqueSorted(bets.map((b) => b.eventName));

@@ -1,149 +1,188 @@
 import { useMemo, useState } from "react";
-import {
-  Chip,
-  Box,
-  TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import type { Bet } from "@/entities/bet";
 import type { EventEditInput, EventIdentity, EventStats as EventStatsItem } from "@/entities/event";
 import type { EventRecord } from "@/entities/eventRecord";
-import { EVENT_TIERS, MAJOR_STAGES, type EventTier, type MajorStage } from "@/entities/event";
+import type { Match } from "@/entities/match";
+import { EVENT_TIERS, type EventTier } from "@/entities/event";
 import { calcEventStatsList } from "@/features/bets/lib/calculations";
+import MajorEventGroupCard from "@/features/events/components/MajorEventStats/MajorEventGroupCard";
 import { mergeEventStatsWithStored } from "@/features/events/lib/mergeEventStats";
 import EventFormDialog from "@/features/events/components/EventFormDialog/EventFormDialog";
-import { formatEventLabel } from "@/features/events/lib/eventDisplay";
 import {
-  sortEventStatsList,
-  type EventStatsSortField,
-  type SortDirection,
-} from "@/features/events/lib/eventStatsSort";
-import SummaryGeneralSection from "@/features/summary/components/StatsSummary/SummaryGeneralSection";
+  DEFAULT_EVENT_STATS_FILTERS,
+  filterEventStatsList,
+  filterMajorEventGroups,
+  hasActiveEventStatsFilters,
+  type EventStatsFilterState,
+} from "@/features/events/lib/eventStatsFilters";
+import {
+  calcStagedEventGroups,
+  majorEventGroupKey,
+  majorGroupToEventStats,
+  type MajorEventGroup,
+} from "@/features/events/lib/majorEventStats";
+import { eventHasStages } from "@/features/events/lib/eventStages";
+import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
+import { compareStartDate } from "@/features/events/lib/eventStatsSort";
+import { buildDeleteEventMessage } from "@/features/events/lib/buildDeleteEventMessage";
+import ConfirmDialog from "@/shared/ui/ConfirmDialog/ConfirmDialog";
 import EventStatCard from "./EventStatCard";
+import EventStatsSummaryPanel from "./EventStatsSummaryPanel";
+import EventStatsFiltersBar from "./EventStatsFiltersBar";
 import {
   EventGrid,
   EventScrollArea,
+  EventStatsCard,
   EventStatsRoot,
-  EventStatsToolbar,
   EmptySearch,
-  filterControlSx,
 } from "./EventStats.styled";
 
 export interface EventStatsSummarySection {
   title: string;
   bets: Bet[];
+  tier?: EventTier;
 }
 
 interface EventStatsProps {
-  isAdmin?: boolean;
   bets: Bet[];
+  allBets?: Bet[];
+  matches?: Match[];
   events?: EventRecord[];
   emptyMessage?: string;
   notFoundMessage?: string;
   /** Сводная статистика над списком турниров */
   summarySections?: EventStatsSummarySection[];
-  /** Показывать фильтр по статусу турнира */
+  /** Показывать фильтр по тиру турнира */
   showTierFilter?: boolean;
-  /** Какие статусы доступны в фильтре (по умолчанию — все) */
+  /** Какие тиры доступны в фильтре (по умолчанию — все) */
   tierFilterOptions?: readonly EventTier[];
   /** Фильтр по стадии major */
   showMajorStageFilter?: boolean;
   onUpdateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
+  onDeleteEvent: (identity: EventIdentity) => Promise<void>;
 }
 
-const eventKey = (org: string, name: string, majorStage?: MajorStage | null) =>
+const eventKey = (org: string, name: string, majorStage?: string | null) =>
   majorStage ? `${org}\0${name}\0${majorStage}` : `${org}\0${name}`;
 
-const SORT_FIELD_LABELS: Record<EventStatsSortField, string> = {
-  date: "Дата",
-  name: "Название",
-  totalBets: "Количество ставок",
-  winRate: "Винрейт",
-  profit: "Профит",
-  pendingExposure: "Сумма в игре",
-};
+type EventGridEntry =
+  | { type: "group"; data: MajorEventGroup }
+  | { type: "flat"; data: EventStatsItem };
+
+const sortEventGridEntries = (entries: EventGridEntry[]): EventGridEntry[] =>
+  [...entries].sort((a, b) => {
+    const byDate = compareStartDate(a.data.date, b.data.date, "desc");
+    if (byDate !== 0) return byDate;
+
+    return `${a.data.eventOrganization} ${a.data.eventName}`.localeCompare(
+      `${b.data.eventOrganization} ${b.data.eventName}`,
+      "ru"
+    );
+  });
 
 const EventStats = ({
-  isAdmin = false,
   bets,
+  allBets = bets,
+  matches = [],
   events = [],
   emptyMessage = "Нет турниров — нажмите «Новый турнир» в шапке",
-  notFoundMessage = "Ничего не найдено",
+  notFoundMessage = "Нет турниров по выбранным фильтрам",
   summarySections,
-  showTierFilter = true,
   tierFilterOptions = EVENT_TIERS,
-  showMajorStageFilter = false,
   onUpdateEvent,
+  onDeleteEvent,
 }: EventStatsProps) => {
   const [editingEvent, setEditingEvent] = useState<EventStatsItem | null>(null);
-  const [search, setSearch] = useState("");
-  const [filterOrganization, setFilterOrganization] = useState("");
-  const [filterTier, setFilterTier] = useState<EventTier | "">("");
-  const [filterMajorStage, setFilterMajorStage] = useState<MajorStage | "">("");
-  const [sortBy, setSortBy] = useState<EventStatsSortField>("date");
-  const [sortDir, setSortDir] = useState<SortDirection>("desc");
+  const [editingAllStages, setEditingAllStages] = useState(false);
+  const [deletingEvent, setDeletingEvent] = useState<EventStatsItem | null>(null);
+  const [deletingAllStages, setDeletingAllStages] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [filters, setFilters] = useState<EventStatsFilterState>(DEFAULT_EVENT_STATS_FILTERS);
+
   const stats = useMemo(
     () =>
-      mergeEventStatsWithStored(calcEventStatsList(bets), events, {
+      mergeEventStatsWithStored(calcEventStatsList(bets, events), events, {
         tiers: [...tierFilterOptions],
       }),
     [bets, events, tierFilterOptions]
   );
 
-  const organizations = useMemo(
+  const stagedGroups = useMemo(
+    () => calcStagedEventGroups(bets, events, { includeTiers: [...tierFilterOptions] }),
+    [bets, events, tierFilterOptions]
+  );
+
+  const stagedGroupKeys = useMemo(
+    () => new Set(stagedGroups.map((group) => majorEventGroupKey(group.eventOrganization, group.eventName))),
+    [stagedGroups]
+  );
+
+  const flatStats = useMemo(
     () =>
-      Array.from(new Set(stats.map((item) => item.eventOrganization))).sort((a, b) =>
-        a.localeCompare(b, "ru")
-      ),
-    [stats]
+      stats.filter((item) => {
+        const key = majorEventGroupKey(item.eventOrganization, item.eventName);
+        if (stagedGroupKeys.has(key)) return false;
+        const stored = findStoredEvent(item, events);
+        return !eventHasStages(stored) && !item.majorStage;
+      }),
+    [stats, stagedGroupKeys, events]
   );
 
-  const displayed = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    const filtered = stats
-      .filter(
-        (item) => !filterOrganization || item.eventOrganization === filterOrganization
-      )
-      .filter((item) => !filterTier || item.eventTier === filterTier)
-      .filter((item) => !filterMajorStage || item.majorStage === filterMajorStage)
-      .filter(
-        (item) =>
-          !q ||
-          item.eventName.toLowerCase().includes(q) ||
-          formatEventLabel(item.eventOrganization, item.eventName, {
-            eventTier: item.eventTier,
-            majorStage: item.majorStage,
-          })
-            .toLowerCase()
-            .includes(q)
-      );
+  const displayedEntries = useMemo(() => {
+    const filteredGroups = filterMajorEventGroups(stagedGroups, filters);
+    const filteredFlat = filterEventStatsList(flatStats, filters);
 
-    return sortEventStatsList(filtered, sortBy, sortDir);
-  }, [stats, search, filterOrganization, filterTier, filterMajorStage, sortBy, sortDir]);
+    return sortEventGridEntries([
+      ...filteredGroups.map((data) => ({ type: "group" as const, data })),
+      ...filteredFlat.map((data) => ({ type: "flat" as const, data })),
+    ]);
+  }, [stagedGroups, flatStats, filters]);
 
-  const hasActiveFilters = Boolean(
-    search.trim() || filterOrganization || filterTier || filterMajorStage
-  );
+  const displayedCount = displayedEntries.length;
+  const totalCount = flatStats.length + stagedGroups.length;
+
+  const hasActiveFilters = hasActiveEventStatsFilters(filters);
+
+  const resetFilters = () => {
+    setFilters(DEFAULT_EVENT_STATS_FILTERS);
+  };
 
   const summaryBlock =
-    summarySections && summarySections.length > 0
-      ? summarySections
-          .filter((section) => section.bets.length > 0)
-          .map((section) => (
-            <SummaryGeneralSection
-              key={section.title}
-              title={section.title}
-              bets={section.bets}
-            />
-          ))
-      : null;
+    summarySections && summarySections.length > 0 ? (
+      <EventStatsSummaryPanel sections={summarySections} />
+    ) : null;
 
-  if (stats.length === 0) {
+  const openDeleteDialog = (item: EventStatsItem, allStages: boolean) => {
+    setDeletingAllStages(allStages);
+    setDeletingEvent(item);
+  };
+
+  const deleteIdentity: EventIdentity | null = deletingEvent
+    ? {
+        eventOrganization: deletingEvent.eventOrganization,
+        eventName: deletingEvent.eventName,
+        majorStage: deletingAllStages ? undefined : deletingEvent.majorStage,
+        allMajorStages: deletingAllStages,
+      }
+    : null;
+
+  const deleteDisplayName = deletingEvent
+    ? deletingEvent.eventName || deletingEvent.eventOrganization
+    : "";
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteIdentity) return;
+    setDeleting(true);
+    try {
+      await onDeleteEvent(deleteIdentity);
+      setDeletingEvent(null);
+      setDeletingAllStages(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (totalCount === 0) {
     return (
       <EventStatsRoot>
         {summaryBlock}
@@ -155,146 +194,107 @@ const EventStats = ({
   return (
     <EventStatsRoot>
       {summaryBlock}
-      <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
-        <Chip
-          label={hasActiveFilters ? `${displayed.length} / ${stats.length}` : stats.length}
-          size="small"
-          variant="outlined"
-          sx={{ borderColor: "rgba(76, 175, 80, 0.35)" }}
+
+      <EventStatsCard>
+        <EventStatsFiltersBar
+          search={filters.search}
+          onSearchChange={(search) => setFilters((prev) => ({ ...prev, search }))}
+          hasActiveFilters={hasActiveFilters}
+          onResetFilters={resetFilters}
         />
-      </Box>
 
-      <TextField
-        size="small"
-        fullWidth
-        placeholder="Поиск названия турнира..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
+        <EventScrollArea>
+          {displayedCount === 0 ? (
+            <EmptySearch>{notFoundMessage}</EmptySearch>
+          ) : (
+            <EventGrid>
+              {displayedEntries.map((entry) => {
+                if (entry.type === "group") {
+                  const group = entry.data;
+                  const stages = filters.filterMajorStage
+                    ? group.stages.filter((stage) => stage.majorStage === filters.filterMajorStage)
+                    : group.stages;
 
-      <EventStatsToolbar>
-        {showTierFilter ? (
-          <FormControl size="small" sx={filterControlSx}>
-            <InputLabel>Статус</InputLabel>
-            <Select
-              value={filterTier}
-              label="Статус"
-              onChange={(e) => setFilterTier(e.target.value as EventTier | "")}
-            >
-              <MenuItem value="">Все</MenuItem>
-              {tierFilterOptions.map((tier) => (
-                <MenuItem key={tier} value={tier}>
-                  {tier}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
+                  return (
+                    <MajorEventGroupCard
+                      key={majorEventGroupKey(group.eventOrganization, group.eventName)}
+                      group={group}
+                      stages={stages}
+                      onEditGroup={() => {
+                        setEditingAllStages(true);
+                        setEditingEvent(majorGroupToEventStats(group));
+                      }}
+                      onDeleteGroup={() => {
+                        openDeleteDialog(majorGroupToEventStats(group), true);
+                      }}
+                      onEditStage={(stage) => {
+                        setEditingAllStages(false);
+                        setEditingEvent(stage);
+                      }}
+                    />
+                  );
+                }
 
-        {showMajorStageFilter ? (
-          <FormControl size="small" sx={filterControlSx}>
-            <InputLabel>Стадия</InputLabel>
-            <Select
-              value={filterMajorStage}
-              label="Стадия"
-              onChange={(e) => setFilterMajorStage(e.target.value as MajorStage | "")}
-            >
-              <MenuItem value="">Все</MenuItem>
-              {MAJOR_STAGES.map((stage) => (
-                <MenuItem key={stage} value={stage}>
-                  {stage}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
+                const item = entry.data;
+                return (
+                  <EventStatCard
+                    key={eventKey(item.eventOrganization, item.eventName, item.majorStage)}
+                    item={item}
+                    onEdit={() => {
+                      setEditingAllStages(false);
+                      setEditingEvent(item);
+                    }}
+                    onDelete={() => {
+                      openDeleteDialog(item, false);
+                    }}
+                  />
+                );
+              })}
+            </EventGrid>
+          )}
+        </EventScrollArea>
+      </EventStatsCard>
 
-        <FormControl size="small" sx={filterControlSx}>
-          <InputLabel>Организация</InputLabel>
-          <Select
-            value={filterOrganization}
-            label="Организация"
-            onChange={(e) => setFilterOrganization(e.target.value)}
-          >
-            <MenuItem value="">Все</MenuItem>
-            {organizations.map((org) => (
-              <MenuItem key={org} value={org}>
-                {org}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl size="small" sx={filterControlSx}>
-          <InputLabel>Сортировка</InputLabel>
-          <Select
-            value={sortBy}
-            label="Сортировка"
-            onChange={(e) => setSortBy(e.target.value as EventStatsSortField)}
-          >
-            {(Object.keys(SORT_FIELD_LABELS) as EventStatsSortField[]).map((field) => (
-              <MenuItem key={field} value={field}>
-                {SORT_FIELD_LABELS[field]}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl size="small" sx={filterControlSx}>
-          <InputLabel>Порядок</InputLabel>
-          <Select
-            value={sortDir}
-            label="Порядок"
-            onChange={(e) => setSortDir(e.target.value as SortDirection)}
-          >
-            <MenuItem value="asc">По возрастанию</MenuItem>
-            <MenuItem value="desc">По убыванию</MenuItem>
-          </Select>
-        </FormControl>
-      </EventStatsToolbar>
-
-      <EventScrollArea>
-        {displayed.length === 0 ? (
-          <EmptySearch>{notFoundMessage}</EmptySearch>
-        ) : (
-          <EventGrid>
-            {displayed.map((item) => (
-              <EventStatCard
-                key={eventKey(item.eventOrganization, item.eventName, item.majorStage)}
-                item={item}
-                showEdit={isAdmin}
-                onEdit={() => setEditingEvent(item)}
-              />
-            ))}
-          </EventGrid>
-        )}
-      </EventScrollArea>
       <EventFormDialog
         open={Boolean(editingEvent)}
         bets={bets}
         initial={editingEvent ?? undefined}
-        onClose={() => setEditingEvent(null)}
+        editEventDates={editingAllStages || !editingEvent?.majorStage}
+        onClose={() => {
+          setEditingEvent(null);
+          setEditingAllStages(false);
+        }}
         onSubmit={async (values) => {
           if (!editingEvent) return;
           await onUpdateEvent(
             {
               eventOrganization: editingEvent.eventOrganization,
               eventName: editingEvent.eventName,
-              majorStage: editingEvent.majorStage,
+              majorStage: editingAllStages ? undefined : editingEvent.majorStage,
+              allMajorStages: editingAllStages,
             },
             values
           );
           setEditingEvent(null);
+          setEditingAllStages(false);
         }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deletingEvent && deleteIdentity)}
+        title="Удалить турнир?"
+        message={
+          deleteIdentity
+            ? buildDeleteEventMessage(deleteDisplayName, deleteIdentity, allBets, matches, events)
+            : ""
+        }
+        confirming={deleting}
+        onClose={() => {
+          if (deleting) return;
+          setDeletingEvent(null);
+          setDeletingAllStages(false);
+        }}
+        onConfirm={handleDeleteConfirm}
       />
     </EventStatsRoot>
   );

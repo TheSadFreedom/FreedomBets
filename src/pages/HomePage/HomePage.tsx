@@ -9,7 +9,6 @@ import EventFormDialog from "@/features/events/components/EventFormDialog/EventF
 import HomeQuickActions from "@/features/home/components/HomeQuickActions/HomeQuickActions";
 import HomeTabs from "@/features/home/components/HomeTabs/HomeTabs";
 import MatchFormDialog from "@/features/matches/components/MatchFormDialog/MatchFormDialog";
-import { isAdminProfile } from "@/features/profile/lib/isAdminProfile";
 import { matchToBetSeed } from "@/features/matches/lib/matchToBetSeed";
 import PageError from "@/shared/ui/PageError/PageError";
 import PageLoader from "@/shared/ui/PageLoader/PageLoader";
@@ -42,6 +41,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     deleteMatch,
     addEvent,
     updateEvent,
+    deleteEvent,
     events,
     pickems,
     addPickemMajor,
@@ -76,24 +76,24 @@ const HomePage = ({ profileBets }: HomePageProps) => {
   if (error) return <PageError message={error} onRetry={reload} />;
   if (!profile) return null;
 
-  const isAdmin = isAdminProfile(profile);
-
   return (
     <Container>
-      {isAdmin ? (
-        <HomeQuickActions
-          onNewMatch={() => setCreateMatchOpen(true)}
-          onNewEvent={() => setCreateEventOpen(true)}
-        />
-      ) : null}
+      <HomeQuickActions
+        onNewMatch={() => setCreateMatchOpen(true)}
+        onNewEvent={() => setCreateEventOpen(true)}
+      />
 
       <HomeTabs
-        isAdmin={isAdmin}
+        profile={profile}
         profiles={profiles}
         allBets={allBets}
         activeProfileId={profile.id}
         bets={bets}
         balance={profile.balance}
+        onSetBalance={profileBets.setBalance}
+        onUpdateName={profileBets.updateProfileName}
+        onDeleteProfile={profileBets.deleteProfile}
+        onExitProfile={profileBets.exitProfile}
         matches={matches}
         onUpdateMatch={updateMatch}
         onSettleMatchBets={settleMatchBets}
@@ -108,6 +108,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         onRevert={revertToPending}
         events={events}
         onUpdateEvent={updateEvent}
+        onDeleteEvent={deleteEvent}
         pickems={pickems}
         onAddPickemMajor={addPickemMajor}
         onUploadPickemStageImage={uploadPickemStageImage}
@@ -120,6 +121,8 @@ const HomePage = ({ profileBets }: HomePageProps) => {
       <MatchFormDialog
         open={createMatchOpen}
         bets={bets}
+        allBets={allBets}
+        matches={matches}
         events={events}
         onClose={() => setCreateMatchOpen(false)}
         onSubmit={async (values) => {

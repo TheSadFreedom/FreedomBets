@@ -1,29 +1,38 @@
-import { Box, Typography } from "@mui/material";
 import type { Bet } from "@/entities/bet";
 import ActionButtons from "@/features/bets/components/ActionButtons/ActionButtons";
 import BetDescriptionCell from "@/features/bets/components/BetDescriptionCell/BetDescriptionCell";
 import MajorStageBadge from "@/features/events/components/MajorStageBadge/MajorStageBadge";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
-import OrganizationLogo from "@/shared/ui/OrganizationLogo/OrganizationLogo";
+import type { EventRecord } from "@/entities/eventRecord";
+import { resolveEventLogoSlug } from "@/features/events/lib/eventDisplay";
+import EventLogo from "@/shared/ui/EventLogo/EventLogo";
 import { formatIsoDateDots } from "@/shared/lib/date/isoDate";
 import {
-  MobileBetActions,
-  MobileBetCard,
-  MobileBetFooter,
-  MobileBetHeader,
-  MobileBetMain,
-  MobileBetMeta,
-  MobileBetRow,
-  MobileBetTeams,
-  MobileBetValue,
-  MobileBetValues,
   FormatBadge,
-  PayoutValue,
+  MobileBetActions,
+  MobileBetBody,
+  MobileBetCard,
+  MobileBetDate,
+  MobileBetEventName,
+  MobileBetEventOrg,
+  MobileBetEventStrip,
+  MobileBetEventText,
+  MobileBetFooter,
+  MobileBetList,
+  MobileBetMeta,
+  MobileBetPayout,
+  MobileBetPick,
+  MobileBetStageWrap,
+  MobileBetTeams,
+  MobileBetTop,
+  MobileBetTopRight,
+  MobileBetVs,
   StatusBadge,
 } from "./BetsHistory.styled";
 
 interface BetsHistoryMobileListProps {
   bets: Bet[];
+  events?: EventRecord[];
   onEdit: (bet: Bet) => void;
   onDelete: (bet: Bet) => void;
   onWin: (id: string) => void;
@@ -43,71 +52,60 @@ const formatPayout = (bet: Bet) => {
 
 const BetsHistoryMobileList = ({
   bets,
+  events = [],
   onEdit,
   onDelete,
   onWin,
   onLose,
   onRevert,
 }: BetsHistoryMobileListProps) => (
-  <Box display="flex" flexDirection="column" gap={1} px={1} pb={1.5} pt={0.5}>
+  <MobileBetList>
     {bets.map((bet) => (
-      <MobileBetCard key={bet.id}>
-        <MobileBetHeader>
-          <MobileBetMeta>
-            <Typography variant="body2" fontWeight={700} lineHeight={1.3}>
-              {formatIsoDateDots(bet.date)} · {bet.time}
-            </Typography>
-            <FormatBadge>{bet.format}</FormatBadge>
-          </MobileBetMeta>
-          <StatusBadge $status={bet.status}>{bet.status}</StatusBadge>
-        </MobileBetHeader>
+      <MobileBetCard key={bet.id} $status={bet.status}>
+        <MobileBetTop>
+          <MobileBetDate>
+            {formatIsoDateDots(bet.date)} · {bet.time}
+          </MobileBetDate>
+          <MobileBetTopRight>
+            <MobileBetPayout $status={bet.status}>{formatPayout(bet)}</MobileBetPayout>
+            <StatusBadge $status={bet.status}>{bet.status}</StatusBadge>
+          </MobileBetTopRight>
+        </MobileBetTop>
 
-        <MobileBetMain>
-          <MobileBetRow>
-            <OrganizationLogo name={bet.eventOrganization} size={28} />
-            <Box minWidth={0} flex={1}>
-              <Typography variant="body2" fontWeight={600} lineHeight={1.3}>
-                {bet.eventOrganization}
-              </Typography>
-              {bet.eventName ? (
-                <Typography variant="caption" color="text.secondary" display="block" lineHeight={1.3}>
-                  {bet.eventName}
-                </Typography>
-              ) : null}
-              {bet.eventTier === "Major" && bet.majorStage ? (
-                <Box mt={0.5}>
+        <MobileBetBody>
+          <MobileBetEventStrip>
+            <EventLogo
+              logoSlug={resolveEventLogoSlug(bet.eventOrganization, bet.eventName, events)}
+              label={bet.eventName || bet.eventOrganization}
+              size={24}
+            />
+            <MobileBetEventText>
+              <MobileBetEventOrg>{bet.eventOrganization}</MobileBetEventOrg>
+              {bet.eventName ? <MobileBetEventName>{bet.eventName}</MobileBetEventName> : null}
+              {bet.majorStage ? (
+                <MobileBetStageWrap>
                   <MajorStageBadge stage={bet.majorStage} />
-                </Box>
+                </MobileBetStageWrap>
               ) : null}
-            </Box>
-          </MobileBetRow>
+            </MobileBetEventText>
+            <FormatBadge>{bet.format}</FormatBadge>
+          </MobileBetEventStrip>
 
           <MobileBetTeams>
-            <TeamLogo name={bet.organization1} size={24} showName nameWrap />
-            <Typography variant="caption" color="text.secondary" sx={{ px: 0.5 }}>
-              vs
-            </Typography>
-            <TeamLogo name={bet.organization2} size={24} showName nameWrap />
+            <TeamLogo name={bet.organization1} size={20} showName nameWrap />
+            <MobileBetVs>vs</MobileBetVs>
+            <TeamLogo name={bet.organization2} size={20} showName nameWrap />
           </MobileBetTeams>
 
-          <BetDescriptionCell bet={bet} />
-        </MobileBetMain>
+          <MobileBetPick>
+            <BetDescriptionCell bet={bet} />
+          </MobileBetPick>
+        </MobileBetBody>
 
         <MobileBetFooter>
-          <MobileBetValues>
-            <MobileBetValue>
-              <span>Сумма</span>
-              <strong>{bet.amount.toLocaleString("ru-RU")} ₽</strong>
-            </MobileBetValue>
-            <MobileBetValue>
-              <span>Кэф</span>
-              <strong>{bet.odds.toFixed(2)}</strong>
-            </MobileBetValue>
-            <MobileBetValue>
-              <span>Выплата</span>
-              <PayoutValue $status={bet.status}>{formatPayout(bet)}</PayoutValue>
-            </MobileBetValue>
-          </MobileBetValues>
+          <MobileBetMeta>
+            {bet.amount.toLocaleString("ru-RU")} ₽ · {bet.odds.toFixed(2)}
+          </MobileBetMeta>
           <MobileBetActions>
             <ActionButtons
               bet={bet}
@@ -121,7 +119,7 @@ const BetsHistoryMobileList = ({
         </MobileBetFooter>
       </MobileBetCard>
     ))}
-  </Box>
+  </MobileBetList>
 );
 
 export default BetsHistoryMobileList;

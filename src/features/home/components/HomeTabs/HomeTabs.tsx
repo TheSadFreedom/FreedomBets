@@ -1,23 +1,14 @@
 import { useMemo, useState } from "react";
 import { Tab, Tabs } from "@mui/material";
-import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
-import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
-import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
-import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
-import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
-import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
-import SportsEsportsOutlinedIcon from "@mui/icons-material/SportsEsportsOutlined";
-import WorkspacePremiumOutlinedIcon from "@mui/icons-material/WorkspacePremiumOutlined";
 import type { Bet, BetTeamSide } from "@/entities/bet";
 import type { EventEditInput, EventIdentity } from "@/entities/event";
 import type { Match, MatchCreateInput } from "@/entities/match";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
 import type { PickemMajor, PickemStageName } from "@/entities/pickem";
+import { MAJOR_EVENT_TIERS, NON_MAJOR_EVENT_TIERS } from "@/entities/event";
 import BetsHistory from "@/features/bets/components/BetsHistory/BetsHistory";
-import { NON_MAJOR_EVENT_TIERS } from "@/entities/event";
 import EventStats from "@/features/events/components/EventStats/EventStats";
-import MajorEventStats from "@/features/events/components/MajorEventStats/MajorEventStats";
 import {
   filterBetsByTier,
   filterMajorBets,
@@ -29,10 +20,27 @@ import PickemTab from "@/features/pickem/components/PickemTab/PickemTab";
 import ProfileRankingTab from "@/features/profile/components/ProfileRankingTab/ProfileRankingTab";
 import TeamsTab from "@/features/teams/components/TeamsTab/TeamsTab";
 import type { Profile } from "@/entities/profile";
-import { TabLabel, TabsBar, TabsPanel, TabsRoot } from "./HomeTabs.styled";
 
-interface HomeTabsProps {
-  isAdmin?: boolean;
+interface ProfileNavHandlers {
+  onSetBalance: (balance: number) => Promise<void>;
+  onUpdateName: (name: string) => Promise<void>;
+  onDeleteProfile: () => Promise<void>;
+  onExitProfile: () => void;
+}
+import { getMobileTabIcon, HOME_TABS } from "./homeTabsConfig";
+import HomeMobileNav from "./HomeMobileNav";
+import {
+  MobileTabHeader,
+  MobileTabHeaderIcon,
+  MobileTabHeaderTitle,
+  TabLabel,
+  TabsBar,
+  TabsPanel,
+  TabsRoot,
+} from "./HomeTabs.styled";
+
+interface HomeTabsProps extends ProfileNavHandlers {
+  profile: Profile;
   profiles: Profile[];
   allBets: Bet[];
   activeProfileId: number;
@@ -50,6 +58,7 @@ interface HomeTabsProps {
   onRevert: (id: string) => void;
   events: EventRecord[];
   onUpdateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
+  onDeleteEvent: (identity: EventIdentity) => Promise<void>;
   pickems: PickemMajor[];
   onAddPickemMajor: (eventOrganization: string, eventName: string) => Promise<void>;
   onUploadPickemStageImage: (
@@ -63,58 +72,17 @@ interface HomeTabsProps {
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
 }
 
-const tabIconSx = { fontSize: 17 } as const;
-
-const HOME_TABS = [
-  {
-    label: "Матчи",
-    id: "matches",
-    icon: <SportsEsportsOutlinedIcon sx={tabIconSx} />,
-  },
-  {
-    label: "История",
-    id: "bets",
-    icon: <ReceiptLongOutlinedIcon sx={tabIconSx} />,
-  },
-  {
-    label: "Статистика",
-    id: "summary",
-    icon: <InsightsOutlinedIcon sx={tabIconSx} />,
-  },
-  {
-    label: "Топ",
-    id: "ranking",
-    icon: <EmojiEventsOutlinedIcon sx={tabIconSx} />,
-  },
-  {
-    label: "Команды",
-    id: "teams",
-    icon: <GroupsOutlinedIcon sx={tabIconSx} />,
-  },
-  {
-    label: "Турниры",
-    id: "events",
-    icon: <EventOutlinedIcon sx={tabIconSx} />,
-  },
-  {
-    label: "Major",
-    id: "majors",
-    icon: <WorkspacePremiumOutlinedIcon sx={tabIconSx} />,
-  },
-  {
-    label: "Pick'em",
-    id: "pickem",
-    icon: <HowToVoteOutlinedIcon sx={tabIconSx} />,
-  },
-] as const;
-
 const HomeTabs = ({
-  isAdmin = false,
+  profile,
   profiles,
   allBets,
   activeProfileId,
   bets,
   balance,
+  onSetBalance,
+  onUpdateName,
+  onDeleteProfile,
+  onExitProfile,
   matches,
   onUpdateMatch,
   onSettleMatchBets,
@@ -127,6 +95,7 @@ const HomeTabs = ({
   onRevert,
   events,
   onUpdateEvent,
+  onDeleteEvent,
   pickems,
   onAddPickemMajor,
   onUploadPickemStageImage,
@@ -136,13 +105,28 @@ const HomeTabs = ({
   onDeleteMedal,
 }: HomeTabsProps) => {
   const [tab, setTab] = useState(0);
-  const majorBets = useMemo(() => filterMajorBets(bets), [bets]);
-  const nonMajorBets = useMemo(() => filterNonMajorBets(bets), [bets]);
-  const bigBets = useMemo(() => filterBetsByTier(nonMajorBets, "Big"), [nonMajorBets]);
-  const smallBets = useMemo(() => filterBetsByTier(nonMajorBets, "Small"), [nonMajorBets]);
+  const majorBets = useMemo(() => filterMajorBets(bets, events), [bets, events]);
+  const nonMajorBets = useMemo(() => filterNonMajorBets(bets, events), [bets, events]);
+  const bigBets = useMemo(
+    () => filterBetsByTier(nonMajorBets, "Big", events),
+    [nonMajorBets, events]
+  );
+  const smallBets = useMemo(
+    () => filterBetsByTier(nonMajorBets, "Small", events),
+    [nonMajorBets, events]
+  );
+
+  const activeTab = HOME_TABS[tab];
 
   return (
     <TabsRoot>
+      <MobileTabHeader aria-hidden={false}>
+        <MobileTabHeaderIcon aria-hidden>
+          {getMobileTabIcon(activeTab.id)}
+        </MobileTabHeaderIcon>
+        <MobileTabHeaderTitle>{activeTab.label}</MobileTabHeaderTitle>
+      </MobileTabHeader>
+
       <TabsBar>
         <Tabs
           value={tab}
@@ -171,7 +155,6 @@ const HomeTabs = ({
         hidden={tab !== 0}
       >
         <MatchesTab
-          isAdmin={isAdmin}
           bets={bets}
           allBets={allBets}
           profiles={profiles}
@@ -189,6 +172,7 @@ const HomeTabs = ({
       <TabsPanel role="tabpanel" id="home-tabpanel-bets" aria-labelledby="home-tab-bets" hidden={tab !== 1}>
         <BetsHistory
           bets={bets}
+          events={events}
           onEdit={onEdit}
           onDelete={onDelete}
           onWin={onWin}
@@ -235,15 +219,17 @@ const HomeTabs = ({
         hidden={tab !== 5}
       >
         <EventStats
-          isAdmin={isAdmin}
           bets={nonMajorBets}
+          allBets={allBets}
+          matches={matches}
           events={events}
           summarySections={[
-            { title: "Big", bets: bigBets },
-            { title: "Small", bets: smallBets },
+            { title: "Big", bets: bigBets, tier: "Big" },
+            { title: "Small", bets: smallBets, tier: "Small" },
           ]}
           tierFilterOptions={NON_MAJOR_EVENT_TIERS}
           onUpdateEvent={onUpdateEvent}
+          onDeleteEvent={onDeleteEvent}
         />
       </TabsPanel>
 
@@ -253,11 +239,19 @@ const HomeTabs = ({
         aria-labelledby="home-tab-majors"
         hidden={tab !== 6}
       >
-        <MajorEventStats
-          isAdmin={isAdmin}
+        <EventStats
           bets={majorBets}
+          allBets={allBets}
+          matches={matches}
           events={events}
+          summarySections={[{ title: "Major", bets: majorBets, tier: "Major" }]}
+          showTierFilter={false}
+          tierFilterOptions={MAJOR_EVENT_TIERS}
+          showMajorStageFilter
+          emptyMessage="Нет major турниров — назначьте статус Major при создании или редактировании турнира"
+          notFoundMessage="Нет major турниров по выбранным фильтрам"
           onUpdateEvent={onUpdateEvent}
+          onDeleteEvent={onDeleteEvent}
         />
       </TabsPanel>
 
@@ -279,6 +273,16 @@ const HomeTabs = ({
           onDeleteMedal={onDeleteMedal}
         />
       </TabsPanel>
+
+      <HomeMobileNav
+        activeTab={tab}
+        onTabChange={setTab}
+        profile={profile}
+        onSetBalance={onSetBalance}
+        onUpdateName={onUpdateName}
+        onDeleteProfile={onDeleteProfile}
+        onExitProfile={onExitProfile}
+      />
     </TabsRoot>
   );
 };

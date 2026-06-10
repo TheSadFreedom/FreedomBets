@@ -14,7 +14,8 @@ import type { Bet } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { PickemMajor } from "@/entities/pickem";
 import { getMajorEventOptions } from "@/features/pickem/lib/majorEventOptions";
-import MajorLogo from "@/shared/ui/MajorLogo/MajorLogo";
+import { resolveEventLogoSlug } from "@/features/events/lib/eventDisplay";
+import EventLogo from "@/shared/ui/EventLogo/EventLogo";
 import {
   DialogBody,
   DialogFooter,
@@ -44,7 +45,7 @@ const PickemMajorSelectDialog = ({
   onSubmit,
 }: PickemMajorSelectDialogProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const options = useMemo(
     () => getMajorEventOptions(bets, pickems, events),
     [bets, pickems, events]
@@ -105,9 +106,13 @@ const PickemMajorSelectDialog = ({
               >
                 {options.map((option) => (
                   <MenuItem key={option.key} value={option.key}>
-                    <MajorLogo
-                      eventOrganization={option.eventOrganization}
-                      eventName={option.eventName}
+                    <EventLogo
+                      logoSlug={resolveEventLogoSlug(
+                        option.eventOrganization,
+                        option.eventName,
+                        events
+                      )}
+                      label={option.eventName || option.eventOrganization}
                       size={24}
                       showName
                     />

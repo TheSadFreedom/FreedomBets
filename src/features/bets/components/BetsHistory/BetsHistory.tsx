@@ -7,26 +7,23 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  InputAdornment,
+  TextField,
   Typography,
-  Chip,
   Box,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import type { SxProps, Theme } from "@mui/material/styles";
 import type { Bet } from "@/entities/bet";
 import BetDescriptionCell from "@/features/bets/components/BetDescriptionCell/BetDescriptionCell";
 import ActionButtons from "@/features/bets/components/ActionButtons/ActionButtons";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
-import OrganizationLogo from "@/shared/ui/OrganizationLogo/OrganizationLogo";
+import type { EventRecord } from "@/entities/eventRecord";
+import EventLogo from "@/shared/ui/EventLogo/EventLogo";
+import { resolveEventLogoSlug } from "@/features/events/lib/eventDisplay";
 import MajorStageBadge from "@/features/events/components/MajorStageBadge/MajorStageBadge";
-import { eventKeyFromBet, formatEventLabel } from "@/features/events/lib/eventDisplay";
-import {
-  sortBetsByDateTime,
-  type BetDateTimeSortDirection,
-} from "@/features/bets/lib/sortBets";
+import { sortBetsByDateTime } from "@/features/bets/lib/sortBets";
+import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
 import { formatIsoDateDots } from "@/shared/lib/date/isoDate";
 import {
   AmountValue,
@@ -35,23 +32,19 @@ import {
   CellLogoWrap,
   DateStack,
   EmptyState,
-  FiltersHeader,
   FiltersPanel,
-  FiltersTitle,
-  FilterOptionRow,
   FiltersWrapper,
   FormatBadge,
   HistoryCard,
-  filterSelectMenuProps,
   OddsValue,
   PayoutValue,
   StatusBadge,
   TableScroll,
-  filterControlSx,
 } from "./BetsHistory.styled";
 
 interface BetsHistoryProps {
   bets: Bet[];
+  events?: EventRecord[];
   onEdit: (bet: Bet) => void;
   onDelete: (bet: Bet) => void;
   onWin: (id: string) => void;
@@ -59,8 +52,32 @@ interface BetsHistoryProps {
   onRevert: (id: string) => void;
 }
 
-type StatusFilter = "все" | Bet["status"];
 type CellAlign = "left" | "center" | "right";
+
+const matchesBetSearch = (bet: Bet, query: string) => {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+
+  const haystack = [
+    bet.date,
+    bet.time,
+    bet.eventOrganization,
+    bet.eventName,
+    bet.organization1,
+    bet.organization2,
+    bet.betType,
+    bet.status,
+    bet.format,
+    bet.majorStage,
+    String(bet.amount),
+    String(bet.odds),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(q);
+};
 
 const wrapTextSx = {
   wordBreak: "break-word",
@@ -97,35 +114,6 @@ const cellSx = (
   };
 };
 
-const EventFilterOption = ({
-  eventOrganization,
-  eventName,
-}: {
-  eventOrganization: string;
-  eventName: string;
-}) => (
-  <FilterOptionRow>
-    <OrganizationLogo name={eventOrganization} size={27} />
-    <Box minWidth={0} flex={1}>
-      <Typography variant="body2" noWrap title={eventOrganization} lineHeight={1.3}>
-        {eventOrganization}
-      </Typography>
-      {eventName ? (
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          noWrap
-          title={eventName}
-          display="block"
-          lineHeight={1.2}
-        >
-          {eventName}
-        </Typography>
-      ) : null}
-    </Box>
-  </FilterOptionRow>
-);
-
 const formatPayout = (bet: Bet) => {
   if (bet.status === "WAIT") {
     return `до ${(bet.amount * bet.odds).toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ₽`;
@@ -136,220 +124,50 @@ const formatPayout = (bet: Bet) => {
   return `−${bet.amount.toLocaleString("ru-RU")} ₽`;
 };
 
-const BetsHistory = ({ bets, onEdit, onDelete, onWin, onLose, onRevert }: BetsHistoryProps) => {
+const BetsHistory = ({
+  bets,
+  events = [],
+  onEdit,
+  onDelete,
+  onWin,
+  onLose,
+  onRevert,
+}: BetsHistoryProps) => {
   const isMobile = useIsMobile();
-  const [filterStatus, setFilterStatus] = useState<StatusFilter>("все");
-  const [filterEvent, setFilterEvent] = useState("");
-  const [filterOrganization, setFilterOrganization] = useState("");
-  const [filterDate, setFilterDate] = useState("");
-  const [sortDir, setSortDir] = useState<BetDateTimeSortDirection>("desc");
-
-  const eventOptions = useMemo(() => {
-    const map = new Map<string, { eventOrganization: string; eventName: string }>();
-    for (const bet of bets) {
-      const key = eventKeyFromBet(bet);
-      if (!map.has(key)) {
-        map.set(key, {
-          eventOrganization: bet.eventOrganization,
-          eventName: bet.eventName,
-        });
-      }
-    }
-    return Array.from(map.entries()).sort((a, b) =>
-      formatEventLabel(a[1].eventOrganization, a[1].eventName).localeCompare(
-        formatEventLabel(b[1].eventOrganization, b[1].eventName),
-        "ru"
-      )
-    );
-  }, [bets]);
-
-  const selectedEvent = eventOptions.find(([key]) => key === filterEvent)?.[1];
-  const uniqueOrganizations = Array.from(
-    new Set(bets.flatMap((b) => [b.organization1, b.organization2]))
-  ).sort();
-  const uniqueDates = useMemo(
-    () => Array.from(new Set(bets.map((b) => b.date))).sort((a, b) => b.localeCompare(a)),
-    [bets]
-  );
+  const [search, setSearch] = useState("");
 
   const filteredBets = useMemo(
     () =>
       sortBetsByDateTime(
-        bets
-          .filter((b) => filterStatus === "все" || b.status === filterStatus)
-          .filter((b) => !filterEvent || eventKeyFromBet(b) === filterEvent)
-          .filter(
-            (b) =>
-              !filterOrganization ||
-              b.organization1 === filterOrganization ||
-              b.organization2 === filterOrganization
-          )
-          .filter((b) => !filterDate || b.date === filterDate),
-        sortDir
+        bets.filter((bet) => matchesBetSearch(bet, search)),
+        "desc"
       ),
-    [bets, filterStatus, filterEvent, filterOrganization, filterDate, sortDir]
+    [bets, search]
   );
-
-  const hasActiveFilters =
-    filterStatus !== "все" || filterEvent || filterOrganization || filterDate;
 
   return (
     <BetsHistoryStyled>
       <HistoryCard>
         <FiltersPanel>
-          <FiltersHeader>
-            <FiltersTitle>История</FiltersTitle>
-            <Chip
-              label={
-                hasActiveFilters
-                  ? `${filteredBets.length} / ${bets.length}`
-                  : `${bets.length}`
-              }
-              size="small"
-              variant="outlined"
-              sx={{ borderColor: "rgba(76, 175, 80, 0.35)" }}
-            />
-          </FiltersHeader>
-
           <FiltersWrapper>
-            <FormControl size="small" sx={filterControlSx}>
-              <InputLabel id="history-filter-status-label" shrink>
-                Статус
-              </InputLabel>
-              <Select
-                labelId="history-filter-status-label"
-                id="history-filter-status"
-                value={filterStatus}
-                label="Статус"
-                onChange={(e) => setFilterStatus(e.target.value as StatusFilter)}
-              >
-                <MenuItem value="все">Все</MenuItem>
-                <MenuItem value="WAIT">WAIT</MenuItem>
-                <MenuItem value="WIN">WIN</MenuItem>
-                <MenuItem value="LOSE">LOSE</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl
+            <TextField
               size="small"
-              sx={{ ...filterControlSx, flex: { xs: "1 1 100%", sm: "1 1 200px" } }}
-            >
-              <InputLabel id="history-filter-event-label" shrink>
-                Турнир
-              </InputLabel>
-              <Select
-                labelId="history-filter-event-label"
-                id="history-filter-event"
-                value={filterEvent}
-                label="Турнир"
-                displayEmpty
-                onChange={(e) => setFilterEvent(e.target.value)}
-                MenuProps={filterSelectMenuProps}
-                renderValue={(value) => {
-                  if (!value) return "Все";
-                  if (!selectedEvent) return value;
-                  return (
-                    <FilterOptionRow>
-                      <OrganizationLogo name={selectedEvent.eventOrganization} size={25} />
-                      <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0 }}>
-                        {formatEventLabel(
-                          selectedEvent.eventOrganization,
-                          selectedEvent.eventName
-                        )}
-                      </Typography>
-                    </FilterOptionRow>
-                  );
-                }}
-              >
-                <MenuItem value="">Все</MenuItem>
-                {eventOptions.map(([key, event]) => (
-                  <MenuItem key={key} value={key} sx={{ py: 0.75 }}>
-                    <EventFilterOption
-                      eventOrganization={event.eventOrganization}
-                      eventName={event.eventName}
-                    />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={filterControlSx}>
-              <InputLabel id="history-filter-team-label" shrink>
-                Команда
-              </InputLabel>
-              <Select
-                labelId="history-filter-team-label"
-                id="history-filter-team"
-                value={filterOrganization}
-                label="Команда"
-                displayEmpty
-                onChange={(e) => setFilterOrganization(e.target.value)}
-                MenuProps={filterSelectMenuProps}
-                renderValue={(value) => {
-                  if (!value) return "Все";
-                  return (
-                    <FilterOptionRow>
-                      <TeamLogo name={value} size={25} />
-                      <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0 }}>
-                        {value}
-                      </Typography>
-                    </FilterOptionRow>
-                  );
-                }}
-              >
-                <MenuItem value="">Все</MenuItem>
-                {uniqueOrganizations.map((org) => (
-                  <MenuItem key={org} value={org} sx={{ py: 0.5 }}>
-                    <TeamLogo name={org} size={27} showName />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={filterControlSx}>
-              <InputLabel id="history-filter-day-label" shrink>
-                День
-              </InputLabel>
-              <Select
-                labelId="history-filter-day-label"
-                id="history-filter-day"
-                value={filterDate}
-                label="День"
-                displayEmpty
-                renderValue={(value) => (value ? formatIsoDateDots(value) : "Все")}
-                onChange={(e) => setFilterDate(e.target.value)}
-              >
-                <MenuItem value="">Все</MenuItem>
-                {uniqueDates.map((date) => (
-                  <MenuItem key={date} value={date}>
-                    {formatIsoDateDots(date)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl
-              size="small"
-              sx={{
-                ...filterControlSx,
-                minWidth: { xs: 0, sm: 168 },
-                flex: { xs: "1 1 100%", sm: "1 1 168px" },
+              fullWidth
+              placeholder="Поиск"
+              value={search}
+              onChange={(e) => setSearch(limitInputLength(e.target.value))}
+              slotProps={{
+                htmlInput: { maxLength: MAX_INPUT_LENGTH },
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                },
               }}
-            >
-              <InputLabel id="history-sort-label" shrink>
-                Дата
-              </InputLabel>
-              <Select
-                labelId="history-sort-label"
-                id="history-sort"
-                value={sortDir}
-                label="Дата"
-                onChange={(e) => setSortDir(e.target.value as BetDateTimeSortDirection)}
-              >
-                <MenuItem value="desc">Сначала новые</MenuItem>
-                <MenuItem value="asc">Сначала старые</MenuItem>
-              </Select>
-            </FormControl>
+              sx={{ flex: "1 1 100%" }}
+            />
           </FiltersWrapper>
         </FiltersPanel>
 
@@ -357,11 +175,12 @@ const BetsHistory = ({ bets, onEdit, onDelete, onWin, onLose, onRevert }: BetsHi
           <EmptyState>
             {bets.length === 0
               ? "Ставок пока нет — добавьте первую"
-              : "Нет ставок по выбранным фильтрам"}
+              : "Ничего не найдено"}
           </EmptyState>
         ) : isMobile ? (
           <BetsHistoryMobileList
             bets={filteredBets}
+            events={events}
             onEdit={onEdit}
             onDelete={onDelete}
             onWin={onWin}
@@ -407,7 +226,15 @@ const BetsHistory = ({ bets, onEdit, onDelete, onWin, onLose, onRevert }: BetsHi
                       <CellContent>
                         <Box display="flex" alignItems="center" gap={1.25} minWidth={0}>
                           <CellLogoWrap>
-                            <OrganizationLogo name={bet.eventOrganization} size={29} />
+                            <EventLogo
+                              logoSlug={resolveEventLogoSlug(
+                                bet.eventOrganization,
+                                bet.eventName,
+                                events
+                              )}
+                              label={bet.eventName || bet.eventOrganization}
+                              size={29}
+                            />
                           </CellLogoWrap>
                           <Box minWidth={0} flex={1}>
                             <Typography
@@ -430,7 +257,7 @@ const BetsHistory = ({ bets, onEdit, onDelete, onWin, onLose, onRevert }: BetsHi
                                 {bet.eventName}
                               </Typography>
                             )}
-                            {bet.eventTier === "Major" && bet.majorStage ? (
+                            {bet.majorStage ? (
                               <Box sx={{ mt: 0.5 }}>
                                 <MajorStageBadge stage={bet.majorStage} />
                               </Box>

@@ -1,31 +1,37 @@
 import type { Bet } from "@/entities/bet";
 import type { EventTier } from "./constants";
-import type { MajorStage } from "./majorStage";
-
 export interface EventIdentity {
   eventOrganization: string;
   eventName: string;
-  majorStage?: MajorStage | null;
-  /** Все стадии major-турнира (без фильтра по стадии) */
+  majorStage?: string | null;
+  /** Все стадии турнира (без фильтра по стадии) */
   allMajorStages?: boolean;
 }
 
 export interface EventEditInput {
   eventOrganization: string;
   eventName: string;
+  logoSlug: string | null;
   date: string;
   endDate: string;
   eventTier: EventTier;
-  majorStage: MajorStage | null;
+  majorStage: string | null;
+  stages: string[];
+  winnerOrganization: string | null;
+  winnerLogoSlug: string | null;
 }
 
 export interface EventStats extends EventIdentity {
+  logoSlug: string | null;
   /** Дата начала турнира или последней ставки */
   date: string;
   /** Дата окончания турнира (из сохранённой записи) */
   endDate: string;
   eventTier: EventTier;
-  majorStage: MajorStage | null;
+  majorStage: string | null;
+  stages: string[];
+  winnerOrganization: string | null;
+  winnerLogoSlug: string | null;
   totalBets: number;
   wins: number;
   losses: number;

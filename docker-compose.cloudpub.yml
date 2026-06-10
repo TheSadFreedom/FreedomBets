@@ -1,0 +1,42 @@
+# Публикация FreedomBets через CloudPub (Docker).
+# 1. Скопируйте .env.example → .env и укажите CLOUDPUB_TOKEN
+# 2. docker compose -f docker-compose.cloudpub.yml up --build
+
+services:
+  api:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: sh -c "npm ci && node server/index.mjs db.json"
+    expose:
+      - "3001"
+
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      API_PROXY_TARGET: http://api:3001
+      CLOUDPUB_PORT: "8080"
+    command: sh -c "npm ci && npm run build && npm run preview:app"
+    depends_on:
+      - api
+    expose:
+      - "8080"
+
+  cloudpub:
+    image: cloudpub/cloudpub:latest
+    restart: unless-stopped
+    environment:
+      TOKEN: ${CLOUDPUB_TOKEN}
+      HTTP: web:8080
+    command: run
+    depends_on:
+      - web
+    volumes:
+      - cloudpub-config:/home/cloudpub
+
+volumes:
+  cloudpub-config:

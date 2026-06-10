@@ -13,8 +13,6 @@ import { createApp } from "json-server/lib/app.js";
 import { Observer } from "json-server/lib/observer.js";
 import { extensionFromMime, removePickemDirectory, savePickemImage } from "./pickemFiles.mjs";
 
-const PICKEM_STAGES = ["Stage 1", "Stage 2", "Stage 3", "Playoff"];
-
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 20 * 1024 * 1024 },
@@ -49,10 +47,6 @@ function args() {
     port: parseInt(values.port, 10),
     host: values.host,
   };
-}
-
-function isPickemStage(stage) {
-  return PICKEM_STAGES.includes(stage);
 }
 
 const { file, port, host } = args();
@@ -91,10 +85,10 @@ app
 app.post("/pickems/:id/stage-image", upload.single("file"), async (req, res) => {
   try {
     const pickemId = req.params.id ?? "";
-    const stage = req.body?.stage;
+    const stageName = typeof req.body?.stage === "string" ? req.body.stage.trim() : "";
     const uploaded = req.file;
 
-    if (!pickemId || !isPickemStage(stage)) {
+    if (!pickemId || !stageName) {
       res.status(400).json({ error: "Invalid pickem id or stage" });
       return;
     }
@@ -119,16 +113,21 @@ app.post("/pickems/:id/stage-image", upload.single("file"), async (req, res) => 
       return;
     }
 
-    const imageUrl = await savePickemImage(pickemId, stage, uploaded.buffer, ext);
+    const imageUrl = await savePickemImage(pickemId, stageName, uploaded.buffer, ext);
     const major = pickems[index];
     const stages = Array.isArray(major.stages) ? major.stages : [];
-    const nextStages = PICKEM_STAGES.map((stageName) => {
-      const current = stages.find((item) => item?.stage === stageName);
-      if (stageName === stage) {
-        return { ...current, stage: stageName, imageUrl, result: null };
-      }
-      return current ?? { stage: stageName, imageUrl: null, result: null };
-    });
+    const stageIndex = stages.findIndex(
+      (item) => String(item?.stage ?? "").trim() === stageName
+    );
+
+    const nextStages =
+      stageIndex >= 0
+        ? stages.map((item, index) =>
+            index === stageIndex
+              ? { ...item, stage: stageName, imageUrl, result: null }
+              : item
+          )
+        : [...stages, { stage: stageName, imageUrl, result: null }];
 
     const updated = { ...major, stages: nextStages };
     pickems[index] = updated;

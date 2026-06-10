@@ -8,6 +8,7 @@ import {
   ChartEmpty,
   ChartFooter,
   ChartHeader,
+  ChartInner,
   ChartSvgWrap,
   ChartTitle,
   ChartTooltip,
@@ -15,6 +16,7 @@ import {
 
 interface BalanceChartProps {
   points: BalancePoint[];
+  embedded?: boolean;
 }
 
 const CHART = {
@@ -22,18 +24,25 @@ const CHART = {
   height: 200,
   padX: 8,
   padY: 16,
+  padBottom: 28,
 } as const;
 
-function buildPath(points: BalancePoint[], minY: number, maxY: number): string {
-  const { width, height, padX, padY } = CHART;
-  const innerW = width - padX * 2;
-  const innerH = height - padY * 2;
-  const rangeY = maxY - minY || 1;
+function pointX(index: number, count: number): number {
+  const innerW = CHART.width - CHART.padX * 2;
+  return CHART.padX + (index / Math.max(count - 1, 1)) * innerW;
+}
 
+function pointY(balance: number, minY: number, maxY: number): number {
+  const innerH = CHART.height - CHART.padY - CHART.padBottom;
+  const rangeY = maxY - minY || 1;
+  return CHART.padY + innerH - ((balance - minY) / rangeY) * innerH;
+}
+
+function buildPath(points: BalancePoint[], minY: number, maxY: number): string {
   return points
     .map((point, index) => {
-      const x = padX + (index / Math.max(points.length - 1, 1)) * innerW;
-      const y = padY + innerH - ((point.balance - minY) / rangeY) * innerH;
+      const x = pointX(index, points.length);
+      const y = pointY(point.balance, minY, maxY);
       return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
     })
     .join(" ");
@@ -41,13 +50,20 @@ function buildPath(points: BalancePoint[], minY: number, maxY: number): string {
 
 function buildAreaPath(points: BalancePoint[], minY: number, maxY: number): string {
   const line = buildPath(points, minY, maxY);
-  const { height, padY } = CHART;
   const lastX = CHART.width - CHART.padX;
-  const baseY = height - padY;
+  const baseY = CHART.height - CHART.padBottom;
   return `${line} L ${lastX.toFixed(2)} ${baseY} L ${CHART.padX} ${baseY} Z`;
 }
 
-const BalanceChart = ({ points }: BalanceChartProps) => {
+function pickAxisLabelIndices(count: number, maxLabels = 5): number[] {
+  if (count <= 1) return [0];
+  const labelCount = Math.min(maxLabels, count);
+  return Array.from({ length: labelCount }, (_, i) =>
+    Math.round((i / Math.max(labelCount - 1, 1)) * (count - 1))
+  );
+}
+
+const BalanceChart = ({ points, embedded = false }: BalanceChartProps) => {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   const chartData = useMemo(() => {
@@ -66,12 +82,13 @@ const BalanceChart = ({ points }: BalanceChartProps) => {
       linePath: buildPath(points, minY, maxY),
       areaPath: buildAreaPath(points, minY, maxY),
       current: points[points.length - 1].balance,
+      axisIndices: pickAxisLabelIndices(points.length),
     };
   }, [points]);
 
   if (!chartData || points.length < 2) {
     return (
-      <ChartCard>
+      <ChartCard $embedded={embedded}>
         <ChartEmpty>Недостаточно данных для графика. Сделайте несколько ставок.</ChartEmpty>
       </ChartCard>
     );
@@ -79,13 +96,16 @@ const BalanceChart = ({ points }: BalanceChartProps) => {
 
   const activeIndex = hoverIndex ?? points.length - 1;
   const activePoint = points[activeIndex];
+  const isHovering = hoverIndex !== null;
+  const baseY = CHART.height - CHART.padBottom;
+  const rangeStart = points.find((point) => point.label !== "Старт") ?? points[0];
 
-  return (
-    <ChartCard>
+  const chartContent = (
+    <>
       <ChartHeader>
-        <ChartTitle>Баланс</ChartTitle>
-        <ChartCurrent $positive={chartData.current >= 0}>
-          {formatMoney(chartData.current)}
+        <ChartTitle>{isHovering ? "Баланс на день" : "Текущий баланс"}</ChartTitle>
+        <ChartCurrent $positive={(isHovering ? activePoint.balance : chartData.current) >= 0}>
+          {formatMoney(isHovering ? activePoint.balance : chartData.current)}
         </ChartCurrent>
       </ChartHeader>
 
@@ -93,7 +113,7 @@ const BalanceChart = ({ points }: BalanceChartProps) => {
         onMouseLeave={() => setHoverIndex(null)}
         onTouchEnd={() => setHoverIndex(null)}
       >
-        <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} role="img" aria-label="График баланса">
+        <svg viewBox={`0 0 ${CHART.width} ${CHART.height}`} role="img" aria-label="График баланса по дням">
           <defs>
             <linearGradient id="balanceArea" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="rgba(102, 187, 106, 0.28)" />
@@ -104,8 +124,8 @@ const BalanceChart = ({ points }: BalanceChartProps) => {
           <line
             x1={CHART.padX}
             x2={CHART.width - CHART.padX}
-            y1={CHART.height - CHART.padY}
-            y2={CHART.height - CHART.padY}
+            y1={baseY}
+            y2={baseY}
             stroke="rgba(255,255,255,0.08)"
             strokeWidth="1"
           />
@@ -120,18 +140,40 @@ const BalanceChart = ({ points }: BalanceChartProps) => {
             strokeLinejoin="round"
           />
 
+          {chartData.axisIndices.map((index) => {
+            const x = pointX(index, points.length);
+            return (
+              <g key={`tick-${index}`}>
+                <line
+                  x1={x}
+                  x2={x}
+                  y1={baseY}
+                  y2={baseY + 4}
+                  stroke="rgba(255,255,255,0.14)"
+                  strokeWidth="1"
+                />
+                <text
+                  x={x}
+                  y={CHART.height - 6}
+                  textAnchor="middle"
+                  fill="rgba(255,255,255,0.38)"
+                  fontSize="9"
+                  fontWeight="500"
+                >
+                  {formatIsoDateDots(points[index].date).slice(0, 5)}
+                </text>
+              </g>
+            );
+          })}
+
           {points.map((point, index) => {
-            const innerW = CHART.width - CHART.padX * 2;
-            const innerH = CHART.height - CHART.padY * 2;
-            const rangeY = chartData.maxY - chartData.minY || 1;
-            const x = CHART.padX + (index / Math.max(points.length - 1, 1)) * innerW;
-            const y =
-              CHART.padY + innerH - ((point.balance - chartData.minY) / rangeY) * innerH;
+            const x = pointX(index, points.length);
+            const y = pointY(point.balance, chartData.minY, chartData.maxY);
             const isActive = index === activeIndex;
 
             return (
               <circle
-                key={`${point.label}-${index}`}
+                key={`${point.date}-${index}`}
                 cx={x}
                 cy={y}
                 r={isActive ? 5 : 3}
@@ -153,13 +195,21 @@ const BalanceChart = ({ points }: BalanceChartProps) => {
       </ChartSvgWrap>
 
       <ChartTooltip>
-        {activePoint.label} · {formatMoney(activePoint.balance)}
+        {activePoint.label === "Старт"
+          ? `Старт · ${formatMoney(activePoint.balance)}`
+          : `${formatIsoDateDots(activePoint.date)} · ${formatMoney(activePoint.balance)}`}
       </ChartTooltip>
 
       <ChartFooter>
-        <span>{formatIsoDateDots(points[0].date)}</span>
+        <span>{formatIsoDateDots(rangeStart.date)}</span>
         <span>{formatIsoDateDots(points[points.length - 1].date)}</span>
       </ChartFooter>
+    </>
+  );
+
+  return (
+    <ChartCard $embedded={embedded}>
+      {embedded ? <ChartInner>{chartContent}</ChartInner> : chartContent}
     </ChartCard>
   );
 };

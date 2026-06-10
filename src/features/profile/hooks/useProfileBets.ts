@@ -4,17 +4,23 @@ import type { EventEditInput, EventIdentity } from "@/entities/event";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match, MatchCreateInput, MatchFormValues } from "@/entities/match";
 import {
-  createDefaultPickemStages,
+  createPickemStages,
   type PickemMajor,
   type PickemStageName,
 } from "@/entities/pickem";
+import { resolvePickemStageNames } from "@/features/pickem/lib/resolvePickemStages";
 import type { ProfileMedal } from "@/entities/medal";
 import type { Profile } from "@/entities/profile";
 import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
 import { dedupeEventRecords } from "@/features/events/lib/dedupeEventRecords";
 import { findBetsForEvent, findMatchesForEvent } from "@/features/events/lib/findBetsForEvent";
 import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
-import { calcWinRate } from "@/features/bets/lib/calculations";
+import { balanceBaseForTarget } from "@/features/bets/lib/calculations";
+import {
+  enrichProfileWithBets,
+  enrichProfilesWithBets,
+  profileNeedsBalanceSync,
+} from "@/features/profile/lib/profileBalance";
 import { normalizeMatch } from "@/features/matches/lib/normalizeMatch";
 import {
   getMatchSeriesWinner,
@@ -34,6 +40,7 @@ import { normalizeMedal } from "../lib/normalizeMedal";
 import { normalizePickemMajor } from "../lib/normalizePickem";
 import { getNextProfileId } from "../lib/profileId";
 import { normalizeProfile } from "../lib/normalizeProfile";
+import { clampBalance, clampBetAmount } from "@/shared/lib/limits";
 
 export function useProfileBets() {
   const [activeProfileId, setActiveProfileId] = useState<number | null>(() =>
@@ -51,17 +58,25 @@ export function useProfileBets() {
   const [error, setError] = useState<string | null>(null);
 
   const loadProfiles = useCallback(async () => {
-    const res = await httpClient.get<Profile[]>("/profiles");
-    const items = (res.data || [])
-      .map((item) => {
-        try {
-          return normalizeProfile(item);
-        } catch (err) {
-          console.error(err);
-          return null;
-        }
-      })
-      .filter((item): item is Profile => item != null);
+    const [profilesRes, allBetsRes] = await Promise.all([
+      httpClient.get<Profile[]>("/profiles"),
+      httpClient.get<Bet[]>("/bets"),
+    ]);
+    const loadedAllBets = (allBetsRes.data || []).map(normalizeBet);
+    const items = enrichProfilesWithBets(
+      (profilesRes.data || [])
+        .map((item) => {
+          try {
+            return normalizeProfile(item);
+          } catch (err) {
+            console.error(err);
+            return null;
+          }
+        })
+        .filter((item): item is Profile => item != null),
+      loadedAllBets
+    );
+    setAllBets(loadedAllBets);
     setProfiles(items);
     return items;
   }, []);
@@ -93,21 +108,39 @@ export function useProfileBets() {
           httpClient.get<ProfileMedal[]>(`/medals?profileId=${activeProfileId}`),
           httpClient.get<EventRecord[]>("/events"),
         ]);
-      setProfile(normalizeProfile(profileRes.data));
-      setBets((betsRes.data || []).map(normalizeBet));
-      setAllBets((allBetsRes.data || []).map(normalizeBet));
-      setProfiles(
-        (profilesRes.data || [])
-          .map((item) => {
-            try {
-              return normalizeProfile(item);
-            } catch (err) {
-              console.error(err);
-              return null;
-            }
-          })
-          .filter((item): item is Profile => item != null)
-      );
+      const loadedBets = (betsRes.data || []).map(normalizeBet);
+      const loadedAllBets = (allBetsRes.data || []).map(normalizeBet);
+      const loadedProfiles = (profilesRes.data || [])
+        .map((item) => {
+          try {
+            return normalizeProfile(item);
+          } catch (err) {
+            console.error(err);
+            return null;
+          }
+        })
+        .filter((item): item is Profile => item != null);
+
+      const rawProfile = normalizeProfile(profileRes.data);
+      const enrichedProfile = enrichProfileWithBets(rawProfile, loadedAllBets);
+      const enrichedProfiles = enrichProfilesWithBets(loadedProfiles, loadedAllBets);
+
+      if (profileNeedsBalanceSync(rawProfile, loadedAllBets)) {
+        const res = await httpClient.patch<Profile>(`/profiles/${rawProfile.id}`, {
+          name: enrichedProfile.name,
+          balance: enrichedProfile.balance,
+          balanceBase: enrichedProfile.balanceBase,
+          totalBets: enrichedProfile.totalBets,
+          winRate: enrichedProfile.winRate,
+        });
+        setProfile(normalizeProfile(res.data));
+      } else {
+        setProfile(enrichedProfile);
+      }
+
+      setBets(loadedBets);
+      setAllBets(loadedAllBets);
+      setProfiles(enrichedProfiles);
       setMatches((matchesRes.data || []).map(normalizeMatch));
       setPickems((pickemsRes.data || []).map(normalizePickemMajor));
       setMedals(
@@ -143,17 +176,53 @@ export function useProfileBets() {
 
   const syncProfile = async (
     currentProfile: Profile,
-    betsList: Bet[],
-    balanceDelta: number
+    allBetsList: Bet[],
+    balanceBase = currentProfile.balanceBase ?? 0
   ) => {
-    const newBalance = currentProfile.balance + balanceDelta;
+    const enriched = enrichProfileWithBets(
+      { ...currentProfile, balanceBase },
+      allBetsList
+    );
     const updated = await httpClient.patch<Profile>(`/profiles/${currentProfile.id}`, {
-      balance: newBalance,
-      totalBets: betsList.length,
-      winRate: calcWinRate(betsList),
+      name: enriched.name,
+      balance: enriched.balance,
+      balanceBase: enriched.balanceBase,
+      totalBets: enriched.totalBets,
+      winRate: enriched.winRate,
     });
-    setProfile(normalizeProfile(updated.data));
-    return newBalance;
+    const saved = normalizeProfile(updated.data);
+    setProfile(saved);
+    setProfiles((prev) => prev.map((item) => (item.id === saved.id ? saved : item)));
+    return saved.balance;
+  };
+
+  const syncProfilesForBets = async (
+    profileIds: Iterable<number>,
+    allBetsList: Bet[],
+    profilesList: Profile[]
+  ) => {
+    const updatedProfiles = new Map<number, Profile>();
+
+    for (const profileId of profileIds) {
+      const current = profilesList.find((item) => item.id === profileId);
+      if (!current) continue;
+      const enriched = enrichProfileWithBets(current, allBetsList);
+      const res = await httpClient.patch<Profile>(`/profiles/${profileId}`, {
+        name: enriched.name,
+        balance: enriched.balance,
+        balanceBase: enriched.balanceBase,
+        totalBets: enriched.totalBets,
+        winRate: enriched.winRate,
+      });
+      updatedProfiles.set(profileId, normalizeProfile(res.data));
+    }
+
+    if (updatedProfiles.size === 0) return;
+
+    setProfiles((prev) => prev.map((item) => updatedProfiles.get(item.id) ?? item));
+    if (profile && updatedProfiles.has(profile.id)) {
+      setProfile(updatedProfiles.get(profile.id)!);
+    }
   };
 
   const selectProfile = (id: number) => {
@@ -171,6 +240,7 @@ export function useProfileBets() {
       id: String(nextId),
       name: trimmed,
       balance: 0,
+      balanceBase: 0,
       totalBets: 0,
       winRate: 0,
     });
@@ -187,47 +257,39 @@ export function useProfileBets() {
 
   const addBet = async (data: Omit<Bet, "id">) => {
     if (!profile) return;
-    const res = await httpClient.post<Bet>("/bets", { ...data, profileId: profile.id });
+    const amount = clampBetAmount(data.amount);
+    if (amount <= 0) return;
+    const res = await httpClient.post<Bet>("/bets", { ...data, amount, profileId: profile.id });
     const created = normalizeBet(res.data);
     const nextBets = [...bets, created];
+    const nextAllBets = [...allBets, created];
     setBets(nextBets);
-    setAllBets((prev) => [...prev, created]);
-    await syncProfile(profile, nextBets, -data.amount);
+    setAllBets(nextAllBets);
+    await syncProfile(profile, nextAllBets);
   };
 
-  const updateBet = async (updated: Bet, previous: Bet) => {
+  const updateBet = async (updated: Bet, _previous: Bet) => {
     if (!profile) return;
-    const res = await httpClient.patch<Bet>(`/bets/${updated.id}`, updated);
+    const savedPayload = { ...updated, amount: clampBetAmount(updated.amount) };
+    if (savedPayload.amount <= 0) return;
+    const res = await httpClient.patch<Bet>(`/bets/${updated.id}`, savedPayload);
     const saved = normalizeBet(res.data);
     const nextBets = bets.map((b) => (b.id === saved.id ? saved : b));
-
-    let balanceDelta = 0;
-    if (previous.status === "WAIT" && saved.status === "WAIT") {
-      balanceDelta = previous.amount - saved.amount;
-    }
+    const nextAllBets = allBets.map((item) => (item.id === saved.id ? saved : item));
 
     setBets(nextBets);
-    setAllBets((prev) => prev.map((item) => (item.id === saved.id ? saved : item)));
-    if (balanceDelta !== 0) {
-      await syncProfile(profile, nextBets, balanceDelta);
-    } else {
-      await syncProfile(profile, nextBets, 0);
-    }
+    setAllBets(nextAllBets);
+    await syncProfile(profile, nextAllBets);
   };
 
   const deleteBet = async (bet: Bet) => {
     if (!profile) return;
     await httpClient.delete(`/bets/${bet.id}`);
     const nextBets = bets.filter((b) => b.id !== bet.id);
-    const correction =
-      bet.status === "WAIT"
-        ? bet.amount
-        : bet.status === "WIN"
-          ? -bet.amount * bet.odds
-          : 0;
+    const nextAllBets = allBets.filter((item) => item.id !== bet.id);
     setBets(nextBets);
-    setAllBets((prev) => prev.filter((item) => item.id !== bet.id));
-    await syncProfile(profile, nextBets, correction);
+    setAllBets(nextAllBets);
+    await syncProfile(profile, nextAllBets);
   };
 
   const settleWin = async (id: string) => {
@@ -238,9 +300,10 @@ export function useProfileBets() {
     const res = await httpClient.patch<Bet>(`/bets/${id}`, { status: "WIN" });
     const saved = normalizeBet(res.data);
     const nextBets = bets.map((b) => (b.id === id ? saved : b));
+    const nextAllBets = allBets.map((item) => (item.id === id ? saved : item));
     setBets(nextBets);
-    setAllBets((prev) => prev.map((item) => (item.id === id ? saved : item)));
-    await syncProfile(profile, nextBets, bet.amount * bet.odds);
+    setAllBets(nextAllBets);
+    await syncProfile(profile, nextAllBets);
   };
 
   const settleLose = async (id: string) => {
@@ -251,9 +314,10 @@ export function useProfileBets() {
     const res = await httpClient.patch<Bet>(`/bets/${id}`, { status: "LOSE" });
     const saved = normalizeBet(res.data);
     const nextBets = bets.map((b) => (b.id === id ? saved : b));
+    const nextAllBets = allBets.map((item) => (item.id === id ? saved : item));
     setBets(nextBets);
-    setAllBets((prev) => prev.map((item) => (item.id === id ? saved : item)));
-    await syncProfile(profile, nextBets, 0);
+    setAllBets(nextAllBets);
+    await syncProfile(profile, nextAllBets);
   };
 
   const revertToPending = async (id: string) => {
@@ -264,19 +328,22 @@ export function useProfileBets() {
     const res = await httpClient.patch<Bet>(`/bets/${id}`, { status: "WAIT" });
     const saved = normalizeBet(res.data);
     const nextBets = bets.map((b) => (b.id === id ? saved : b));
+    const nextAllBets = allBets.map((item) => (item.id === id ? saved : item));
     setBets(nextBets);
-    setAllBets((prev) => prev.map((item) => (item.id === id ? saved : item)));
-
-    const balanceDelta = bet.status === "WIN" ? -bet.amount * bet.odds : 0;
-    await syncProfile(profile, nextBets, balanceDelta);
+    setAllBets(nextAllBets);
+    await syncProfile(profile, nextAllBets);
   };
 
   const setBalance = async (balance: number) => {
     if (!profile) return;
+    const balanceBase = balanceBaseForTarget(clampBalance(balance), bets);
+    const enriched = enrichProfileWithBets({ ...profile, balanceBase }, allBets);
     const res = await httpClient.patch<Profile>(`/profiles/${profile.id}`, {
-      balance,
-      totalBets: bets.length,
-      winRate: calcWinRate(bets),
+      name: enriched.name,
+      balance: enriched.balance,
+      balanceBase: enriched.balanceBase,
+      totalBets: enriched.totalBets,
+      winRate: enriched.winRate,
     });
     setProfile(normalizeProfile(res.data));
     setProfiles((prev) =>
@@ -288,11 +355,13 @@ export function useProfileBets() {
     if (!profile) return;
     const trimmed = name.trim();
     if (!trimmed) return;
+    const enriched = enrichProfileWithBets(profile, allBets);
     const res = await httpClient.patch<Profile>(`/profiles/${profile.id}`, {
       name: trimmed,
-      balance: profile.balance,
-      totalBets: bets.length,
-      winRate: calcWinRate(bets),
+      balance: enriched.balance,
+      balanceBase: enriched.balanceBase,
+      totalBets: enriched.totalBets,
+      winRate: enriched.winRate,
     });
     const saved = normalizeProfile(res.data);
     setProfile(saved);
@@ -340,9 +409,13 @@ export function useProfileBets() {
     const res = await httpClient.post<EventRecord>("/events", {
       eventOrganization: organization,
       eventName: name,
+      logoSlug: data.logoSlug?.trim() ?? null,
       date: data.date.trim() || todayIsoDateLocal(),
       endDate: data.endDate.trim(),
       eventTier: data.eventTier,
+      stages: data.stages,
+      winnerOrganization: data.winnerOrganization?.trim() || null,
+      winnerLogoSlug: data.winnerLogoSlug?.trim() || null,
     });
     const created = normalizeEventRecord(res.data);
     setEvents((prev) => dedupeEventRecords([...prev, created]));
@@ -354,32 +427,51 @@ export function useProfileBets() {
     const updateEventDates = !identity.majorStage || identity.allMajorStages;
     const nextDate = data.date.trim() || todayIsoDateLocal();
     const nextEndDate = data.endDate.trim();
-    const recordIdentity = { eventOrganization: nextOrganization, eventName: nextName };
-    const record = findStoredEvent(recordIdentity, events);
+    const record = findStoredEvent(
+      {
+        eventOrganization: identity.eventOrganization,
+        eventName: identity.eventName,
+      },
+      events
+    );
 
     if (record) {
       const res = await httpClient.patch<EventRecord>(`/events/${record.id}`, {
         eventOrganization: nextOrganization,
         eventName: nextName,
+        logoSlug: data.logoSlug?.trim() ?? null,
         date: updateEventDates ? nextDate : record.date,
         endDate: updateEventDates ? nextEndDate : record.endDate,
         eventTier: data.eventTier,
+        stages: data.stages,
+        winnerOrganization: updateEventDates
+          ? data.winnerOrganization?.trim() || null
+          : record.winnerOrganization,
+        winnerLogoSlug: updateEventDates
+          ? data.winnerLogoSlug?.trim() || null
+          : record.winnerLogoSlug,
       });
       const saved = normalizeEventRecord(res.data);
-      setEvents((prev) => prev.map((item) => (item.id === saved.id ? saved : item)));
+      setEvents((prev) =>
+        dedupeEventRecords(prev.map((item) => (item.id === saved.id ? saved : item)))
+      );
     } else if (updateEventDates) {
       const res = await httpClient.post<EventRecord>("/events", {
         eventOrganization: nextOrganization,
         eventName: nextName,
+        logoSlug: data.logoSlug?.trim() ?? null,
         date: nextDate,
         endDate: nextEndDate,
         eventTier: data.eventTier,
+        stages: data.stages,
+        winnerOrganization: data.winnerOrganization?.trim() || null,
+        winnerLogoSlug: data.winnerLogoSlug?.trim() || null,
       });
       const created = normalizeEventRecord(res.data);
       setEvents((prev) => dedupeEventRecords([...prev, created]));
     }
 
-    const matchingBets = findBetsForEvent(identity, allBets);
+    const matchingBets = findBetsForEvent(identity, allBets, events);
     const matchingMatches = findMatchesForEvent(identity, matches);
 
     const savedBets = await Promise.all(
@@ -387,9 +479,7 @@ export function useProfileBets() {
         const patch = {
           eventOrganization: nextOrganization,
           eventName: nextName,
-          date: nextDate,
-          eventTier: data.eventTier,
-          majorStage: data.eventTier === "Major" ? bet.majorStage : null,
+          majorStage: bet.majorStage,
         };
         const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { ...bet, ...patch });
         return normalizeBet(res.data);
@@ -401,7 +491,7 @@ export function useProfileBets() {
         const patch = {
           eventOrganization: nextOrganization,
           eventName: nextName,
-          majorStage: data.eventTier === "Major" ? match.majorStage : null,
+          majorStage: match.majorStage,
         };
         const res = await httpClient.patch<Match>(`/matches/${match.id}`, { ...match, ...patch });
         return normalizeMatch(res.data);
@@ -415,7 +505,7 @@ export function useProfileBets() {
       if (profile) {
         const nextBets = nextAllBets.filter((bet) => bet.profileId === profile.id);
         setBets(nextBets);
-        await syncProfile(profile, nextBets, 0);
+        await syncProfile(profile, nextAllBets);
       }
     }
 
@@ -425,13 +515,59 @@ export function useProfileBets() {
     }
   };
 
+  const deleteEvent = async (identity: EventIdentity) => {
+    const matchingBets = findBetsForEvent(identity, allBets, events);
+    const matchingMatches = findMatchesForEvent(identity, matches);
+    const deletedBetIds = new Set(matchingBets.map((bet) => bet.id));
+    const deletedMatchIds = new Set(matchingMatches.map((match) => match.id));
+
+    await Promise.all([
+      ...matchingBets.map((bet) => httpClient.delete(`/bets/${bet.id}`)),
+      ...matchingMatches.map((match) => httpClient.delete(`/matches/${match.id}`)),
+    ]);
+
+    const nextAllBets = allBets.filter((bet) => !deletedBetIds.has(bet.id));
+    setAllBets(nextAllBets);
+    setMatches((prev) => prev.filter((match) => !deletedMatchIds.has(match.id)));
+
+    const affectedProfileIds = new Set(matchingBets.map((bet) => bet.profileId));
+    await syncProfilesForBets(affectedProfileIds, nextAllBets, profiles);
+
+    if (profile) {
+      setBets(nextAllBets.filter((item) => item.profileId === profile.id));
+    }
+
+    const record = findStoredEvent(identity, events);
+    if (record) {
+      await httpClient.delete(`/events/${record.id}`);
+      setEvents((prev) => prev.filter((item) => item.id !== record.id));
+    }
+
+    const org = identity.eventOrganization.trim();
+    const name = identity.eventName.trim();
+    const relatedPickems = pickems.filter(
+      (item) => item.eventOrganization.trim() === org && item.eventName.trim() === name
+    );
+    for (const pickem of relatedPickems) {
+      await httpClient.delete(`/uploads/pickems/${pickem.id}`).catch(() => undefined);
+      await httpClient.delete(`/pickems/${pickem.id}`);
+    }
+    if (relatedPickems.length > 0) {
+      const deletedPickemIds = new Set(relatedPickems.map((item) => item.id));
+      setPickems((prev) => prev.filter((item) => !deletedPickemIds.has(item.id)));
+    }
+  };
+
   const addPickemMajor = async (eventOrganization: string, eventName: string) => {
     if (!profile) return;
+    const org = eventOrganization.trim();
+    const name = eventName.trim();
+    const stageNames = resolvePickemStageNames(org, name, events);
     const res = await httpClient.post<PickemMajor>("/pickems", {
       profileId: profile.id,
-      eventOrganization: eventOrganization.trim(),
-      eventName: eventName.trim(),
-      stages: createDefaultPickemStages(),
+      eventOrganization: org,
+      eventName: name,
+      stages: createPickemStages(stageNames),
     });
     const created = normalizePickemMajor(res.data);
     setPickems((prev) => [...prev, created]);
@@ -493,33 +629,11 @@ export function useProfileBets() {
     const nextAllBets = allBets.map((item) => savedById.get(item.id) ?? item);
     setAllBets(nextAllBets);
 
-    const profileDeltas = new Map<number, number>();
-    for (const { bet, nextStatus } of plan) {
-      const delta = nextStatus === "WIN" ? bet.amount * bet.odds : 0;
-      profileDeltas.set(bet.profileId, (profileDeltas.get(bet.profileId) ?? 0) + delta);
-    }
+    const affectedProfileIds = new Set(plan.map(({ bet }) => bet.profileId));
+    await syncProfilesForBets(affectedProfileIds, nextAllBets, profiles);
 
-    const updatedProfiles = new Map<number, Profile>();
-    for (const [profileId, delta] of profileDeltas) {
-      const current = profiles.find((item) => item.id === profileId);
-      if (!current) continue;
-      const profileBets = nextAllBets.filter((item) => item.profileId === profileId);
-      const res = await httpClient.patch<Profile>(`/profiles/${profileId}`, {
-        balance: current.balance + delta,
-        totalBets: profileBets.length,
-        winRate: calcWinRate(profileBets),
-      });
-      updatedProfiles.set(profileId, normalizeProfile(res.data));
-    }
-
-    if (updatedProfiles.size > 0) {
-      setProfiles((prev) =>
-        prev.map((item) => updatedProfiles.get(item.id) ?? item)
-      );
-      if (profile && updatedProfiles.has(profile.id)) {
-        setProfile(updatedProfiles.get(profile.id)!);
-        setBets(nextAllBets.filter((item) => item.profileId === profile.id));
-      }
+    if (profile && affectedProfileIds.has(profile.id)) {
+      setBets(nextAllBets.filter((item) => item.profileId === profile.id));
     }
 
     return { settled: plan.length, skipped };
@@ -575,6 +689,7 @@ export function useProfileBets() {
     deleteMatch,
     addEvent,
     updateEvent,
+    deleteEvent,
     addPickemMajor,
     uploadPickemStageImage,
     deletePickemMajor,

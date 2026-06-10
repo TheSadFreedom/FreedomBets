@@ -1,15 +1,20 @@
 import type { EventStats, EventTier } from "@/entities/event";
 import type { EventRecord } from "@/entities/eventRecord";
 import { eventStatsKey } from "@/features/events/lib/eventDisplay";
+import { normalizeEventStagesList } from "@/features/events/lib/eventStages";
 
 function storedEventToStats(event: EventRecord): EventStats {
   return {
     eventOrganization: event.eventOrganization,
     eventName: event.eventName,
+    logoSlug: event.logoSlug,
     date: event.date,
     endDate: event.endDate,
     eventTier: event.eventTier,
     majorStage: null,
+    stages: normalizeEventStagesList(event.stages),
+    winnerOrganization: event.winnerOrganization,
+    winnerLogoSlug: event.winnerLogoSlug,
     totalBets: 0,
     wins: 0,
     losses: 0,
@@ -41,7 +46,18 @@ export function mergeEventStatsWithStored(
   const byKey = new Map<string, EventStats>();
 
   for (const stat of betStats) {
-    byKey.set(eventStatsKey(stat.eventOrganization, stat.eventName, stat.majorStage), stat);
+    const stored = findStoredEvent(stat, storedEvents);
+    const key = eventStatsKey(stat.eventOrganization, stat.eventName, stat.majorStage);
+    byKey.set(key, {
+      ...stat,
+      date: stored?.date?.trim() || stat.date,
+      endDate: stored?.endDate?.trim() || stat.endDate,
+      eventTier: stored?.eventTier ?? stat.eventTier,
+      logoSlug: stored?.logoSlug ?? stat.logoSlug,
+      stages: stored ? normalizeEventStagesList(stored.stages) : stat.stages,
+      winnerOrganization: stored?.winnerOrganization ?? stat.winnerOrganization ?? null,
+      winnerLogoSlug: stored?.winnerLogoSlug ?? stat.winnerLogoSlug ?? null,
+    });
   }
 
   for (const event of storedEvents) {
@@ -55,6 +71,10 @@ export function mergeEventStatsWithStored(
         date: event.date || existing.date,
         endDate: event.endDate,
         eventTier: event.eventTier,
+        logoSlug: event.logoSlug ?? existing.logoSlug,
+        stages: normalizeEventStagesList(event.stages),
+        winnerOrganization: event.winnerOrganization ?? existing.winnerOrganization ?? null,
+        winnerLogoSlug: event.winnerLogoSlug ?? existing.winnerLogoSlug ?? null,
       });
       continue;
     }

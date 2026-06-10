@@ -22,24 +22,23 @@ node --version
 npm --version
 ```
 
-### Запуск (два терминала)
-
-**Терминал 1 — API и база данных:**
+### Запуск (одна команда)
 
 ```bash
 npm install
-npm run server
+npm start
 ```
 
-Сервер стартует на **http://localhost:3001** и читает/пишет `db.json`.
+API: **http://localhost:3001**, интерфейс: **http://localhost:5173**.
 
-**Терминал 2 — интерфейс:**
+### Публикация в интернет ([CloudPub](https://cloudpub.ru))
 
 ```bash
-npm run dev
+clo login ваш@email.com   # один раз
+npm run cloudpub
 ```
 
-Откройте в браузере **http://localhost:5173**.
+Подробнее: [docs/cloudpub.md](docs/cloudpub.md).
 
 > Vite проксирует запросы с `/api` на порт 3001, поэтому фронтенд обращается к `http://localhost:5173/api/...`, а до сервера доходит как `http://localhost:3001/...`.
 
@@ -47,6 +46,9 @@ npm run dev
 
 | Команда | Описание |
 |---------|----------|
+| `npm start` | API + dev-сервер (локальная разработка) |
+| `npm run serve` | Production-сборка + preview на `:8080` |
+| `npm run cloudpub` | `serve` + туннель CloudPub (нужен `clo`) |
 | `npm run build` | Проверка TypeScript + production-сборка в `dist/` |
 | `npm run preview` | Просмотр собранной версии |
 | `npm run lint` | Проверка кода ESLint |
@@ -74,6 +76,7 @@ npm run dev
 | Как устроен фронтенд | [docs/04-frontend.md](docs/04-frontend.md) |
 | Функции приложения (вкладки, ставки, admin) | [docs/05-funkcionalnost.md](docs/05-funkcionalnost.md) |
 | Разработка, отладка, FAQ | [docs/06-razrabotka.md](docs/06-razrabotka.md) |
+| Публикация через CloudPub | [docs/cloudpub.md](docs/cloudpub.md) |
 
 ---
 

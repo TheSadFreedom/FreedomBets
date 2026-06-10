@@ -87,12 +87,6 @@ export const HeroTitle = styled.h2`
   letter-spacing: 0.01em;
 `;
 
-export const HeroSubtitle = styled.p`
-  margin: 0;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.52);
-`;
-
 export const HeroBadge = styled.span`
   display: inline-flex;
   align-items: center;
@@ -119,159 +113,31 @@ export const RankingCard = styled.div`
   overflow: hidden;
 `;
 
-export const PodiumSection = styled.div<{ $count: number }>`
-  display: grid;
-  align-items: end;
-  gap: 10px;
-  padding: 20px 16px 16px;
-
-  ${({ $count }) =>
-    $count === 1
-      ? css`
-          grid-template-columns: minmax(0, 280px);
-          justify-content: center;
-        `
-      : $count === 2
-        ? css`
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            max-width: 520px;
-            margin: 0 auto;
-          `
-        : css`
-            grid-template-columns: 1fr 1.12fr 1fr;
-          `}
-
-  ${media.down("sm")} {
-    gap: 8px;
-    padding: 16px 10px 14px;
-  }
-`;
-
-const podiumCardStyles = {
-  1: css`
-    min-height: 168px;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(255, 213, 79, 0.22) 0%, transparent 55%),
-      linear-gradient(180deg, rgba(255, 213, 79, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
-    border-color: rgba(255, 213, 79, 0.35);
-    box-shadow: 0 10px 28px rgba(255, 193, 7, 0.12);
-  `,
-  2: css`
-    min-height: 142px;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(224, 224, 224, 0.16) 0%, transparent 55%),
-      linear-gradient(180deg, rgba(224, 224, 224, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border-color: rgba(224, 224, 224, 0.28);
-  `,
-  3: css`
-    min-height: 128px;
-    background:
-      radial-gradient(circle at 50% 0%, rgba(255, 183, 77, 0.16) 0%, transparent 55%),
-      linear-gradient(180deg, rgba(255, 183, 77, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-    border-color: rgba(255, 183, 77, 0.28);
-  `,
-};
-
-export const PodiumCard = styled.div<{ $rank: 1 | 2 | 3; $active?: boolean; $solo?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 10px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: center;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-
-  ${({ $rank }) => podiumCardStyles[$rank]}
-
-  ${({ $solo, $rank }) =>
-    $solo &&
-    css`
-      min-height: 180px;
-      ${$rank === 1 ? "max-width: 280px; width: 100%; margin: 0 auto;" : ""}
-    `}
-
-  ${({ $active }) =>
-    $active &&
-    css`
-      outline: 2px solid rgba(129, 199, 132, 0.55);
-      outline-offset: 2px;
-    `}
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  ${media.down("sm")} {
-    padding: 12px 8px 14px;
-    gap: 8px;
-  }
-`;
-
-export const Avatar = styled.div<{ $rank?: 1 | 2 | 3 | null; $active?: boolean }>`
+export const Avatar = styled.div<{ $active?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: ${({ $rank }) => ($rank === 1 ? "54px" : "46px")};
-  height: ${({ $rank }) => ($rank === 1 ? "54px" : "46px")};
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  font-size: ${({ $rank }) => ($rank === 1 ? "20px" : "16px")};
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #141414;
-  background: ${({ $rank }) => {
-    if ($rank === 1) return "linear-gradient(135deg, #ffe082 0%, #ffb300 100%)";
-    if ($rank === 2) return "linear-gradient(135deg, #f5f5f5 0%, #bdbdbd 100%)";
-    if ($rank === 3) return "linear-gradient(135deg, #ffcc80 0%, #fb8c00 100%)";
-    return "linear-gradient(135deg, rgba(129, 199, 132, 0.85) 0%, rgba(76, 175, 80, 0.85) 100%)";
-  }};
+  background: linear-gradient(135deg, rgba(129, 199, 132, 0.85) 0%, rgba(76, 175, 80, 0.85) 100%);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
   border: 2px solid
     ${({ $active }) => ($active ? "rgba(129, 199, 132, 0.9)" : "rgba(255, 255, 255, 0.18)")};
   flex-shrink: 0;
 `;
 
-export const RankMedal = styled.span<{ $rank: 1 | 2 | 3 }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  height: 28px;
-  padding: 0 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  color: ${({ $rank }) => ($rank === 1 ? "#1b1b1b" : "rgba(255, 255, 255, 0.92)")};
-  background: ${({ $rank }) => {
-    if ($rank === 1) return "linear-gradient(135deg, #ffd54f 0%, #ffb300 100%)";
-    if ($rank === 2) return "linear-gradient(135deg, #eeeeee 0%, #9e9e9e 100%)";
-    return "linear-gradient(135deg, #ffcc80 0%, #ef6c00 100%)";
-  }};
-`;
-
-export const ProfileName = styled.span<{ $active?: boolean; $large?: boolean }>`
+export const ProfileName = styled.span<{ $active?: boolean }>`
   display: block;
   font-weight: ${({ $active }) => ($active ? 700 : 600)};
-  font-size: ${({ $large }) => ($large ? "15px" : "14px")};
+  font-size: 14px;
   color: ${({ $active }) => ($active ? "#a5d6a7" : "rgba(255, 255, 255, 0.92)")};
   word-break: break-word;
   line-height: 1.25;
-`;
-
-export const PodiumProfit = styled.div<{ $positive: boolean }>`
-  font-size: ${({ $positive }) => ($positive ? "15px" : "14px")};
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: ${({ $positive }) => ($positive ? "#81c784" : "#ef5350")};
-`;
-
-export const PodiumMeta = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
 `;
 
 export const MetaPill = styled.span`
@@ -293,21 +159,10 @@ export const ListSection = styled.div`
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
 
   ${media.down("sm")} {
     padding: 10px 10px 12px;
   }
-`;
-
-export const ListTitle = styled.h3`
-  margin: 0 0 4px;
-  padding: 0 4px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.42);
 `;
 
 export const RankingRow = styled.div<{ $active?: boolean }>`
@@ -388,7 +243,11 @@ export const RowRight = styled.div`
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding-left: 40px;
+    padding: 8px 10px;
+    margin-top: 2px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
 `;
 

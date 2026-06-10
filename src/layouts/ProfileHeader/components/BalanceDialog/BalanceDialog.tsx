@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { clampBalance, MAX_BALANCE } from "@/shared/lib/limits";
 
 interface BalanceDialogProps {
   open: boolean;
@@ -25,7 +26,9 @@ const BalanceDialog = ({ open, currentBalance, onClose, onAdd }: BalanceDialogPr
   }, [open]);
 
   const amount = Number(amountInput);
-  const valid = amount > 0 && Number.isFinite(amount);
+  const maxDeposit = Math.max(0, MAX_BALANCE - currentBalance);
+  const exceedsMaxBalance = Number.isFinite(amount) && amount > maxDeposit;
+  const valid = amount > 0 && Number.isFinite(amount) && !exceedsMaxBalance;
 
   const handleAdd = async () => {
     if (!valid) return;
@@ -59,13 +62,21 @@ const BalanceDialog = ({ open, currentBalance, onClose, onAdd }: BalanceDialogPr
           onChange={(e) => setAmountInput(e.target.value)}
           fullWidth
           autoFocus
-          slotProps={{ htmlInput: { min: 1, step: 1 } }}
+          error={exceedsMaxBalance}
+          helperText={
+            maxDeposit <= 0
+              ? `Достигнут максимальный баланс ${MAX_BALANCE.toLocaleString("ru-RU")} ₽`
+              : exceedsMaxBalance
+                ? `Максимум пополнения: ${maxDeposit.toLocaleString("ru-RU")} ₽`
+                : `Лимит баланса: ${MAX_BALANCE.toLocaleString("ru-RU")} ₽`
+          }
+          slotProps={{ htmlInput: { min: 1, max: maxDeposit, step: 1 } }}
         />
         {valid && (
           <Typography variant="body2" color="text.secondary">
             После пополнения:{" "}
             <strong style={{ color: "#81c784" }}>
-              {(currentBalance + amount).toLocaleString("ru-RU", {
+              {clampBalance(currentBalance + amount).toLocaleString("ru-RU", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 2,
               })}{" "}

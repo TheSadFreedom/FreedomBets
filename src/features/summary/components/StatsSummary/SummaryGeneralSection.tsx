@@ -1,69 +1,70 @@
 import { useMemo } from "react";
 import type { Bet } from "@/entities/bet";
 import { calcSummaryStats } from "@/features/bets/lib/calculations";
-import { formatMoney } from "@/shared/lib/format/money";
+import { formatMoney, formatMoneySigned } from "@/shared/lib/format/money";
 import {
-  StatCard,
-  StatHint,
-  StatLabel,
-  StatSub,
-  StatsGrid,
-  StatsSection,
-  StatsSectionTitle,
-  StatValue,
+  StatsMetricLabel,
+  StatsMetricsGrid,
+  StatsMetricSub,
+  StatsMetricTile,
+  StatsMetricValue,
+  StatsWldBadge,
+  StatsWldRow,
 } from "./StatsSummary.styled";
 
 interface SummaryGeneralSectionProps {
-  title: string;
   bets: Bet[];
 }
 
-const SummaryGeneralSection = ({ title, bets }: SummaryGeneralSectionProps) => {
+const SummaryGeneralSection = ({ bets }: SummaryGeneralSectionProps) => {
   const stats = useMemo(() => calcSummaryStats(bets), [bets]);
+  const hasSettled = stats.settledCount > 0;
+  const profitPositive = stats.profit >= 0;
+  const winRateColor = !hasSettled
+    ? undefined
+    : stats.winRate >= 50
+      ? "#81c784"
+      : "#ef5350";
 
   return (
-    <StatsSection>
-      <StatsSectionTitle>{title}</StatsSectionTitle>
-      <StatsGrid>
-        <StatCard>
-          <StatLabel>Закрытые ставки</StatLabel>
-          <StatValue>{stats.settledCount}</StatValue>
-          <StatSub>{formatMoney(stats.settledWagered)} поставлено</StatSub>
-        </StatCard>
+    <StatsMetricsGrid>
+      <StatsMetricTile>
+        <StatsMetricLabel>Закрытые</StatsMetricLabel>
+        <StatsMetricValue>{stats.settledCount}</StatsMetricValue>
+        <StatsMetricSub>{formatMoney(stats.settledWagered)} поставлено</StatsMetricSub>
+      </StatsMetricTile>
 
-        <StatCard $accent="#ffa726">
-          <StatLabel>В игре</StatLabel>
-          <StatValue $color="#ffa726">{stats.pendingCount}</StatValue>
-          <StatSub $color="#ffb74d">{formatMoney(stats.pendingWagered)} в игре</StatSub>
-        </StatCard>
+      <StatsMetricTile $accent="#ffa726" $highlight={stats.pendingCount > 0}>
+        <StatsMetricLabel>В игре</StatsMetricLabel>
+        <StatsMetricValue $color={stats.pendingCount > 0 ? "#ffa726" : undefined}>
+          {stats.pendingCount}
+        </StatsMetricValue>
+        <StatsMetricSub>открытые ставки</StatsMetricSub>
+      </StatsMetricTile>
 
-        <StatCard $accent={stats.profit >= 0 ? "#66bb6a" : "#ef5350"}>
-          <StatLabel>Профит</StatLabel>
-          <StatValue $color={stats.profit >= 0 ? "#66bb6a" : "#ef5350"}>
-            {formatMoney(stats.profit)}
-          </StatValue>
-          <StatHint>только закрытые</StatHint>
-        </StatCard>
+      <StatsMetricTile
+        $accent={profitPositive ? "#66bb6a" : "#ef5350"}
+        $highlight={hasSettled}
+      >
+        <StatsMetricLabel>Профит</StatsMetricLabel>
+        <StatsMetricValue $color={hasSettled ? (profitPositive ? "#81c784" : "#e57373") : undefined}>
+          {hasSettled ? formatMoneySigned(stats.profit) : "—"}
+        </StatsMetricValue>
+        <StatsMetricSub>только закрытые</StatsMetricSub>
+      </StatsMetricTile>
 
-        <StatCard>
-          <StatLabel>Винрейт</StatLabel>
-          <StatValue
-            $color={
-              stats.settledCount === 0
-                ? undefined
-                : stats.winRate >= 50
-                  ? "#66bb6a"
-                  : "#ef5350"
-            }
-          >
-            {stats.settledCount === 0 ? "—" : `${stats.winRate}%`}
-          </StatValue>
-          <StatHint>
-            {stats.wins}В / {stats.losses}П
-          </StatHint>
-        </StatCard>
-      </StatsGrid>
-    </StatsSection>
+      <StatsMetricTile $accent={winRateColor}>
+        <StatsMetricLabel>Винрейт</StatsMetricLabel>
+        <StatsMetricValue $color={winRateColor}>
+          {hasSettled ? `${stats.winRate}%` : "—"}
+        </StatsMetricValue>
+        <StatsWldRow>
+          <StatsWldBadge $variant="win">{stats.wins}</StatsWldBadge>
+          <StatsWldBadge $variant="loss">{stats.losses}</StatsWldBadge>
+          <StatsWldBadge $variant="pending">{stats.pendingCount}</StatsWldBadge>
+        </StatsWldRow>
+      </StatsMetricTile>
+    </StatsMetricsGrid>
   );
 };
 

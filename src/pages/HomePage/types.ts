@@ -36,6 +36,7 @@ export interface ProfileBetsState {
   settleMatchBets: (match: Match) => Promise<MatchSettlementResult>;
   deleteMatch: (match: Match) => Promise<void>;
   updateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
+  deleteEvent: (identity: EventIdentity) => Promise<void>;
   addEvent: (data: EventEditInput) => Promise<void>;
   addPickemMajor: (eventOrganization: string, eventName: string) => Promise<void>;
   uploadPickemStageImage: (

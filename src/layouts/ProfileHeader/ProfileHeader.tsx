@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Profile } from "@/entities/profile";
 import type { Bet } from "@/entities/bet";
-import { calcWinRate } from "@/features/bets/lib/calculations";
+import { calcWinRate, getSettledBets } from "@/features/bets/lib/calculations";
 import ProfileSettingsDialog from "./components/ProfileSettingsDialog/ProfileSettingsDialog";
 import {
+  ProfileAvatar,
   ProfileBalance,
-  ProfileDivider,
+  ProfileCard,
   ProfileHeaderRoot,
-  ProfileItem,
+  ProfileHint,
+  ProfileIdentity,
+  ProfileMetricLabel,
+  ProfileMetricTile,
+  ProfileMetrics,
   ProfileNameButton,
-  ProfileStatsRow,
   ProfileWinRate,
 } from "./ProfileHeader.styled";
 
@@ -22,6 +26,11 @@ interface ProfileHeaderProps {
   onExitProfile: () => void;
 }
 
+const profileInitial = (name: string) => {
+  const trimmed = name.trim();
+  return trimmed ? trimmed.charAt(0).toUpperCase() : "?";
+};
+
 const ProfileHeader = ({
   profile,
   bets,
@@ -32,35 +41,45 @@ const ProfileHeader = ({
 }: ProfileHeaderProps) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const winRate = calcWinRate(bets);
+  const hasSettled = getSettledBets(bets).length > 0;
+  const winRateColor = useMemo(() => {
+    if (!hasSettled) return undefined;
+    return winRate >= 50 ? "#81c784" : "#ef5350";
+  }, [hasSettled, winRate]);
 
   return (
     <>
       <ProfileHeaderRoot>
-        <ProfileItem>
-          <ProfileNameButton type="button" onClick={() => setSettingsOpen(true)}>
-            {profile.name}
-          </ProfileNameButton>
-        </ProfileItem>
+        <ProfileCard>
+          <ProfileAvatar>{profileInitial(profile.name)}</ProfileAvatar>
 
-        <ProfileStatsRow>
-          <ProfileDivider />
+          <ProfileIdentity>
+            <ProfileNameButton type="button" onClick={() => setSettingsOpen(true)}>
+              {profile.name}
+            </ProfileNameButton>
+            <ProfileHint>Настройки</ProfileHint>
+          </ProfileIdentity>
 
-          <ProfileItem>
-            <ProfileBalance $positive={profile.balance >= 0}>
-              {profile.balance.toLocaleString("ru-RU", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2,
-              })}{" "}
-              ₽
-            </ProfileBalance>
-          </ProfileItem>
+          <ProfileMetrics>
+            <ProfileMetricTile>
+              <ProfileMetricLabel>Баланс</ProfileMetricLabel>
+              <ProfileBalance $positive={profile.balance >= 0}>
+                {profile.balance.toLocaleString("ru-RU", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}{" "}
+                ₽
+              </ProfileBalance>
+            </ProfileMetricTile>
 
-          <ProfileDivider />
-
-          <ProfileItem>
-            <ProfileWinRate>{winRate}%</ProfileWinRate>
-          </ProfileItem>
-        </ProfileStatsRow>
+            <ProfileMetricTile>
+              <ProfileMetricLabel>WR</ProfileMetricLabel>
+              <ProfileWinRate $color={winRateColor}>
+                {hasSettled ? `${winRate}%` : "—"}
+              </ProfileWinRate>
+            </ProfileMetricTile>
+          </ProfileMetrics>
+        </ProfileCard>
       </ProfileHeaderRoot>
 
       <ProfileSettingsDialog

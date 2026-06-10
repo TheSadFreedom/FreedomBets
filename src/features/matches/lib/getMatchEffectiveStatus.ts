@@ -1,4 +1,5 @@
 import type { Match, MatchStatus } from "@/entities/match";
+import { getMatchSeriesWinner } from "@/features/matches/lib/settleBetsForMatch";
 import { parseIsoDate } from "@/shared/lib/date/isoDate";
 
 export function parseMatchDateTime(match: Pick<Match, "date" | "time">): Date | null {
@@ -12,10 +13,14 @@ export function parseMatchDateTime(match: Pick<Match, "date" | "time">): Date | 
   return new Date(parts.y, parts.m - 1, parts.d, h, min);
 }
 
-/** Скоро до начала, завершён после времени старта */
+/** Скоро до начала, live после старта без победителя, завершён при итоговом счёте */
 export function getMatchEffectiveStatus(match: Match, now = Date.now()): MatchStatus {
-  const start = parseMatchDateTime(match);
-  if (!start) return match.status === "finished" ? "finished" : "scheduled";
+  if (getMatchSeriesWinner(match) != null || match.status === "finished") {
+    return "finished";
+  }
 
-  return now < start.getTime() ? "scheduled" : "finished";
+  const start = parseMatchDateTime(match);
+  if (!start) return "scheduled";
+
+  return now < start.getTime() ? "scheduled" : "live";
 }

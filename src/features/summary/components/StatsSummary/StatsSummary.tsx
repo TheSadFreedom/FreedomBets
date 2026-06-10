@@ -1,18 +1,31 @@
 import { useMemo } from "react";
+import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
+import ShowChartOutlinedIcon from "@mui/icons-material/ShowChartOutlined";
+import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
 import type { Bet } from "@/entities/bet";
 import { calcSummaryStats } from "@/features/bets/lib/calculations";
 import BalanceChart from "@/features/summary/components/BalanceChart/BalanceChart";
 import { buildBalanceHistory } from "@/features/summary/lib/buildBalanceHistory";
+import { formatMoneySigned } from "@/shared/lib/format/money";
 import SummaryGeneralSection from "./SummaryGeneralSection";
 import {
-  StatCard,
-  StatHint,
-  StatLabel,
-  StatsGrid,
+  OddsCard,
+  OddsCardHint,
+  OddsCardLabel,
+  OddsCardValue,
+  OddsGrid,
+  StatsHero,
+  StatsHeroHint,
+  StatsHeroPill,
+  StatsHeroPills,
+  StatsHeroProfit,
+  StatsHeroText,
+  StatsPanel,
   StatsRoot,
-  StatsSection,
+  StatsSectionHead,
+  StatsSectionHint,
+  StatsSectionIcon,
   StatsSectionTitle,
-  StatValue,
 } from "./StatsSummary.styled";
 
 interface StatsSummaryProps {
@@ -32,39 +45,86 @@ const StatsSummary = ({ bets, balance }: StatsSummaryProps) => {
     [bets, balance]
   );
 
+  const hasSettled = stats.settledCount > 0;
+  const profitPositive = stats.profit >= 0;
+  const totalBets = stats.settledCount + stats.pendingCount;
+
   return (
     <StatsRoot>
-      <SummaryGeneralSection title="Общее" bets={bets} />
+      <StatsHero>
+        <StatsHeroText>
+          <StatsHeroProfit $positive={profitPositive} $muted={!hasSettled}>
+            {hasSettled ? formatMoneySigned(stats.profit) : "—"}
+          </StatsHeroProfit>
+          <StatsHeroHint>
+            {hasSettled ? "профит по закрытым ставкам" : "нет закрытых ставок"}
+          </StatsHeroHint>
+        </StatsHeroText>
+        <StatsHeroPills>
+          <StatsHeroPill>{totalBets} ставок</StatsHeroPill>
+          {hasSettled ? <StatsHeroPill>{stats.winRate}% WR</StatsHeroPill> : null}
+        </StatsHeroPills>
+      </StatsHero>
 
-      <StatsSection>
-        <StatsSectionTitle>График баланса</StatsSectionTitle>
-        <BalanceChart points={balanceHistory} />
-      </StatsSection>
+      <StatsPanel>
+        <StatsSectionHead>
+          <StatsSectionIcon $tone="primary">
+            <InsightsOutlinedIcon />
+          </StatsSectionIcon>
+          <div>
+            <StatsSectionTitle>Общее</StatsSectionTitle>
+            <StatsSectionHint>Сводка по всем ставкам профиля</StatsSectionHint>
+          </div>
+        </StatsSectionHead>
+        <SummaryGeneralSection bets={bets} />
+      </StatsPanel>
 
-      <StatsSection>
-        <StatsSectionTitle>Винрейт по коэффициенту</StatsSectionTitle>
-        <StatsGrid>
-          {stats.oddsWinRates.map((bucket) => (
-            <StatCard key={bucket.id}>
-              <StatLabel>Кэф {bucket.label}</StatLabel>
-              <StatValue
-                $color={
-                  bucket.winRate === null
-                    ? undefined
-                    : bucket.winRate >= 50
-                      ? "#66bb6a"
-                      : "#ef5350"
-                }
-              >
-                {formatWinRate(bucket.winRate, bucket.settled)}
-              </StatValue>
-              <StatHint>
-                {bucket.settled > 0 ? `${bucket.settled} закр.` : "нет ставок"}
-              </StatHint>
-            </StatCard>
-          ))}
-        </StatsGrid>
-      </StatsSection>
+      <StatsPanel>
+        <StatsSectionHead>
+          <StatsSectionIcon>
+            <ShowChartOutlinedIcon />
+          </StatsSectionIcon>
+          <div>
+            <StatsSectionTitle>График баланса</StatsSectionTitle>
+            <StatsSectionHint>Баланс на конец каждого дня</StatsSectionHint>
+          </div>
+        </StatsSectionHead>
+        <BalanceChart points={balanceHistory} embedded />
+      </StatsPanel>
+
+      <StatsPanel>
+        <StatsSectionHead>
+          <StatsSectionIcon>
+            <TuneOutlinedIcon />
+          </StatsSectionIcon>
+          <div>
+            <StatsSectionTitle>Винрейт по коэффициенту</StatsSectionTitle>
+            <StatsSectionHint>Эффективность в диапазонах кэфов</StatsSectionHint>
+          </div>
+        </StatsSectionHead>
+        <OddsGrid>
+          {stats.oddsWinRates.map((bucket) => {
+            const color =
+              bucket.winRate === null
+                ? undefined
+                : bucket.winRate >= 50
+                  ? "#81c784"
+                  : "#e57373";
+
+            return (
+              <OddsCard key={bucket.id} $accent={color}>
+                <OddsCardLabel>Кэф {bucket.label}</OddsCardLabel>
+                <OddsCardValue $color={color}>
+                  {formatWinRate(bucket.winRate, bucket.settled)}
+                </OddsCardValue>
+                <OddsCardHint>
+                  {bucket.settled > 0 ? `${bucket.settled} закр.` : "нет ставок"}
+                </OddsCardHint>
+              </OddsCard>
+            );
+          })}
+        </OddsGrid>
+      </StatsPanel>
     </StatsRoot>
   );
 };

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { IconButton, Stack, Tooltip, useMediaQuery, useTheme } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
@@ -5,6 +6,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import UndoIcon from "@mui/icons-material/Undo";
 import type { Bet } from "@/entities/bet";
+import ConfirmDialog from "@/shared/ui/ConfirmDialog/ConfirmDialog";
 
 interface ActionButtonsProps {
   bet: Bet;
@@ -16,15 +18,28 @@ interface ActionButtonsProps {
 }
 
 const ActionButtons = ({ bet, onEdit, onDelete, onWin, onLose, onRevert }: ActionButtonsProps) => {
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const iconSx = {
     p: isMobile ? 0.75 : 0.5,
     minWidth: isMobile ? 40 : undefined,
     minHeight: isMobile ? 40 : undefined,
   };
 
+  const handleDeleteConfirm = async () => {
+    setDeleting(true);
+    try {
+      await onDelete(bet);
+      setDeleteOpen(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
+  <>
   <Stack
     direction="row"
     alignItems="center"
@@ -87,13 +102,23 @@ const ActionButtons = ({ bet, onEdit, onDelete, onWin, onLose, onRevert }: Actio
         size="small"
         color="inherit"
         sx={iconSx}
-        onClick={() => onDelete(bet)}
+        onClick={() => setDeleteOpen(true)}
         aria-label="Удалить"
       >
         <DeleteOutlineIcon fontSize="small" />
       </IconButton>
     </Tooltip>
   </Stack>
+
+  <ConfirmDialog
+    open={deleteOpen}
+    title="Удалить ставку?"
+    message="Ставка будет удалена без возможности восстановления."
+    confirming={deleting}
+    onClose={() => setDeleteOpen(false)}
+    onConfirm={handleDeleteConfirm}
+  />
+  </>
   );
 };
 

@@ -2,27 +2,48 @@ import { useEffect, useState } from "react";
 import { Dialog, IconButton, TextField, useMediaQuery, useTheme } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
+import WalletOutlinedIcon from "@mui/icons-material/WalletOutlined";
 import type { Profile } from "@/entities/profile";
+import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
 import BalanceDialog from "../BalanceDialog/BalanceDialog";
 import WithdrawConfirmDialog from "../WithdrawConfirmDialog/WithdrawConfirmDialog";
 import {
-  ActionButton,
-  ActionRow,
-  BalanceValue,
-  CloseButton,
+  ActionGrid,
+  ActionTile,
+  ActionTileHint,
+  ActionTileIcon,
+  ActionTileLabel,
+  ActionTileWide,
+  ActionTileWideText,
+  BalanceHero,
+  BalanceHeroLabel,
+  BalanceHeroValue,
+  ConfirmActionRow,
+  ConfirmButton,
   DeleteConfirmBox,
-  DeleteHint,
+  DeleteConfirmText,
+  DialogAvatar,
   DialogBody,
-  DialogFooter,
   DialogHeader,
+  DialogHeaderMain,
+  DialogHeaderRow,
+  DialogHeroStats,
+  DialogProfileHero,
   DialogShell,
   DialogSubtitle,
   DialogTitle,
+  HeroMetaPill,
   NameRow,
-  Section,
+  SaveNameButton,
+  SectionCard,
+  SectionHead,
+  SectionHeadText,
+  SectionHint,
+  SectionIcon,
   SectionTitle,
   dialogBackdropSx,
   fieldSx,
@@ -39,6 +60,11 @@ interface ProfileSettingsDialogProps {
   onExitProfile: () => void;
 }
 
+const profileInitial = (name: string) => {
+  const trimmed = name.trim();
+  return trimmed ? trimmed.charAt(0).toUpperCase() : "?";
+};
+
 const ProfileSettingsDialog = ({
   open,
   profile,
@@ -49,7 +75,7 @@ const ProfileSettingsDialog = ({
   onExitProfile,
 }: ProfileSettingsDialogProps) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [nameInput, setNameInput] = useState(profile.name);
   const [savingName, setSavingName] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
@@ -66,6 +92,7 @@ const ProfileSettingsDialog = ({
   const trimmedName = nameInput.trim();
   const nameChanged = trimmedName !== profile.name.trim();
   const nameValid = trimmedName.length > 0;
+  const balancePositive = profile.balance >= 0;
 
   const handleSaveName = async () => {
     if (!nameValid || !nameChanged) return;
@@ -110,131 +137,176 @@ const ProfileSettingsDialog = ({
       >
         <DialogShell>
           <DialogHeader>
-            <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <DialogTitle>Профиль</DialogTitle>
-                <DialogSubtitle>Имя, баланс и управление аккаунтом</DialogSubtitle>
-              </div>
+            <DialogHeaderRow>
+              <DialogHeaderMain>
+                <DialogProfileHero>
+                  <DialogAvatar>{profileInitial(profile.name)}</DialogAvatar>
+                  <div>
+                    <DialogTitle>{profile.name}</DialogTitle>
+                    <DialogSubtitle>Настройки и управление профилем</DialogSubtitle>
+                  </div>
+                </DialogProfileHero>
+              </DialogHeaderMain>
               <IconButton
                 onClick={onClose}
                 aria-label="Закрыть"
                 size="small"
-                sx={{ color: "rgba(255,255,255,0.5)", mt: -0.5 }}
+                sx={{
+                  color: "rgba(255,255,255,0.5)",
+                  mt: -0.5,
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: "10px",
+                }}
               >
-                <CloseIcon />
+                <CloseIcon fontSize="small" />
               </IconButton>
-            </div>
+            </DialogHeaderRow>
+
+            <DialogHeroStats>
+              <BalanceHero $positive={balancePositive}>
+                <BalanceHeroLabel>Баланс</BalanceHeroLabel>
+                <BalanceHeroValue $positive={balancePositive}>
+                  {profile.balance.toLocaleString("ru-RU", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  ₽
+                </BalanceHeroValue>
+              </BalanceHero>
+              <HeroMetaPill>{profile.totalBets} ставок</HeroMetaPill>
+            </DialogHeroStats>
           </DialogHeader>
 
           <DialogBody>
-            <Section>
-              <SectionTitle>Имя</SectionTitle>
+            <SectionCard>
+              <SectionHead>
+                <SectionIcon>
+                  <BadgeOutlinedIcon />
+                </SectionIcon>
+                <SectionHeadText>
+                  <SectionTitle>Имя профиля</SectionTitle>
+                  <SectionHint>Отображается в шапке и рейтинге</SectionHint>
+                </SectionHeadText>
+              </SectionHead>
               <NameRow>
                 <TextField
-                  label="Имя профиля"
+                  label="Имя"
                   value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
+                  onChange={(e) => setNameInput(limitInputLength(e.target.value))}
                   fullWidth
                   sx={fieldSx}
+                  slotProps={{ htmlInput: { maxLength: MAX_INPUT_LENGTH } }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") void handleSaveName();
                   }}
                 />
-                <ActionButton
+                <SaveNameButton
                   type="button"
-                  $variant="primary"
                   onClick={() => void handleSaveName()}
                   disabled={!nameValid || !nameChanged || savingName}
                 >
-                  {savingName ? "Сохранение…" : "Сохранить имя"}
-                </ActionButton>
+                  {savingName ? "Сохранение…" : "Сохранить"}
+                </SaveNameButton>
               </NameRow>
-            </Section>
+            </SectionCard>
 
-            <Section>
-              <SectionTitle>Баланс</SectionTitle>
-              <BalanceValue $positive={profile.balance >= 0}>
-                {profile.balance.toLocaleString("ru-RU", {
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 2,
-                })}{" "}
-                ₽
-              </BalanceValue>
-              <ActionRow>
-                <ActionButton type="button" $variant="primary" onClick={() => setAddDialogOpen(true)}>
-                  <AddCircleOutlineIcon sx={{ fontSize: 18 }} />
-                  Пополнить
-                </ActionButton>
-                <ActionButton
+            <SectionCard>
+              <SectionHead>
+                <SectionIcon $tone="primary">
+                  <WalletOutlinedIcon />
+                </SectionIcon>
+                <SectionHeadText>
+                  <SectionTitle>Баланс</SectionTitle>
+                  <SectionHint>Пополнение и вывод средств</SectionHint>
+                </SectionHeadText>
+              </SectionHead>
+              <ActionGrid>
+                <ActionTile type="button" $tone="primary" onClick={() => setAddDialogOpen(true)}>
+                  <ActionTileIcon $tone="primary">
+                    <AddCircleOutlineIcon />
+                  </ActionTileIcon>
+                  <ActionTileLabel>Пополнить</ActionTileLabel>
+                  <ActionTileHint>Добавить на баланс</ActionTileHint>
+                </ActionTile>
+                <ActionTile
                   type="button"
                   onClick={() => setWithdrawDialogOpen(true)}
                   disabled={profile.balance === 0}
                 >
-                  <PaymentsOutlinedIcon sx={{ fontSize: 18 }} />
-                  Вывести все
-                </ActionButton>
-              </ActionRow>
-            </Section>
+                  <ActionTileIcon>
+                    <PaymentsOutlinedIcon />
+                  </ActionTileIcon>
+                  <ActionTileLabel>Вывести все</ActionTileLabel>
+                  <ActionTileHint>Обнулить баланс</ActionTileHint>
+                </ActionTile>
+              </ActionGrid>
+            </SectionCard>
 
-            <Section>
-              <SectionTitle>Сессия</SectionTitle>
-              <DeleteHint>Выйти из профиля на этом устройстве — данные сохранятся.</DeleteHint>
-              <ActionButton
+            <SectionCard>
+              <ActionTileWide
                 type="button"
                 onClick={() => {
                   onExitProfile();
                   onClose();
                 }}
               >
-                <LogoutOutlinedIcon sx={{ fontSize: 18 }} />
-                Выйти из профиля
-              </ActionButton>
-            </Section>
+                <ActionTileIcon>
+                  <LogoutOutlinedIcon />
+                </ActionTileIcon>
+                <ActionTileWideText>
+                  <ActionTileLabel>Выйти из профиля</ActionTileLabel>
+                  <ActionTileHint>Данные сохранятся на устройстве</ActionTileHint>
+                </ActionTileWideText>
+              </ActionTileWide>
+            </SectionCard>
 
-            <Section>
-              <SectionTitle>Удаление</SectionTitle>
+            <SectionCard $tone="danger">
+              <SectionHead>
+                <SectionIcon $tone="danger">
+                  <DeleteOutlineIcon />
+                </SectionIcon>
+                <SectionHeadText>
+                  <SectionTitle>Удаление профиля</SectionTitle>
+                  <SectionHint>Без возможности восстановления</SectionHint>
+                </SectionHeadText>
+              </SectionHead>
+
               {!deleteConfirm ? (
-                <>
-                  <DeleteHint>
-                    Профиль и все связанные ставки будут удалены без возможности восстановления.
-                  </DeleteHint>
-                  <ActionButton type="button" $variant="danger" onClick={() => setDeleteConfirm(true)}>
-                    <DeleteOutlineIcon sx={{ fontSize: 18 }} />
-                    Удалить профиль
-                  </ActionButton>
-                </>
+                <ActionTile type="button" $tone="danger" onClick={() => setDeleteConfirm(true)}>
+                  <ActionTileIcon $tone="danger">
+                    <DeleteOutlineIcon />
+                  </ActionTileIcon>
+                  <ActionTileLabel>Удалить профиль</ActionTileLabel>
+                  <ActionTileHint>
+                    Профиль и {profile.totalBets} ставок будут удалены
+                  </ActionTileHint>
+                </ActionTile>
               ) : (
                 <DeleteConfirmBox>
-                  <DeleteHint style={{ margin: 0, color: "rgba(255, 205, 210, 0.9)" }}>
-                    Удалить профиль «{profile.name}» и все ставки ({profile.totalBets})?
-                  </DeleteHint>
-                  <ActionRow>
-                    <ActionButton
+                  <DeleteConfirmText>
+                    Удалить «{profile.name}» и все ставки ({profile.totalBets})?
+                  </DeleteConfirmText>
+                  <ConfirmActionRow>
+                    <ConfirmButton
                       type="button"
                       $variant="danger"
                       onClick={() => void handleDelete()}
                       disabled={deleting}
                     >
                       {deleting ? "Удаление…" : "Да, удалить"}
-                    </ActionButton>
-                    <ActionButton
+                    </ConfirmButton>
+                    <ConfirmButton
                       type="button"
                       onClick={() => setDeleteConfirm(false)}
                       disabled={deleting}
                     >
                       Отмена
-                    </ActionButton>
-                  </ActionRow>
+                    </ConfirmButton>
+                  </ConfirmActionRow>
                 </DeleteConfirmBox>
               )}
-            </Section>
+            </SectionCard>
           </DialogBody>
-
-          <DialogFooter>
-            <CloseButton type="button" onClick={onClose}>
-              Закрыть
-            </CloseButton>
-          </DialogFooter>
         </DialogShell>
       </Dialog>
 

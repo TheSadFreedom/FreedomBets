@@ -1,6 +1,10 @@
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import SportsEsportsOutlinedIcon from "@mui/icons-material/SportsEsportsOutlined";
-import { ActionButton, ActionsRoot } from "./HomeQuickActions.styled";
+import {
+  ActionButton,
+  ActionButtonLabel,
+  ActionsRoot,
+} from "./HomeQuickActions.styled";
 
 interface HomeQuickActionsProps {
   onNewMatch: () => void;
@@ -9,14 +13,19 @@ interface HomeQuickActionsProps {
 
 const HomeQuickActions = ({ onNewMatch, onNewEvent }: HomeQuickActionsProps) => (
   <ActionsRoot>
-    <ActionButton type="button" onClick={onNewMatch} aria-label="Добавить новый матч">
+    <ActionButton
+      type="button"
+      $primary
+      onClick={onNewMatch}
+      aria-label="Добавить новый матч"
+    >
       <SportsEsportsOutlinedIcon />
-      Новый матч
+      <ActionButtonLabel>Новый матч</ActionButtonLabel>
     </ActionButton>
 
     <ActionButton type="button" onClick={onNewEvent} aria-label="Добавить новый турнир">
       <EmojiEventsOutlinedIcon />
-      Новый турнир
+      <ActionButtonLabel>Новый турнир</ActionButtonLabel>
     </ActionButton>
   </ActionsRoot>
 );

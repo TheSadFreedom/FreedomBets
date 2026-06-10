@@ -1,4 +1,5 @@
 import type { Profile } from "@/entities/profile";
+import { clampBalance, limitInputLength, roundMoney } from "@/shared/lib/limits";
 import { parseProfileId } from "./profileId";
 
 export function normalizeProfile(data: Profile): Profile {
@@ -9,6 +10,12 @@ export function normalizeProfile(data: Profile): Profile {
   return {
     ...data,
     id,
+    name: limitInputLength((data.name ?? "").trim()),
+    balance: clampBalance(data.balance),
+    balanceBase:
+      typeof data.balanceBase === "number" && Number.isFinite(data.balanceBase)
+        ? roundMoney(data.balanceBase)
+        : undefined,
     role: data.role === "admin" ? "admin" : undefined,
   };
 }

@@ -2,8 +2,9 @@
 export const breakpoints = {
   xs: 480,
   sm: 640,
-  md: 900,
-  lg: 1200,
+  /** Узкое окно / планшет / ~⅓ ultrawide: нижняя навигация и компактные карточки */
+  md: 1280,
+  lg: 1440,
 } as const;
 
 export const media = {

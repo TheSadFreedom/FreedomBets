@@ -1,4 +1,3 @@
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useEffect, useMemo, useState } from "react";
 import type { Bet, BetTeamSide } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
@@ -6,28 +5,18 @@ import type { Match, MatchCreateInput } from "@/entities/match";
 import type { Profile } from "@/entities/profile";
 import { findBetsForMatch } from "@/features/matches/lib/findBetsForMatch";
 import { countPendingMatchBets } from "@/features/matches/lib/settleBetsForMatch";
-import { splitMatchesByTodayAndPast } from "@/features/matches/lib/sortMatches";
-import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
+import { splitMatchesByEffectiveStatus } from "@/features/matches/lib/sortMatches";
 import MatchCard from "../MatchCard/MatchCard";
 import MatchFormDialog from "../MatchFormDialog/MatchFormDialog";
 import {
   EmptyState,
-  FutureSectionBody,
-  FutureSectionChevron,
-  FutureSectionCount,
-  FutureSectionHeading,
-  FutureSectionRoot,
-  FutureSectionSummary,
   MatchList,
   MatchSection,
   MatchSectionTitle,
   TabRoot,
-  Toolbar,
-  ToolbarTitle,
 } from "./MatchesTab.styled";
 
 interface MatchesTabProps {
-  isAdmin?: boolean;
   bets: Bet[];
   allBets: Bet[];
   profiles: Profile[];
@@ -42,7 +31,6 @@ interface MatchesTabProps {
 }
 
 const MatchesTab = ({
-  isAdmin = false,
   bets,
   allBets,
   profiles,
@@ -57,10 +45,8 @@ const MatchesTab = ({
 }: MatchesTabProps) => {
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
   const [statusClock, setStatusClock] = useState(0);
-  const { future: futureMatches, today: todayMatches, past: pastMatches } = useMemo(
-    () => splitMatchesByTodayAndPast(matches, todayIsoDateLocal()),
-    [matches, statusClock]
-  );
+  const { live: liveMatches, scheduled: scheduledMatches, finished: finishedMatches } =
+    useMemo(() => splitMatchesByEffectiveStatus(matches), [matches, statusClock]);
   const profileNameById = useMemo(() => {
     const map = new Map<number, string>();
     for (const item of profiles) {
@@ -102,59 +88,43 @@ const MatchesTab = ({
       profileNameById={profileNameById}
       activeProfileId={activeProfileId}
       statusClock={statusClock}
-      isAdmin={isAdmin}
       pendingSettlements={pendingSettlementsByMatchId.get(match.id) ?? 0}
       onBet={(team) => onBetMatch(match, team)}
       onEdit={() => setEditingMatch(match)}
       onDelete={() => void onDeleteMatch(match)}
-      onSettleBets={isAdmin ? () => onSettleMatchBets(match) : undefined}
-      onEditBet={isAdmin ? onEditBet : undefined}
+      onSettleBets={() => onSettleMatchBets(match)}
+      onEditBet={onEditBet}
+      events={events}
     />
   );
 
   const hasMatches =
-    futureMatches.length > 0 || todayMatches.length > 0 || pastMatches.length > 0;
+    liveMatches.length > 0 || scheduledMatches.length > 0 || finishedMatches.length > 0;
 
   return (
     <TabRoot>
-      <Toolbar>
-        <ToolbarTitle>Матчи</ToolbarTitle>
-      </Toolbar>
-
       {!hasMatches ? (
         <EmptyState>Нет матчей. Добавьте первый матч вручную.</EmptyState>
       ) : (
         <>
-          {futureMatches.length > 0 ? (
-            <FutureSectionRoot>
-              <FutureSectionSummary>
-                <FutureSectionHeading>
-                  Позже сегодня
-                  <FutureSectionCount>{futureMatches.length}</FutureSectionCount>
-                </FutureSectionHeading>
-                <FutureSectionChevron aria-hidden>
-                  <ExpandMoreIcon />
-                </FutureSectionChevron>
-              </FutureSectionSummary>
-              <FutureSectionBody>
-                <MatchList>{futureMatches.map(renderMatch)}</MatchList>
-              </FutureSectionBody>
-            </FutureSectionRoot>
+          {liveMatches.length > 0 ? (
+            <MatchSection>
+              <MatchSectionTitle>Live</MatchSectionTitle>
+              <MatchList>{liveMatches.map(renderMatch)}</MatchList>
+            </MatchSection>
           ) : null}
 
-          <MatchSection>
-            <MatchSectionTitle>Сегодня</MatchSectionTitle>
-            {todayMatches.length === 0 ? (
-              <EmptyState>Нет матчей на сегодня</EmptyState>
-            ) : (
-              <MatchList>{todayMatches.map(renderMatch)}</MatchList>
-            )}
-          </MatchSection>
-
-          {pastMatches.length > 0 ? (
+          {scheduledMatches.length > 0 ? (
             <MatchSection>
-              <MatchSectionTitle>Прошедшие</MatchSectionTitle>
-              <MatchList>{pastMatches.map(renderMatch)}</MatchList>
+              <MatchSectionTitle>Скоро</MatchSectionTitle>
+              <MatchList>{scheduledMatches.map(renderMatch)}</MatchList>
+            </MatchSection>
+          ) : null}
+
+          {finishedMatches.length > 0 ? (
+            <MatchSection>
+              <MatchSectionTitle>Завершённые</MatchSectionTitle>
+              <MatchList>{finishedMatches.map(renderMatch)}</MatchList>
             </MatchSection>
           ) : null}
         </>
@@ -163,6 +133,8 @@ const MatchesTab = ({
       <MatchFormDialog
         open={Boolean(editingMatch)}
         bets={bets}
+        allBets={allBets}
+        matches={matches}
         events={events}
         initial={editingMatch ?? undefined}
         onClose={closeDialog}

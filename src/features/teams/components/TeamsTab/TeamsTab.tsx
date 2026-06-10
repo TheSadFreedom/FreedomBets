@@ -1,124 +1,114 @@
 import { useMemo, useState } from "react";
-import { useIsMobile } from "@/shared/hooks/useIsMobile";
-import {
-  Chip,
-  FormControl,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-} from "@mui/material";
+import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import SearchIcon from "@mui/icons-material/Search";
+import { InputAdornment, TextField } from "@mui/material";
 import type { Bet } from "@/entities/bet";
+import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
 import { calcTeamStatsList } from "@/features/teams/lib/calcTeamStatsList";
+import type { RankTone } from "./TeamsTab.styled";
 import {
   BetsCount,
-  CellContent,
+  BetsLabel,
   EmptyState,
   FiltersRow,
-  MobileTeamCard,
-  MobileTeamCount,
-  MobileTeamLeft,
-  MobileTeamList,
+  HeroBadge,
+  HeroCard,
+  HeroContent,
+  HeroGlow,
+  HeroHint,
+  HeroIcon,
+  HeroLeft,
+  HeroText,
+  HeroTitle,
+  ListSection,
+  LogoRing,
+  RankNumber,
+  RowInfo,
+  RowLeft,
+  RowRight,
+  ShareFill,
+  ShareTrack,
   TabRoot,
-  TableScroll,
-  TeamCell,
   TeamName,
+  TeamRow,
   TeamsCard,
   Toolbar,
-  ToolbarHeader,
-  ToolbarTitle,
-  filterControlSx,
 } from "./TeamsTab.styled";
-
-type SortField = "name" | "totalBets";
-type SortDirection = "asc" | "desc";
 
 interface TeamsTabProps {
   allBets: Bet[];
 }
 
-const cellSx = {
-  verticalAlign: "middle",
-  py: 1.75,
-  px: 1.75,
-} as const;
+const rankTone = (rank: number): RankTone | undefined => {
+  if (rank === 1) return "gold";
+  if (rank === 2) return "silver";
+  if (rank === 3) return "bronze";
+  return undefined;
+};
 
-const headCellSx = {
-  ...cellSx,
-  fontWeight: 600,
-} as const;
+const formatTeamsCount = (count: number) => {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return `${count} команда`;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${count} команды`;
+  return `${count} команд`;
+};
 
 const TeamsTab = ({ allBets }: TeamsTabProps) => {
-  const isMobile = useIsMobile();
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<SortField>("totalBets");
-  const [sortDir, setSortDir] = useState<SortDirection>("desc");
 
   const stats = useMemo(() => calcTeamStatsList(allBets), [allBets]);
+  const topBets = stats[0]?.totalBets ?? 1;
+  const rankByName = useMemo(() => {
+    const map = new Map<string, number>();
+    stats.forEach((item, index) => map.set(item.name, index + 1));
+    return map;
+  }, [stats]);
 
   const displayed = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const filtered = q
-      ? stats.filter((item) => item.name.toLowerCase().includes(q))
-      : stats;
-
-    const mult = sortDir === "asc" ? 1 : -1;
-    return [...filtered].sort((a, b) => {
-      if (sortBy === "name") {
-        return a.name.localeCompare(b.name, "ru") * mult;
-      }
-      const cmp = a.totalBets - b.totalBets;
-      if (cmp !== 0) return cmp * mult;
-      return a.name.localeCompare(b.name, "ru");
-    });
-  }, [stats, search, sortBy, sortDir]);
-
-  const hasActiveFilters = Boolean(search.trim());
+    if (!q) return stats;
+    return stats.filter((item) => item.name.toLowerCase().includes(q));
+  }, [stats, search]);
 
   if (stats.length === 0) {
     return (
       <TabRoot>
-        <TeamsCard>
-          <EmptyState>Нет команд — добавьте ставки с указанием команд</EmptyState>
-        </TeamsCard>
+        <EmptyState>Нет команд — добавьте ставки с указанием команд</EmptyState>
       </TabRoot>
     );
   }
 
   return (
     <TabRoot>
+      <HeroCard>
+        <HeroGlow aria-hidden />
+        <HeroContent>
+          <HeroLeft>
+            <HeroIcon aria-hidden>
+              <GroupsOutlinedIcon sx={{ fontSize: 22 }} />
+            </HeroIcon>
+            <HeroText>
+              <HeroTitle>Топ команд</HeroTitle>
+              <HeroHint>по количеству ставок</HeroHint>
+            </HeroText>
+          </HeroLeft>
+          <HeroBadge>{formatTeamsCount(stats.length)}</HeroBadge>
+        </HeroContent>
+      </HeroCard>
+
       <TeamsCard>
         <Toolbar>
-          <ToolbarHeader>
-            <ToolbarTitle>Команды</ToolbarTitle>
-            <Chip
-              label={
-                hasActiveFilters
-                  ? `${displayed.length} / ${stats.length}`
-                  : `${stats.length} · ${allBets.length} ставок`
-              }
-              size="small"
-              variant="outlined"
-              sx={{ borderColor: "rgba(76, 175, 80, 0.35)" }}
-            />
-          </ToolbarHeader>
-
           <FiltersRow>
             <TextField
               size="small"
               fullWidth
-              placeholder="Поиск команды..."
+              placeholder="Поиск команды"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => setSearch(limitInputLength(e.target.value))}
               slotProps={{
+                htmlInput: { maxLength: MAX_INPUT_LENGTH },
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
@@ -127,88 +117,47 @@ const TeamsTab = ({ allBets }: TeamsTabProps) => {
                   ),
                 },
               }}
-              sx={{ flex: { xs: "1 1 100%", sm: "1 1 240px" } }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                  borderRadius: "10px",
+                },
+              }}
             />
-
-            <FormControl size="small" sx={filterControlSx}>
-              <InputLabel>Сортировка</InputLabel>
-              <Select
-                value={sortBy}
-                label="Сортировка"
-                onChange={(e) => setSortBy(e.target.value as SortField)}
-              >
-                <MenuItem value="totalBets">Количество ставок</MenuItem>
-                <MenuItem value="name">Название</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={filterControlSx}>
-              <InputLabel>Порядок</InputLabel>
-              <Select
-                value={sortDir}
-                label="Порядок"
-                onChange={(e) => setSortDir(e.target.value as SortDirection)}
-              >
-                <MenuItem value="desc">По убыванию</MenuItem>
-                <MenuItem value="asc">По возрастанию</MenuItem>
-              </Select>
-            </FormControl>
           </FiltersRow>
         </Toolbar>
 
         {displayed.length === 0 ? (
           <EmptyState>Ничего не найдено</EmptyState>
-        ) : isMobile ? (
-          <MobileTeamList>
-            {displayed.map((item) => (
-              <MobileTeamCard key={item.name}>
-                <MobileTeamLeft>
-                  <TeamLogo name={item.name} size={36} />
-                  <TeamName>{item.name}</TeamName>
-                </MobileTeamLeft>
-                <MobileTeamCount>{item.totalBets}</MobileTeamCount>
-              </MobileTeamCard>
-            ))}
-          </MobileTeamList>
         ) : (
-          <TableScroll>
-            <Table
-              size="small"
-              sx={{
-                tableLayout: "auto",
-                width: "max-content",
-                minWidth: "100%",
-              }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ ...headCellSx, minWidth: 280 }}>Команда</TableCell>
-                  <TableCell sx={{ ...headCellSx, minWidth: 120, textAlign: "right" }}>
-                    Ставок
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {displayed.map((item) => (
-                  <TableRow key={item.name}>
-                    <TableCell sx={cellSx}>
-                      <CellContent>
-                        <TeamCell>
-                          <TeamLogo name={item.name} size={33} />
-                          <TeamName>{item.name}</TeamName>
-                        </TeamCell>
-                      </CellContent>
-                    </TableCell>
-                    <TableCell sx={{ ...cellSx, textAlign: "right" }}>
-                      <CellContent $align="right">
-                        <BetsCount>{item.totalBets}</BetsCount>
-                      </CellContent>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableScroll>
+          <ListSection>
+            {displayed.map((item) => {
+              const rank = rankByName.get(item.name) ?? 0;
+              const tone = rankTone(rank);
+              const share = item.totalBets / topBets;
+
+              return (
+                <TeamRow key={item.name} $tone={tone}>
+                  <RowLeft>
+                    <RankNumber $tone={tone}>{rank}</RankNumber>
+                    <LogoRing $tone={tone}>
+                      <TeamLogo name={item.name} size={36} />
+                    </LogoRing>
+                    <RowInfo>
+                      <TeamName>{item.name}</TeamName>
+                      <ShareTrack>
+                        <ShareFill $share={share} $tone={tone} />
+                      </ShareTrack>
+                    </RowInfo>
+                  </RowLeft>
+                  <RowRight>
+                    <BetsLabel>Ставок</BetsLabel>
+                    <BetsCount>{item.totalBets}</BetsCount>
+                  </RowRight>
+                </TeamRow>
+              );
+            })}
+          </ListSection>
         )}
       </TeamsCard>
     </TabRoot>

@@ -1,7 +1,5 @@
-import type { Bet } from "@/entities/bet";
 import type { EventTier, MajorStage } from "@/entities/event";
 import { isMajorStage, MAJOR_STAGES } from "@/entities/event";
-import { eventStatsKey } from "@/features/events/lib/eventDisplay";
 
 const STAGE_PATTERNS: { pattern: RegExp; stage: MajorStage }[] = [
   { pattern: /\bplayoffs?\b/i, stage: "Playoff" },
@@ -32,29 +30,25 @@ export function resolveMajorStage(
   eventTier: EventTier,
   eventName: string
 ): MajorStage | null {
+  if (typeof value === "string" && value.trim()) {
+    const trimmed = value.trim();
+    return isMajorStage(trimmed) ? trimmed : null;
+  }
   if (eventTier !== "Major") return null;
-  if (isMajorStage(value)) return value;
   return parseMajorFromEventName(eventName).stage;
 }
 
-export function findEventMajorStage(
-  bets: Bet[],
-  eventOrganization: string,
+export function resolveEventStage(
+  value: unknown,
+  eventTier: EventTier,
   eventName: string
-): MajorStage | undefined {
-  const org = eventOrganization.trim();
-  const name = eventName.trim();
-  if (!org || !name) return undefined;
-
-  const key = eventStatsKey(org, name);
-  const match = bets.find((bet) => {
-    if (bet.eventTier !== "Major") return false;
-    return eventStatsKey(bet.eventOrganization.trim(), bet.eventName.trim()) === key;
-  });
-  return match?.majorStage ?? undefined;
+): string | null {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (eventTier === "Major") return parseMajorFromEventName(eventName).stage;
+  return null;
 }
 
-export function formatMajorStageLabel(stage: MajorStage | null | undefined): string {
+export function formatMajorStageLabel(stage: string | null | undefined): string {
   return stage ?? "";
 }
 

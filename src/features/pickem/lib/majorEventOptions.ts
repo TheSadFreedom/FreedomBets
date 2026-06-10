@@ -42,7 +42,7 @@ export function getMajorEventOptions(
   );
   const map = new Map<string, MajorEventOption>();
 
-  for (const bet of filterMajorBets(bets)) {
+  for (const bet of filterMajorBets(bets, storedEvents)) {
     addOption(map, existing, bet.eventOrganization, bet.eventName);
   }
 

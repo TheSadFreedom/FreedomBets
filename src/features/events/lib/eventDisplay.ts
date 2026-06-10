@@ -1,8 +1,10 @@
 import type { Bet } from "@/entities/bet";
-import type { EventTier, MajorStage } from "@/entities/event";
+import type { EventTier } from "@/entities/event";
 import type { EventRecord } from "@/entities/eventRecord";
 import { isEventFinished } from "@/features/events/lib/eventStatus";
+import { resolveEventTierForEvent } from "@/features/events/lib/eventTier";
 import { formatMajorStageLabel } from "@/features/events/lib/majorStage";
+import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
 
 export function parseLegacyEvent(event: string): Pick<Bet, "eventOrganization" | "eventName"> {
   const trimmed = event.trim();
@@ -18,12 +20,12 @@ export function parseLegacyEvent(event: string): Pick<Bet, "eventOrganization" |
 export function formatEventLabel(
   eventOrganization: string,
   eventName: string,
-  options?: { eventTier?: EventTier; majorStage?: MajorStage | null }
+  options?: { eventTier?: EventTier; majorStage?: string | null }
 ): string {
   const org = eventOrganization.trim();
   const name = eventName.trim();
   const base = name ? `${org} — ${name}` : org;
-  if (options?.eventTier === "Major" && options.majorStage) {
+  if (options?.majorStage) {
     return `${base} · ${formatMajorStageLabel(options.majorStage)}`;
   }
   return base;
@@ -32,39 +34,63 @@ export function formatEventLabel(
 export function eventStatsKey(
   eventOrganization: string,
   eventName: string,
-  majorStage?: MajorStage | null
+  majorStage?: string | null
 ): string {
   const base = `${eventOrganization.trim()}\0${eventName.trim()}`;
   return majorStage ? `${base}\0${majorStage}` : base;
 }
 
 export function eventKeyFromBet(
-  bet: Pick<Bet, "eventOrganization" | "eventName" | "eventTier" | "majorStage">
+  bet: Pick<Bet, "eventOrganization" | "eventName" | "majorStage">
 ): string {
-  const stage = bet.eventTier === "Major" ? bet.majorStage : null;
-  return eventStatsKey(bet.eventOrganization, bet.eventName, stage);
+  return eventStatsKey(bet.eventOrganization, bet.eventName, bet.majorStage);
 }
 
 export interface EventSelectOption {
   key: string;
   eventOrganization: string;
   eventName: string;
+  logoSlug: string | null;
   eventTier: EventTier;
-  majorStage: MajorStage | null;
+  majorStage: string | null;
   label: string;
+}
+
+export function resolveEventLogoSlug(
+  eventOrganization: string,
+  eventName: string,
+  storedEvents: EventRecord[] = []
+): string | null {
+  return findStoredEvent({ eventOrganization, eventName }, storedEvents)?.logoSlug ?? null;
 }
 
 export interface GetEventSelectOptionsParams {
   excludeFinished?: boolean;
-  /** Одна строка на major-турнир; стадия выбирается отдельно */
+  /** Одна строка на турнир со стадиями; стадия выбирается отдельно */
   collapseMajorStages?: boolean;
 }
 
+type EventSelectSource = {
+  eventOrganization: string;
+  eventName: string;
+  majorStage?: string | null;
+  eventTier?: EventTier;
+};
+
+function resolveSourceTier(
+  item: EventSelectSource,
+  storedEvents: EventRecord[]
+): EventTier {
+  if (item.eventTier) return item.eventTier;
+  return resolveEventTierForEvent(storedEvents, item.eventOrganization, item.eventName);
+}
+
 export function eventSelectKey(
-  item: Pick<Bet, "eventOrganization" | "eventName" | "eventTier" | "majorStage">,
+  item: Pick<Bet, "eventOrganization" | "eventName" | "majorStage"> & { eventTier?: EventTier },
+  _storedEvents: EventRecord[],
   collapseMajorStages = false
 ): string {
-  if (collapseMajorStages && item.eventTier === "Major") {
+  if (collapseMajorStages) {
     return eventStatsKey(item.eventOrganization, item.eventName, null);
   }
   return eventKeyFromBet(item);
@@ -73,7 +99,7 @@ export function eventSelectKey(
 export function getEventSelectOptions(
   bets: Bet[],
   storedEvents: EventRecord[] = [],
-  extra?: Pick<Bet, "eventOrganization" | "eventName" | "eventTier" | "majorStage"> | null,
+  extra?: Pick<Bet, "eventOrganization" | "eventName" | "majorStage"> | null,
   params?: GetEventSelectOptionsParams
 ): EventSelectOption[] {
   const excludeFinished = params?.excludeFinished ?? false;
@@ -84,19 +110,23 @@ export function getEventSelectOptions(
       eventOrganization: string;
       eventName: string;
       eventTier: EventTier;
-      majorStage: MajorStage | null;
+      majorStage: string | null;
     }
   >();
 
-  const add = (item: Pick<Bet, "eventOrganization" | "eventName" | "eventTier" | "majorStage">) => {
-    const key = eventSelectKey(item, collapseMajorStages);
+  const add = (item: EventSelectSource) => {
+    const eventTier = resolveSourceTier(item, storedEvents);
+    const key = eventSelectKey(
+      { ...item, majorStage: item.majorStage ?? null },
+      storedEvents,
+      collapseMajorStages
+    );
     if (!map.has(key)) {
       map.set(key, {
         eventOrganization: item.eventOrganization,
         eventName: item.eventName,
-        eventTier: item.eventTier,
-        majorStage:
-          item.eventTier === "Major" && !collapseMajorStages ? item.majorStage : null,
+        eventTier,
+        majorStage: !collapseMajorStages ? item.majorStage ?? null : null,
       });
     }
   };
@@ -116,7 +146,6 @@ export function getEventSelectOptions(
     add({
       eventOrganization: extra.eventOrganization,
       eventName: extra.eventName,
-      eventTier: extra.eventTier ?? "Small",
       majorStage: extra.majorStage ?? null,
     });
   }
@@ -124,13 +153,25 @@ export function getEventSelectOptions(
   return Array.from(map.entries())
     .filter(([key, item]) => {
       if (!excludeFinished) return true;
-      const isExtra = extra && key === eventSelectKey(extra, collapseMajorStages);
+      const isExtra =
+        extra &&
+        key ===
+          eventSelectKey(
+            {
+              eventOrganization: extra.eventOrganization,
+              eventName: extra.eventName,
+              majorStage: extra.majorStage ?? null,
+            },
+            storedEvents,
+            collapseMajorStages
+          );
       if (isExtra) return true;
       return !isEventFinished(item.eventOrganization, item.eventName, storedEvents);
     })
     .map(([key, item]) => ({
       key,
       ...item,
+      logoSlug: resolveEventLogoSlug(item.eventOrganization, item.eventName, storedEvents),
       label: formatEventLabel(item.eventOrganization, item.eventName, {
         eventTier: item.eventTier,
         majorStage: collapseMajorStages ? null : item.majorStage,

@@ -7,7 +7,7 @@ export const TabsRoot = styled.div`
   gap: 16px;
   min-width: 0;
 
-  ${media.down("sm")} {
+  ${media.down("md")} {
     gap: 12px;
   }
 `;
@@ -28,8 +28,13 @@ export const TabLabel = styled.span<{ $compact?: boolean }>`
 `;
 
 export const TabsBar = styled.div`
+  display: block;
   position: relative;
   padding: 6px;
+
+  ${media.down("md")} {
+    display: none;
+  }
   border-radius: 16px;
   background:
     radial-gradient(circle at 0% 0%, rgba(76, 175, 80, 0.1) 0%, transparent 42%),
@@ -215,4 +220,37 @@ export const TabsPanel = styled.div`
   &[hidden] {
     display: none;
   }
+`;
+
+export const MobileTabHeader = styled.div`
+  display: none;
+
+  ${media.down("md")} {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 2px 2px;
+  }
+`;
+
+export const MobileTabHeaderIcon = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  color: #a5d6a7;
+  background: rgba(76, 175, 80, 0.14);
+  border: 1px solid rgba(129, 199, 132, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+`;
+
+export const MobileTabHeaderTitle = styled.h2`
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.94);
 `;

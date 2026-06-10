@@ -87,9 +87,11 @@ export const GlobalStyles = createGlobalStyle({
   },
   button: {
     ...textStyles,
+    [media.down("sm")]: mobileText,
   },
   input: {
     ...textStyles,
+    [media.down("sm")]: mobileText,
   },
   "::placeholder": {
     ...textStyles,

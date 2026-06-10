@@ -10,10 +10,8 @@ export function majorsManifestPlugin(): Plugin {
   const run = () => {
     try {
       generateMajorsManifest(rootDir);
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code;
-      if (code === "EBUSY" || code === "EPERM") return;
-      throw error;
+    } catch {
+      // Windows: EBUSY/EPERM/UNKNOWN при блокировке manifest.json — не роняем dev-сервер
     }
   };
 

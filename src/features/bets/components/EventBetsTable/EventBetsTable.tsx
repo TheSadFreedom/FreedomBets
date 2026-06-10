@@ -11,6 +11,7 @@ import {
 import type { Bet } from "@/entities/bet";
 import BetDescriptionCell from "@/features/bets/components/BetDescriptionCell/BetDescriptionCell";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
+import EventBetsMobileListView from "./EventBetsMobileList";
 import { BetsTableWrap } from "./EventBetsTable.styled";
 
 interface EventBetsTableProps {
@@ -28,8 +29,24 @@ const wrapTextSx = {
   overflowWrap: "anywhere",
 } as const;
 
+const tableSx = {
+  tableLayout: "fixed",
+  width: "100%",
+  minWidth: 1192,
+} as const;
+
+const col = {
+  date: { width: 108 },
+  team: { width: 300 },
+  betType: { width: 160 },
+  amount: { width: 88 },
+  odds: { width: 56 },
+  payout: { width: 96 },
+  status: { width: 84 },
+} as const;
+
 const textCellSx = {
-  minWidth: 120,
+  minWidth: 0,
   whiteSpace: "normal" as const,
   ...wrapTextSx,
 };
@@ -48,22 +65,39 @@ const EventBetsTable = ({ bets }: EventBetsTableProps) => {
   if (bets.length === 0) return null;
 
   return (
-    <BetsTableWrap>
+    <>
+      <EventBetsMobileListView bets={bets} />
+      <BetsTableWrap>
       <TableContainer>
-        <Table
-          size="small"
-          sx={{ tableLayout: "auto", width: "max-content", minWidth: "100%" }}
-        >
+        <Table size="small" sx={tableSx}>
+          <colgroup>
+            <col style={{ width: col.date.width }} />
+            <col style={{ width: col.team.width }} />
+            <col style={{ width: col.team.width }} />
+            <col style={{ width: col.betType.width }} />
+            <col style={{ width: col.amount.width }} />
+            <col style={{ width: col.odds.width }} />
+            <col style={{ width: col.payout.width }} />
+            <col style={{ width: col.status.width }} />
+          </colgroup>
           <TableHead>
             <TableRow>
               <TableCell sx={{ whiteSpace: "nowrap" }}>Дата</TableCell>
-              <TableCell sx={{ ...textCellSx, minWidth: 168 }}>Команда 1</TableCell>
-              <TableCell sx={{ ...textCellSx, minWidth: 168 }}>Команда 2</TableCell>
+              <TableCell sx={textCellSx}>Команда 1</TableCell>
+              <TableCell sx={textCellSx}>Команда 2</TableCell>
               <TableCell sx={textCellSx}>Тип</TableCell>
-              <TableCell align="right">Сумма</TableCell>
-              <TableCell align="right">Кэф</TableCell>
-              <TableCell align="right">Результат</TableCell>
-              <TableCell align="center">Статус</TableCell>
+              <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                Сумма
+              </TableCell>
+              <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                Кэф
+              </TableCell>
+              <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                Результат
+              </TableCell>
+              <TableCell align="center" sx={{ whiteSpace: "nowrap" }}>
+                Статус
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -86,9 +120,15 @@ const EventBetsTable = ({ bets }: EventBetsTableProps) => {
                 <TableCell sx={textCellSx}>
                   <BetDescriptionCell bet={bet} />
                 </TableCell>
-                <TableCell align="right">{bet.amount.toLocaleString("ru-RU")} ₽</TableCell>
-                <TableCell align="right">{bet.odds.toFixed(2)}</TableCell>
-                <TableCell align="right">{formatPayout(bet)}</TableCell>
+                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                  {bet.amount.toLocaleString("ru-RU")} ₽
+                </TableCell>
+                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                  {bet.odds.toFixed(2)}
+                </TableCell>
+                <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>
+                  {formatPayout(bet)}
+                </TableCell>
                 <TableCell align="center">
                   <Chip label={bet.status} color={statusColor[bet.status]} size="small" />
                 </TableCell>
@@ -98,6 +138,7 @@ const EventBetsTable = ({ bets }: EventBetsTableProps) => {
         </Table>
       </TableContainer>
     </BetsTableWrap>
+    </>
   );
 };
 

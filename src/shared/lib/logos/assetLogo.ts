@@ -1,8 +1,10 @@
 /** Логотип сайта — запасной для команд и турниров без своего файла */
 export const SITE_LOGO_SRC = "/logo.png";
 
-/** webp первым — большинство логотипов в public/teams и public/organizations */
-const LOGO_EXTENSIONS = ["webp", "png", "svg", "jpg", "jpeg"] as const;
+/** webp первым — большинство логотипов в public/teams, public/organizations и public/majors */
+export const LOGO_EXTENSIONS = ["webp", "png", "svg", "jpg", "jpeg"] as const;
+
+export type AssetLogoFolder = "teams" | "organizations" | "majors";
 
 /** Имя файла без расширения → канонический slug (опечатки в названиях файлов) */
 const LOGO_FILE_ALIASES: Record<string, string> = {
@@ -15,19 +17,20 @@ export function assetLogoSlug(name: string): string {
     .toLowerCase()
     .replace(/_/g, "-")
     .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9а-яё-]/gi, "")
+    .replace(/[^a-z0-9а-яё.-]/gi, "")
     .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/^[-.]|[-.]$/g, "");
 
   return LOGO_FILE_ALIASES[slug] ?? slug;
 }
 
 export function assetLogoSrc(
-  folder: "teams" | "organizations",
+  folder: AssetLogoFolder,
   name: string,
-  extensionIndex = 0
+  extensionIndex = 0,
+  slugify: (name: string) => string = assetLogoSlug
 ): string {
-  const slug = assetLogoSlug(name);
+  const slug = slugify(name);
   const ext = LOGO_EXTENSIONS[extensionIndex] ?? LOGO_EXTENSIONS[0];
   return `/${folder}/${slug}.${ext}`;
 }

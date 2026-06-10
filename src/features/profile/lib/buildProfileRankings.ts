@@ -1,7 +1,6 @@
 import type { Bet } from "@/entities/bet";
 import type { Profile } from "@/entities/profile";
 import { calcSettledProfit, calcWinRate } from "@/features/bets/lib/calculations";
-import { isAdminProfile } from "./isAdminProfile";
 
 export interface ProfileRankingRow {
   profileId: number;
@@ -24,7 +23,6 @@ export function buildProfileRankings(
   }
 
   return profiles
-    .filter((profile) => !isAdminProfile(profile))
     .map((profile) => {
       const profileBets = betsByProfile.get(profile.id) ?? [];
       return {

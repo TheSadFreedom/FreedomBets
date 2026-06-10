@@ -1,8 +1,10 @@
 import { useRef, useState } from "react";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import type { ProfileMedal } from "@/entities/medal";
 import PickemImageLightbox from "@/features/pickem/components/PickemImageLightbox/PickemImageLightbox";
+import ConfirmDialog from "@/shared/ui/ConfirmDialog/ConfirmDialog";
 import {
   DeleteMedalButton,
   MedalImageButton,
@@ -10,7 +12,10 @@ import {
   MedalsGrid,
   MedalsHeader,
   MedalsHint,
+  MedalsIcon,
+  MedalsSubtitle,
   MedalsTitle,
+  MedalsTitleRow,
   UploadMedalButton,
   UserMedalTile,
 } from "./PickemMedalsBlock.styled";
@@ -33,6 +38,8 @@ const PickemMedalsBlock = ({ medals, onUpload, onDelete }: PickemMedalsBlockProp
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ProfileMedal | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleUpload = async (fileList: FileList | null) => {
     const file = fileList?.[0];
@@ -51,14 +58,22 @@ const PickemMedalsBlock = ({ medals, onUpload, onDelete }: PickemMedalsBlockProp
   return (
     <MedalsBlock>
       <MedalsHeader>
-        <MedalsTitle>Медали</MedalsTitle>
+        <MedalsTitleRow>
+          <MedalsIcon aria-hidden>
+            <EmojiEventsOutlinedIcon sx={{ fontSize: 18 }} />
+          </MedalsIcon>
+          <div>
+            <MedalsTitle>Медали</MedalsTitle>
+            <MedalsSubtitle>только для этого профиля</MedalsSubtitle>
+          </div>
+        </MedalsTitleRow>
         <UploadMedalButton
           type="button"
           disabled={uploading}
           onClick={() => fileInputRef.current?.click()}
         >
           <UploadFileOutlinedIcon sx={{ fontSize: 16 }} />
-          {uploading ? "Загрузка…" : "Загрузить медаль"}
+          {uploading ? "Загрузка…" : "Загрузить"}
         </UploadMedalButton>
         <input
           ref={fileInputRef}
@@ -70,7 +85,7 @@ const PickemMedalsBlock = ({ medals, onUpload, onDelete }: PickemMedalsBlockProp
       </MedalsHeader>
 
       {medals.length === 0 ? (
-        <MedalsHint>Загрузите медаль — она будет видна только в этом профиле.</MedalsHint>
+        <MedalsHint>Загрузите изображение медали — оно появится в вашей коллекции.</MedalsHint>
       ) : null}
 
       <MedalsGrid>
@@ -79,7 +94,7 @@ const PickemMedalsBlock = ({ medals, onUpload, onDelete }: PickemMedalsBlockProp
             <DeleteMedalButton
               type="button"
               aria-label="Удалить медаль"
-              onClick={() => void onDelete(medal)}
+              onClick={() => setDeleteTarget(medal)}
             >
               <CloseIcon sx={{ fontSize: 14 }} />
             </DeleteMedalButton>
@@ -101,6 +116,24 @@ const PickemMedalsBlock = ({ medals, onUpload, onDelete }: PickemMedalsBlockProp
         src={expandedImage?.src ?? ""}
         alt={expandedImage?.alt ?? ""}
         onClose={() => setExpandedImage(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Удалить медаль?"
+        message="Медаль будет удалена из профиля без возможности восстановления."
+        confirming={deleting}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+          setDeleting(true);
+          try {
+            await onDelete(deleteTarget);
+            setDeleteTarget(null);
+          } finally {
+            setDeleting(false);
+          }
+        }}
       />
     </MedalsBlock>
   );

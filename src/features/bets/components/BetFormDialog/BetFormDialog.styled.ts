@@ -60,7 +60,7 @@ export const DialogHeader = styled.div`
   gap: 14px;
   padding: 22px 24px 18px;
 
-  ${media.down("sm")} {
+  ${media.down("md")} {
     padding: 16px 14px 14px;
     gap: 10px;
   }
@@ -123,7 +123,7 @@ export const DialogBody = styled.div`
   flex: 1;
   min-height: 0;
 
-  ${media.down("sm")} {
+  ${media.down("md")} {
     padding: 14px 12px 8px;
     gap: 12px;
   }
@@ -198,7 +198,7 @@ export const FieldsGrid = styled.div<{ $twoCol?: boolean }>`
   grid-template-columns: ${({ $twoCol }) => ($twoCol ? "1fr 1fr" : "1fr")};
   gap: 12px;
 
-  ${media.down("sm")} {
+  ${media.down("md")} {
     grid-template-columns: 1fr;
   }
 `;
@@ -271,11 +271,11 @@ export const AmountPresetChip = styled(ChoiceChip)`
 
 export const TeamPickRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 
-  ${media.down("sm")} {
-    grid-template-columns: 1fr;
+  ${media.down("md")} {
+    gap: 8px;
   }
 `;
 
@@ -285,6 +285,7 @@ export const TeamPickButton = styled.button<{ $active?: boolean }>`
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-width: 0;
   padding: 14px 12px;
   text-align: center;
   border-radius: 10px;
@@ -294,6 +295,12 @@ export const TeamPickButton = styled.button<{ $active?: boolean }>`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.18s ease;
+
+  ${media.down("md")} {
+    gap: 6px;
+    padding: 12px 8px;
+    border-radius: 12px;
+  }
 
   &:hover {
     border-color: rgba(255, 255, 255, 0.15);
@@ -322,6 +329,11 @@ export const TeamPickLogoWrap = styled.div`
   width: 44px;
   height: 44px;
   flex-shrink: 0;
+
+  ${media.down("md")} {
+    width: 40px;
+    height: 40px;
+  }
 `;
 
 export const TeamPickPlaceholder = styled.span`
@@ -345,6 +357,15 @@ export const TeamPickName = styled.span`
   font-weight: 600;
   line-height: 1.3;
   word-break: break-word;
+
+  ${media.down("md")} {
+    font-size: 12px;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 `;
 
 export const SectionHint = styled.p`
@@ -364,7 +385,7 @@ export const DialogFooter = styled.div`
   background: rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
 
-  ${media.down("sm")} {
+  ${media.down("md")} {
     flex-direction: column-reverse;
     align-items: stretch;
     padding: 12px 12px max(16px, env(safe-area-inset-bottom));

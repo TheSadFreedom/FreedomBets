@@ -11,7 +11,7 @@ import {
 
 type EventStatsMetricsItem = Pick<
   EventStats,
-  "totalBets" | "wins" | "losses" | "pending" | "winRate" | "profit" | "pendingExposure"
+  "wins" | "losses" | "pending" | "winRate" | "profit"
 >;
 
 interface EventStatsMetricsProps {
@@ -26,20 +26,15 @@ const EventStatsMetrics = ({ item }: EventStatsMetricsProps) => {
 
   return (
     <EventMetricsGrid>
-      <MetricTile>
-        <MetricTileLabel>Ставок</MetricTileLabel>
-        <MetricTileValue>{item.totalBets}</MetricTileValue>
-      </MetricTile>
-
       <MetricTile $accent={winRateColor}>
-        <MetricTileLabel>Винрейт</MetricTileLabel>
+        <MetricTileLabel>WR</MetricTileLabel>
         <MetricTileValue $color={winRateColor}>
           {hasSettled ? `${item.winRate}%` : "—"}
         </MetricTileValue>
       </MetricTile>
 
       <MetricTile>
-        <MetricTileLabel>W / L / ⏳</MetricTileLabel>
+        <MetricTileLabel>W·L·⏳</MetricTileLabel>
         <WldBadges>
           <WldBadge $variant="win">{item.wins}</WldBadge>
           <WldBadge $variant="loss">{item.losses}</WldBadge>
@@ -53,15 +48,6 @@ const EventStatsMetrics = ({ item }: EventStatsMetricsProps) => {
           {formatMoneySigned(item.profit)}
         </MetricTileValue>
       </MetricTile>
-
-      {item.pending > 0 && (
-        <MetricTile $accent="#ffa726">
-          <MetricTileLabel>В игре</MetricTileLabel>
-          <MetricTileValue $color="#ffa726">
-            {item.pendingExposure.toLocaleString("ru-RU")} ₽
-          </MetricTileValue>
-        </MetricTile>
-      )}
     </EventMetricsGrid>
   );
 };

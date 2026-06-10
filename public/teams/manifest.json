@@ -1,0 +1,966 @@
+[
+  {
+    "id": "100-thieves",
+    "src": "/teams/100-thieves.webp"
+  },
+  {
+    "id": "1win",
+    "src": "/teams/1win.webp"
+  },
+  {
+    "id": "3dmax",
+    "src": "/teams/3dmax.webp"
+  },
+  {
+    "id": "5star",
+    "src": "/teams/5star.webp"
+  },
+  {
+    "id": "9ine",
+    "src": "/teams/9ine.webp"
+  },
+  {
+    "id": "9z",
+    "src": "/teams/9z.webp"
+  },
+  {
+    "id": "aaa",
+    "src": "/teams/aaa.svg"
+  },
+  {
+    "id": "abyssal",
+    "src": "/teams/abyssal.webp"
+  },
+  {
+    "id": "acend",
+    "src": "/teams/acend.webp"
+  },
+  {
+    "id": "aimclub",
+    "src": "/teams/aimclub.webp"
+  },
+  {
+    "id": "algo",
+    "src": "/teams/algo.webp"
+  },
+  {
+    "id": "alka",
+    "src": "/teams/alka.webp"
+  },
+  {
+    "id": "alliance",
+    "src": "/teams/alliance.webp"
+  },
+  {
+    "id": "alter-ego",
+    "src": "/teams/alter-ego.webp"
+  },
+  {
+    "id": "am",
+    "src": "/teams/am.webp"
+  },
+  {
+    "id": "arcade",
+    "src": "/teams/arcade.webp"
+  },
+  {
+    "id": "arcred",
+    "src": "/teams/arcred.webp"
+  },
+  {
+    "id": "astral",
+    "src": "/teams/astral.webp"
+  },
+  {
+    "id": "astralis",
+    "src": "/teams/astralis.svg"
+  },
+  {
+    "id": "atreides",
+    "src": "/teams/atreides.webp"
+  },
+  {
+    "id": "aurora-young-blud",
+    "src": "/teams/aurora-young-blud.webp"
+  },
+  {
+    "id": "aurora",
+    "src": "/teams/aurora.webp"
+  },
+  {
+    "id": "b8",
+    "src": "/teams/b8.webp"
+  },
+  {
+    "id": "baks",
+    "src": "/teams/baks.webp"
+  },
+  {
+    "id": "bankapepsi",
+    "src": "/teams/bankapepsi.webp"
+  },
+  {
+    "id": "basement-bobs",
+    "src": "/teams/basement-bobs.webp"
+  },
+  {
+    "id": "basement-boys",
+    "src": "/teams/basement-boys.webp"
+  },
+  {
+    "id": "bc.game",
+    "src": "/teams/bc.game.webp"
+  },
+  {
+    "id": "benched-gods",
+    "src": "/teams/benched-gods.webp"
+  },
+  {
+    "id": "bestia-academy",
+    "src": "/teams/bestia-academy.webp"
+  },
+  {
+    "id": "bestia",
+    "src": "/teams/bestia.webp"
+  },
+  {
+    "id": "bet-m",
+    "src": "/teams/bet-m.webp"
+  },
+  {
+    "id": "betboom",
+    "src": "/teams/betboom.webp"
+  },
+  {
+    "id": "betclic",
+    "src": "/teams/betclic.webp"
+  },
+  {
+    "id": "big-academy",
+    "src": "/teams/big-academy.webp"
+  },
+  {
+    "id": "big",
+    "src": "/teams/big.svg"
+  },
+  {
+    "id": "bmz",
+    "src": "/teams/bmz.webp"
+  },
+  {
+    "id": "boring-players",
+    "src": "/teams/boring-players.webp"
+  },
+  {
+    "id": "bounty-hunters",
+    "src": "/teams/bounty-hunters.webp"
+  },
+  {
+    "id": "brazylijski-luz",
+    "src": "/teams/brazylijski-luz.webp"
+  },
+  {
+    "id": "brute",
+    "src": "/teams/brute.webp"
+  },
+  {
+    "id": "bushido-wildcats",
+    "src": "/teams/bushido-wildcats.webp"
+  },
+  {
+    "id": "change-the-game",
+    "src": "/teams/change-the-game.webp"
+  },
+  {
+    "id": "chicken-coop",
+    "src": "/teams/chicken-coop.webp"
+  },
+  {
+    "id": "chinggis-warriors",
+    "src": "/teams/chinggis-warriors.webp"
+  },
+  {
+    "id": "cloud9",
+    "src": "/teams/cloud9.svg"
+  },
+  {
+    "id": "clutchain-fe",
+    "src": "/teams/clutchain-fe.webp"
+  },
+  {
+    "id": "clutchain",
+    "src": "/teams/clutchain.webp"
+  },
+  {
+    "id": "cybershoke-prospects",
+    "src": "/teams/cybershoke-prospects.webp"
+  },
+  {
+    "id": "cybershoke",
+    "src": "/teams/cybershoke.webp"
+  },
+  {
+    "id": "damajuana",
+    "src": "/teams/damajuana.webp"
+  },
+  {
+    "id": "depo",
+    "src": "/teams/depo.webp"
+  },
+  {
+    "id": "dontsu",
+    "src": "/teams/dontsu.webp"
+  },
+  {
+    "id": "dripmen",
+    "src": "/teams/dripmen.webp"
+  },
+  {
+    "id": "dxa",
+    "src": "/teams/dxa.webp"
+  },
+  {
+    "id": "eac",
+    "src": "/teams/eac.webp"
+  },
+  {
+    "id": "ec-banga",
+    "src": "/teams/ec-banga.webp"
+  },
+  {
+    "id": "empire",
+    "src": "/teams/empire.webp"
+  },
+  {
+    "id": "ence",
+    "src": "/teams/ence.svg"
+  },
+  {
+    "id": "endless-jorney",
+    "src": "/teams/endless-jorney.webp"
+  },
+  {
+    "id": "enjoy",
+    "src": "/teams/enjoy.webp"
+  },
+  {
+    "id": "entropy",
+    "src": "/teams/entropy.png"
+  },
+  {
+    "id": "envy",
+    "src": "/teams/envy.webp"
+  },
+  {
+    "id": "esuba",
+    "src": "/teams/esuba.webp"
+  },
+  {
+    "id": "eternal-fire",
+    "src": "/teams/eternal-fire.webp"
+  },
+  {
+    "id": "eternal-premium",
+    "src": "/teams/eternal-premium.webp"
+  },
+  {
+    "id": "eyeballers",
+    "src": "/teams/eyeballers.webp"
+  },
+  {
+    "id": "f5",
+    "src": "/teams/f5.webp"
+  },
+  {
+    "id": "falcons-force",
+    "src": "/teams/falcons-force.webp"
+  },
+  {
+    "id": "falcons",
+    "src": "/teams/falcons.webp"
+  },
+  {
+    "id": "famalicão",
+    "src": "/teams/famalic%C3%A3o.webp"
+  },
+  {
+    "id": "favbet",
+    "src": "/teams/favbet.webp"
+  },
+  {
+    "id": "faze",
+    "src": "/teams/faze.webp"
+  },
+  {
+    "id": "fire-flux",
+    "src": "/teams/fire-flux.webp"
+  },
+  {
+    "id": "fisher-college",
+    "src": "/teams/fisher-college.webp"
+  },
+  {
+    "id": "fluxo",
+    "src": "/teams/fluxo.webp"
+  },
+  {
+    "id": "flyquest",
+    "src": "/teams/flyquest.webp"
+  },
+  {
+    "id": "fnatic-1",
+    "src": "/teams/fnatic-1.webp"
+  },
+  {
+    "id": "fnatic-2",
+    "src": "/teams/fnatic-2.webp"
+  },
+  {
+    "id": "fnatic-3",
+    "src": "/teams/fnatic-3.png"
+  },
+  {
+    "id": "fnatic",
+    "src": "/teams/fnatic.svg"
+  },
+  {
+    "id": "fokus",
+    "src": "/teams/fokus.webp"
+  },
+  {
+    "id": "fortress",
+    "src": "/teams/fortress.webp"
+  },
+  {
+    "id": "furia-fe",
+    "src": "/teams/furia-fe.webp"
+  },
+  {
+    "id": "furia",
+    "src": "/teams/furia.svg"
+  },
+  {
+    "id": "fut",
+    "src": "/teams/fut.webp"
+  },
+  {
+    "id": "g2-ares",
+    "src": "/teams/g2-ares.webp"
+  },
+  {
+    "id": "g2",
+    "src": "/teams/g2.webp"
+  },
+  {
+    "id": "gaimin-gladiators",
+    "src": "/teams/gaimin-gladiators.webp"
+  },
+  {
+    "id": "galorys",
+    "src": "/teams/galorys.webp"
+  },
+  {
+    "id": "gambit",
+    "src": "/teams/gambit.svg"
+  },
+  {
+    "id": "game-point",
+    "src": "/teams/game-point.webp"
+  },
+  {
+    "id": "gamehunters",
+    "src": "/teams/gamehunters.webp"
+  },
+  {
+    "id": "gamerlegion",
+    "src": "/teams/gamerlegion.webp"
+  },
+  {
+    "id": "genesis",
+    "src": "/teams/genesis.webp"
+  },
+  {
+    "id": "genone",
+    "src": "/teams/genone.webp"
+  },
+  {
+    "id": "gentle-mates",
+    "src": "/teams/gentle-mates.webp"
+  },
+  {
+    "id": "ground-zero",
+    "src": "/teams/ground-zero.webp"
+  },
+  {
+    "id": "guara",
+    "src": "/teams/guara.svg"
+  },
+  {
+    "id": "haunted-house",
+    "src": "/teams/haunted-house.webp"
+  },
+  {
+    "id": "havu",
+    "src": "/teams/havu.webp"
+  },
+  {
+    "id": "hellraisers-1",
+    "src": "/teams/hellraisers-1.webp"
+  },
+  {
+    "id": "hellraisers",
+    "src": "/teams/hellraisers.webp"
+  },
+  {
+    "id": "heroic-academy",
+    "src": "/teams/heroic-academy.svg"
+  },
+  {
+    "id": "heroic",
+    "src": "/teams/heroic.webp"
+  },
+  {
+    "id": "honvéd",
+    "src": "/teams/honv%C3%A9d.webp"
+  },
+  {
+    "id": "hotu",
+    "src": "/teams/hotu.webp"
+  },
+  {
+    "id": "hyperspirit",
+    "src": "/teams/hyperspirit.webp"
+  },
+  {
+    "id": "illwill",
+    "src": "/teams/illwill.webp"
+  },
+  {
+    "id": "imperial-academy",
+    "src": "/teams/imperial-academy.webp"
+  },
+  {
+    "id": "imperial",
+    "src": "/teams/imperial.webp"
+  },
+  {
+    "id": "infinite",
+    "src": "/teams/infinite.webp"
+  },
+  {
+    "id": "infurity",
+    "src": "/teams/infurity.webp"
+  },
+  {
+    "id": "inner-circle-academy",
+    "src": "/teams/inner-circle-academy.webp"
+  },
+  {
+    "id": "inner-circle",
+    "src": "/teams/inner-circle.webp"
+  },
+  {
+    "id": "inox-division",
+    "src": "/teams/inox-division.webp"
+  },
+  {
+    "id": "invicta",
+    "src": "/teams/invicta.webp"
+  },
+  {
+    "id": "isurus",
+    "src": "/teams/isurus.webp"
+  },
+  {
+    "id": "jijiehao",
+    "src": "/teams/jijiehao.webp"
+  },
+  {
+    "id": "johnny-speeds",
+    "src": "/teams/johnny-speeds.webp"
+  },
+  {
+    "id": "just-swing",
+    "src": "/teams/just-swing.webp"
+  },
+  {
+    "id": "k27",
+    "src": "/teams/k27.webp"
+  },
+  {
+    "id": "kaleido",
+    "src": "/teams/kaleido.webp"
+  },
+  {
+    "id": "keyd-stars",
+    "src": "/teams/keyd-stars.webp"
+  },
+  {
+    "id": "kolesie",
+    "src": "/teams/kolesie.webp"
+  },
+  {
+    "id": "kuusamo",
+    "src": "/teams/kuusamo.webp"
+  },
+  {
+    "id": "lag",
+    "src": "/teams/lag.webp"
+  },
+  {
+    "id": "laser-cats",
+    "src": "/teams/laser-cats.webp"
+  },
+  {
+    "id": "last-bullet",
+    "src": "/teams/last-bullet.webp"
+  },
+  {
+    "id": "lazer-cats",
+    "src": "/teams/lazer-cats.webp"
+  },
+  {
+    "id": "ldlc",
+    "src": "/teams/ldlc.webp"
+  },
+  {
+    "id": "legacy",
+    "src": "/teams/legacy.webp"
+  },
+  {
+    "id": "legion",
+    "src": "/teams/legion.webp"
+  },
+  {
+    "id": "leo",
+    "src": "/teams/leo.webp"
+  },
+  {
+    "id": "lilmix",
+    "src": "/teams/lilmix.svg"
+  },
+  {
+    "id": "linx-legacy",
+    "src": "/teams/linx-legacy.webp"
+  },
+  {
+    "id": "liquid",
+    "src": "/teams/liquid.svg"
+  },
+  {
+    "id": "lph",
+    "src": "/teams/lph.webp"
+  },
+  {
+    "id": "luminosity",
+    "src": "/teams/luminosity.svg"
+  },
+  {
+    "id": "lynn-vision",
+    "src": "/teams/lynn-vision.webp"
+  },
+  {
+    "id": "m80",
+    "src": "/teams/m80.webp"
+  },
+  {
+    "id": "magic",
+    "src": "/teams/magic.webp"
+  },
+  {
+    "id": "mana",
+    "src": "/teams/mana.webp"
+  },
+  {
+    "id": "marsborne",
+    "src": "/teams/marsborne.webp"
+  },
+  {
+    "id": "masonic",
+    "src": "/teams/masonic.svg"
+  },
+  {
+    "id": "megoshort",
+    "src": "/teams/megoshort.webp"
+  },
+  {
+    "id": "metanoia-wolves",
+    "src": "/teams/metanoia-wolves.webp"
+  },
+  {
+    "id": "metizport",
+    "src": "/teams/metizport.webp"
+  },
+  {
+    "id": "mibr-academy",
+    "src": "/teams/mibr-academy.webp"
+  },
+  {
+    "id": "mibr-fe",
+    "src": "/teams/mibr-fe.webp"
+  },
+  {
+    "id": "mibr",
+    "src": "/teams/mibr.webp"
+  },
+  {
+    "id": "misa",
+    "src": "/teams/misa.webp"
+  },
+  {
+    "id": "monte",
+    "src": "/teams/monte.webp"
+  },
+  {
+    "id": "mouz-nxt",
+    "src": "/teams/mouz-nxt.webp"
+  },
+  {
+    "id": "mouz",
+    "src": "/teams/mouz.svg"
+  },
+  {
+    "id": "mtx",
+    "src": "/teams/mtx.webp"
+  },
+  {
+    "id": "nas",
+    "src": "/teams/nas.webp"
+  },
+  {
+    "id": "natus-vincere",
+    "src": "/teams/natus-vincere.svg"
+  },
+  {
+    "id": "navi-junior",
+    "src": "/teams/navi-junior.svg"
+  },
+  {
+    "id": "nemesis",
+    "src": "/teams/nemesis.webp"
+  },
+  {
+    "id": "nemiga",
+    "src": "/teams/nemiga.webp"
+  },
+  {
+    "id": "new-vision",
+    "src": "/teams/new-vision.webp"
+  },
+  {
+    "id": "nexvoid",
+    "src": "/teams/nexvoid.webp"
+  },
+  {
+    "id": "ninjas-in-pyjamas-2",
+    "src": "/teams/ninjas-in-pyjamas-2.svg"
+  },
+  {
+    "id": "ninjas-in-pyjamas",
+    "src": "/teams/ninjas-in-pyjamas.webp"
+  },
+  {
+    "id": "nip",
+    "src": "/teams/nip.webp"
+  },
+  {
+    "id": "nrg",
+    "src": "/teams/nrg.webp"
+  },
+  {
+    "id": "nuclear-tigeres",
+    "src": "/teams/nuclear-tigeres.webp"
+  },
+  {
+    "id": "og",
+    "src": "/teams/og.webp"
+  },
+  {
+    "id": "oldboys-pl",
+    "src": "/teams/oldboys-pl.webp"
+  },
+  {
+    "id": "olybet",
+    "src": "/teams/olybet.webp"
+  },
+  {
+    "id": "omega",
+    "src": "/teams/omega.webp"
+  },
+  {
+    "id": "outsiders",
+    "src": "/teams/outsiders.webp"
+  },
+  {
+    "id": "overknight",
+    "src": "/teams/overknight.webp"
+  },
+  {
+    "id": "oxuji",
+    "src": "/teams/oxuji.webp"
+  },
+  {
+    "id": "pain-acadeny",
+    "src": "/teams/pain-acadeny.webp"
+  },
+  {
+    "id": "pain",
+    "src": "/teams/pain.webp"
+  },
+  {
+    "id": "parivision",
+    "src": "/teams/parivision.webp"
+  },
+  {
+    "id": "passion-ua",
+    "src": "/teams/passion-ua.webp"
+  },
+  {
+    "id": "pcific",
+    "src": "/teams/pcific.webp"
+  },
+  {
+    "id": "phantom-academy",
+    "src": "/teams/phantom-academy.webp"
+  },
+  {
+    "id": "phantom",
+    "src": "/teams/phantom.webp"
+  },
+  {
+    "id": "prestige",
+    "src": "/teams/prestige.webp"
+  },
+  {
+    "id": "procyon",
+    "src": "/teams/procyon.webp"
+  },
+  {
+    "id": "project-91",
+    "src": "/teams/project-91.webp"
+  },
+  {
+    "id": "pure",
+    "src": "/teams/pure.webp"
+  },
+  {
+    "id": "r2",
+    "src": "/teams/r2.webp"
+  },
+  {
+    "id": "rare-atom",
+    "src": "/teams/rare-atom.webp"
+  },
+  {
+    "id": "rebels",
+    "src": "/teams/rebels.webp"
+  },
+  {
+    "id": "regain",
+    "src": "/teams/regain.webp"
+  },
+  {
+    "id": "reign-above",
+    "src": "/teams/reign-above.webp"
+  },
+  {
+    "id": "rooster",
+    "src": "/teams/rooster.webp"
+  },
+  {
+    "id": "rounds",
+    "src": "/teams/rounds.webp"
+  },
+  {
+    "id": "rune-eaters",
+    "src": "/teams/rune-eaters.webp"
+  },
+  {
+    "id": "rustec",
+    "src": "/teams/rustec.webp"
+  },
+  {
+    "id": "sashi-academy",
+    "src": "/teams/sashi-academy.webp"
+  },
+  {
+    "id": "sashi",
+    "src": "/teams/sashi.webp"
+  },
+  {
+    "id": "saw",
+    "src": "/teams/saw.webp"
+  },
+  {
+    "id": "semperfi",
+    "src": "/teams/semperfi.webp"
+  },
+  {
+    "id": "sharks",
+    "src": "/teams/sharks.webp"
+  },
+  {
+    "id": "shimmer",
+    "src": "/teams/shimmer.webp"
+  },
+  {
+    "id": "shinden",
+    "src": "/teams/shinden.webp"
+  },
+  {
+    "id": "sinners",
+    "src": "/teams/sinners.svg"
+  },
+  {
+    "id": "sk",
+    "src": "/teams/sk.webp"
+  },
+  {
+    "id": "skele",
+    "src": "/teams/skele.webp"
+  },
+  {
+    "id": "sparta",
+    "src": "/teams/sparta.webp"
+  },
+  {
+    "id": "spirit-academy",
+    "src": "/teams/spirit-academy.webp"
+  },
+  {
+    "id": "spirit",
+    "src": "/teams/spirit.webp"
+  },
+  {
+    "id": "sportsbetexpert",
+    "src": "/teams/sportsbetexpert.webp"
+  },
+  {
+    "id": "state",
+    "src": "/teams/state.webp"
+  },
+  {
+    "id": "tdk",
+    "src": "/teams/tdk.webp"
+  },
+  {
+    "id": "the-huns",
+    "src": "/teams/the-huns.webp"
+  },
+  {
+    "id": "the-last-resort",
+    "src": "/teams/the-last-resort.svg"
+  },
+  {
+    "id": "the-mongolz",
+    "src": "/teams/the-mongolz.webp"
+  },
+  {
+    "id": "the-qube",
+    "src": "/teams/the-qube.webp"
+  },
+  {
+    "id": "thunder-downunder",
+    "src": "/teams/thunder-downunder.webp"
+  },
+  {
+    "id": "time-waves",
+    "src": "/teams/time-waves.webp"
+  },
+  {
+    "id": "tnc",
+    "src": "/teams/tnc.webp"
+  },
+  {
+    "id": "tricked",
+    "src": "/teams/tricked.webp"
+  },
+  {
+    "id": "tyloo",
+    "src": "/teams/tyloo.svg"
+  },
+  {
+    "id": "unity",
+    "src": "/teams/unity.webp"
+  },
+  {
+    "id": "ur",
+    "src": "/teams/ur.webp"
+  },
+  {
+    "id": "ursa",
+    "src": "/teams/ursa.webp"
+  },
+  {
+    "id": "vasco",
+    "src": "/teams/vasco.webp"
+  },
+  {
+    "id": "vexa",
+    "src": "/teams/vexa.webp"
+  },
+  {
+    "id": "villainous",
+    "src": "/teams/villainous.webp"
+  },
+  {
+    "id": "virtus.pro",
+    "src": "/teams/virtus.pro.svg"
+  },
+  {
+    "id": "vitality",
+    "src": "/teams/vitality.webp"
+  },
+  {
+    "id": "voca",
+    "src": "/teams/voca.webp"
+  },
+  {
+    "id": "vp.prodigy",
+    "src": "/teams/vp.prodigy.webp"
+  },
+  {
+    "id": "walczaki",
+    "src": "/teams/walczaki.webp"
+  },
+  {
+    "id": "wanted-goons",
+    "src": "/teams/wanted-goons.webp"
+  },
+  {
+    "id": "wazabi",
+    "src": "/teams/wazabi.webp"
+  },
+  {
+    "id": "wildcard",
+    "src": "/teams/wildcard.webp"
+  },
+  {
+    "id": "wrotberry",
+    "src": "/teams/wrotberry.webp"
+  },
+  {
+    "id": "ww",
+    "src": "/teams/ww.webp"
+  },
+  {
+    "id": "xi",
+    "src": "/teams/xi.webp"
+  },
+  {
+    "id": "yawara",
+    "src": "/teams/yawara.webp"
+  },
+  {
+    "id": "young-ninjas",
+    "src": "/teams/young-ninjas.webp"
+  },
+  {
+    "id": "young-tigeres",
+    "src": "/teams/young-tigeres.webp"
+  },
+  {
+    "id": "zomblers",
+    "src": "/teams/zomblers.webp"
+  }
+]

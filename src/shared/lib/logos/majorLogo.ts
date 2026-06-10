@@ -1,13 +1,13 @@
-import type { StaticMajor } from "@/shared/lib/majors/staticMajors";
+import { assetLogoSlug, LOGO_EXTENSIONS } from "./assetLogo";
 
-const LOGO_EXTENSIONS = ["svg", "webp", "png", "jpg", "jpeg"] as const;
+/** Имя файла без расширения → slug в public/majors */
+const MAJOR_LOGO_ALIASES: Record<string, string> = {
+  "iem-major-rio-2022": "iem-rio-major-2022",
+};
 
-export function normalizeMajorKey(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[—–]/g, "-")
-    .replace(/\s+/g, " ");
+export function majorLogoSlug(name: string): string {
+  const slug = assetLogoSlug(name);
+  return MAJOR_LOGO_ALIASES[slug] ?? slug;
 }
 
 export function majorEventKeys(eventOrganization: string, eventName: string): string[] {
@@ -22,36 +22,11 @@ export function majorEventKeys(eventOrganization: string, eventName: string): st
   return keys;
 }
 
+/** Варианты путей /majors/{slug}.{ext} по названию турнира */
 export function buildMajorLogoCandidates(eventOrganization: string, eventName: string): string[] {
-  const keys = majorEventKeys(eventOrganization, eventName);
-  const unique = [...new Set(keys)];
+  const slugs = [...new Set(majorEventKeys(eventOrganization, eventName).map(majorLogoSlug))];
 
-  return unique.flatMap((key) =>
-    LOGO_EXTENSIONS.map((ext) => `/majors/${encodeURIComponent(key)}.${ext}`)
+  return slugs.flatMap((slug) =>
+    LOGO_EXTENSIONS.map((ext) => `/majors/${slug}.${ext}`)
   );
-}
-
-export function findMajorLogoSrc(
-  manifest: StaticMajor[],
-  eventOrganization: string,
-  eventName: string
-): string | null {
-  const candidates = majorEventKeys(eventOrganization, eventName).map(normalizeMajorKey);
-  const byId = new Map(manifest.map((item) => [normalizeMajorKey(item.id), item.src]));
-
-  for (const key of candidates) {
-    const src = byId.get(key);
-    if (src) return src;
-  }
-
-  const org = normalizeMajorKey(eventOrganization);
-  const name = normalizeMajorKey(eventName);
-  if (!name) return null;
-
-  const fuzzy = manifest.find((item) => {
-    const id = normalizeMajorKey(item.id);
-    return id.includes(name) && (!org || id.includes(org));
-  });
-
-  return fuzzy?.src ?? null;
 }
