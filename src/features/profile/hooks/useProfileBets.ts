@@ -386,9 +386,9 @@ export function useProfileBets() {
   const addMatch = async (data: MatchCreateInput) => {
     const payload: MatchFormValues = {
       ...data,
-      score1: data.score1 ?? null,
-      score2: data.score2 ?? null,
       status: "scheduled",
+      score1: null,
+      score2: null,
     };
     const res = await httpClient.post<Match>("/matches", payload);
     const created = normalizeMatch(res.data);
@@ -640,14 +640,18 @@ export function useProfileBets() {
   };
 
   const updateMatch = async (match: Match, data: MatchCreateInput) => {
-    const hasWinner = getMatchSeriesWinner({
-      score1: data.score1 ?? null,
-      score2: data.score2 ?? null,
-    });
+    const draft: Match = {
+      ...match,
+      ...data,
+      score1: null,
+      score2: null,
+    };
+    const hasWinner = getMatchSeriesWinner(draft);
     const payload: MatchFormValues = {
       ...data,
-      score1: data.score1 ?? null,
-      score2: data.score2 ?? null,
+      maps: data.maps,
+      score1: null,
+      score2: null,
       status: hasWinner ? "finished" : match.status,
     };
     const res = await httpClient.patch<Match>(`/matches/${match.id}`, payload);

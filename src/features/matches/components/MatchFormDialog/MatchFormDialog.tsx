@@ -16,7 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import type { Bet } from "@/entities/bet";
 import { MATCH_FORMATS, type MatchFormat } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
-import type { Match, MatchCreateInput } from "@/entities/match";
+import type { Match, MatchCreateInput, MatchMap } from "@/entities/match";
 import { getBetFormSuggestions } from "@/features/bets/lib/formSuggestions";
 import EventStageSelect from "@/features/events/components/EventStageSelect/EventStageSelect";
 import { collectEventStages, pickEventStage } from "@/features/events/lib/eventStages";
@@ -24,6 +24,12 @@ import {
   eventSelectKey,
   getEventSelectOptions,
 } from "@/features/events/lib/eventDisplay";
+import {
+  CS_MAP_NAMES,
+  createEmptyMaps,
+  resizeMapsForFormat,
+  sanitizeMapsForSave,
+} from "@/features/matches/lib/matchMaps";
 import { normalizeScoreValue } from "@/features/matches/lib/matchScore";
 import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
 import DateInput, { type DateInputHandle } from "@/shared/ui/DateInput/DateInput";
@@ -39,6 +45,8 @@ import {
   FooterButton,
   FormatChip,
   FormatRow,
+  MapBlock,
+  MapBlockTitle,
   ScoreLabel,
   ScoreRow,
   ScoreSection,
@@ -57,8 +65,7 @@ const emptyMatch = (): MatchCreateInput => ({
   eventOrganization: "",
   eventName: "",
   majorStage: null,
-  score1: null,
-  score2: null,
+  maps: createEmptyMaps("BO3"),
 });
 
 const matchToFormInput = (match: Match): MatchCreateInput => ({
@@ -70,8 +77,7 @@ const matchToFormInput = (match: Match): MatchCreateInput => ({
   eventOrganization: match.eventOrganization,
   eventName: match.eventName,
   majorStage: match.majorStage,
-  score1: match.score1,
-  score2: match.score2,
+  maps: resizeMapsForFormat(match.maps ?? [], match.format),
 });
 
 interface MatchFormDialogProps {
@@ -151,15 +157,25 @@ const MatchFormDialog = ({
     ]
   );
   const eventRequiresStage = selectedEventStages.length > 0;
-  const setScore = (side: 1 | 2, raw: string) => {
+
+  const updateMap = (index: number, patch: Partial<MatchMap>) => {
+    setForm((prev) => ({
+      ...prev,
+      maps: prev.maps.map((map, mapIndex) =>
+        mapIndex === index ? { ...map, ...patch } : map
+      ),
+    }));
+  };
+
+  const setMapScore = (index: number, side: 1 | 2, raw: string) => {
     const key = side === 1 ? "score1" : "score2";
     if (raw.trim() === "") {
-      update(key, null);
+      updateMap(index, { [key]: null });
       return;
     }
     const parsed = normalizeScoreValue(raw);
     if (parsed == null) return;
-    update(key, parsed);
+    updateMap(index, { [key]: parsed });
   };
 
   useEffect(() => {
@@ -169,6 +185,14 @@ const MatchFormDialog = ({
 
   const update = <K extends keyof MatchCreateInput>(key: K, value: MatchCreateInput[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const setFormat = (format: MatchFormat) => {
+    setForm((prev) => ({
+      ...prev,
+      format,
+      maps: resizeMapsForFormat(prev.maps, format),
+    }));
   };
 
   const canSubmit =
@@ -182,15 +206,13 @@ const MatchFormDialog = ({
     if (!canSubmit || saving) return;
     const date = dateRef.current?.commit() ?? form.date;
     const time = timeRef.current?.commit() ?? form.time;
-    const hasBothScores = form.score1 != null && form.score2 != null;
     setSaving(true);
     try {
       await onSubmit({
         ...form,
         date,
         time,
-        score1: hasBothScores ? form.score1 : null,
-        score2: hasBothScores ? form.score2 : null,
+        maps: sanitizeMapsForSave(form.maps, form.format),
         organization1: form.organization1.trim(),
         organization2: form.organization2.trim(),
         eventOrganization: form.eventOrganization.trim(),
@@ -247,7 +269,7 @@ const MatchFormDialog = ({
                 key={format}
                 type="button"
                 $active={form.format === format}
-                onClick={() => update("format", format as MatchFormat)}
+                onClick={() => setFormat(format as MatchFormat)}
               >
                 {format}
               </FormatChip>
@@ -272,34 +294,46 @@ const MatchFormDialog = ({
           />
 
           <ScoreSection>
-            <ScoreLabel>Счёт по картам (необязательно)</ScoreLabel>
-            <ScoreRow>
-              <TextField
-                label={form.organization1.trim() || "Команда 1"}
-                type="number"
-                value={form.score1 ?? ""}
-                onChange={(e) => setScore(1, e.target.value)}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                  htmlInput: { min: 0, step: 1 },
-                }}
-                fullWidth
-                sx={fieldSx}
-              />
-              <ScoreSeparator>:</ScoreSeparator>
-              <TextField
-                label={form.organization2.trim() || "Команда 2"}
-                type="number"
-                value={form.score2 ?? ""}
-                onChange={(e) => setScore(2, e.target.value)}
-                slotProps={{
-                  inputLabel: { shrink: true },
-                  htmlInput: { min: 0, step: 1 },
-                }}
-                fullWidth
-                sx={fieldSx}
-              />
-            </ScoreRow>
+            <ScoreLabel>Карты и счёт раундов (необязательно)</ScoreLabel>
+            {form.maps.map((map, index) => (
+              <MapBlock key={`map-${index}`}>
+                <MapBlockTitle>Карта {index + 1}</MapBlockTitle>
+                <SuggestTextField
+                  label="Название карты"
+                  value={map.name}
+                  onChange={(value) => updateMap(index, { name: value })}
+                  options={[...CS_MAP_NAMES]}
+                  sx={fieldSx}
+                />
+                <ScoreRow>
+                  <TextField
+                    label={form.organization1.trim() || "Команда 1"}
+                    type="number"
+                    value={map.score1 ?? ""}
+                    onChange={(e) => setMapScore(index, 1, e.target.value)}
+                    slotProps={{
+                      inputLabel: { shrink: true },
+                      htmlInput: { min: 0, step: 1 },
+                    }}
+                    fullWidth
+                    sx={fieldSx}
+                  />
+                  <ScoreSeparator>:</ScoreSeparator>
+                  <TextField
+                    label={form.organization2.trim() || "Команда 2"}
+                    type="number"
+                    value={map.score2 ?? ""}
+                    onChange={(e) => setMapScore(index, 2, e.target.value)}
+                    slotProps={{
+                      inputLabel: { shrink: true },
+                      htmlInput: { min: 0, step: 1 },
+                    }}
+                    fullWidth
+                    sx={fieldSx}
+                  />
+                </ScoreRow>
+              </MapBlock>
+            ))}
           </ScoreSection>
 
           <FormControl fullWidth size="small" sx={fieldSx} disabled={eventOptions.length === 0}>

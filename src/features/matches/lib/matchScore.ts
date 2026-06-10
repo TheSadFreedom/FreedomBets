@@ -1,4 +1,5 @@
 import type { Match } from "@/entities/match";
+import { getMatchSeriesScore } from "@/features/matches/lib/matchMaps";
 
 export function normalizeScoreValue(value: unknown): number | null {
   if (value == null || value === "") return null;
@@ -7,6 +8,8 @@ export function normalizeScoreValue(value: unknown): number | null {
   return Math.floor(n);
 }
 
-export function hasMatchScore(match: Pick<Match, "score1" | "score2">): boolean {
-  return match.score1 != null && match.score2 != null;
+export function hasMatchScore(
+  match: Pick<Match, "format" | "maps"> & { score1?: number | null; score2?: number | null }
+): boolean {
+  return getMatchSeriesScore(match) != null;
 }

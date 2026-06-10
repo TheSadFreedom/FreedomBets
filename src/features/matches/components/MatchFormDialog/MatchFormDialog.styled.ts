@@ -134,6 +134,22 @@ export const ScoreRow = styled.div`
   }
 `;
 
+export const MapBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+`;
+
+export const MapBlockTitle = styled.span`
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.72);
+`;
+
 export const FormatChip = styled.button<{ $active?: boolean }>`
   padding: 8px 14px;
   border-radius: 10px;

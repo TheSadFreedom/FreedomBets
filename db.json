@@ -3,9 +3,9 @@
     {
       "id": "1",
       "name": "Никита",
-      "balance": 6428.65,
+      "balance": 8374.65,
       "totalBets": 77,
-      "winRate": 49,
+      "winRate": 51,
       "balanceBase": 10000
     },
     {
@@ -1641,7 +1641,7 @@
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
       "majorStage": "Playoff",
-      "status": "WAIT",
+      "status": "WIN",
       "matchId": "b31d"
     },
     {
@@ -1665,7 +1665,7 @@
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
       "majorStage": "Playoff",
-      "status": "WAIT",
+      "status": "WIN",
       "matchId": "b31d"
     },
     {
@@ -1689,7 +1689,7 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "majorStage": "Playoff",
-      "status": "WAIT",
+      "status": "WIN",
       "matchId": "26d7"
     },
     {
@@ -2538,7 +2538,24 @@
       "majorStage": "Playoff",
       "score1": null,
       "score2": null,
-      "status": "scheduled"
+      "status": "live",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 2,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "a782",
@@ -2734,7 +2751,24 @@
       "majorStage": "Playoff",
       "score1": null,
       "score2": null,
-      "status": "scheduled"
+      "status": "live",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Dust 2",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     }
   ],
   "pickems": [
