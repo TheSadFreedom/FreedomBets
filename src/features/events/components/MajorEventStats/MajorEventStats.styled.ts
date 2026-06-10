@@ -45,7 +45,7 @@ export const MajorStageHeader = styled.div`
   min-width: 0;
 
   ${media.up("md")} {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr;
     gap: 8px 10px;
   }
 `;
@@ -152,11 +152,15 @@ export const StageWldBadges = styled(WldBadges)`
   border: 1px solid rgba(255, 255, 255, 0.06);
 
   ${WldBadge} {
+    display: inline-grid;
+    place-items: center;
+    box-sizing: border-box;
     height: 18px;
     min-width: 18px;
     padding: 0 4px;
     line-height: 1;
     font-size: 10px;
+    text-align: center;
   }
 
   ${media.up("md")} {
@@ -167,9 +171,13 @@ export const StageWldBadges = styled(WldBadges)`
     border: none;
 
     ${WldBadge} {
+      display: inline-grid;
+      place-items: center;
+      box-sizing: border-box;
       height: 20px;
       min-width: 20px;
       padding: 0 5px;
+      text-align: center;
     }
   }
 `;
@@ -189,12 +197,4 @@ export const StageEmptyNote = styled.p`
 
 export const StageBetsWrap = styled.div`
   min-width: 0;
-`;
-
-export const MajorStageEdit = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  grid-column: 2;
-  grid-row: 1;
 `;

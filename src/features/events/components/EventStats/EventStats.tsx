@@ -227,10 +227,6 @@ const EventStats = ({
                       onDeleteGroup={() => {
                         openDeleteDialog(majorGroupToEventStats(group), true);
                       }}
-                      onEditStage={(stage) => {
-                        setEditingAllStages(false);
-                        setEditingEvent(stage);
-                      }}
                     />
                   );
                 }

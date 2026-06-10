@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Bet } from "@/entities/bet";
 import type { EventEditInput, EventIdentity } from "@/entities/event";
 import type { EventRecord } from "@/entities/eventRecord";
@@ -23,11 +23,17 @@ import {
 } from "@/features/profile/lib/profileBalance";
 import { normalizeMatch } from "@/features/matches/lib/normalizeMatch";
 import {
+  applyBetStageUpdates,
+  findBetsWithMismatchedStage,
+  findBetsWithMismatchedStageByMatchId,
+} from "@/features/matches/lib/syncBetsMajorStage";
+import {
   getMatchSeriesWinner,
   planMatchBetSettlements,
   countSkippedWaitBets,
   type MatchSettlementResult,
 } from "@/features/matches/lib/settleBetsForMatch";
+import { syncSportsRuMatches } from "@/features/sportsru/api/syncSportsRuMatches";
 import { httpClient } from "@/shared/api/httpClient";
 import {
   clearActiveProfileId,
@@ -56,6 +62,9 @@ export function useProfileBets() {
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const settleAllPendingBetsRef = useRef<
+    (matchList: Match[], betsSource: Bet[]) => Promise<MatchSettlementResult>
+  >(async () => ({ settled: 0, skipped: 0 }));
 
   const loadProfiles = useCallback(async () => {
     const [profilesRes, allBetsRes] = await Promise.all([
@@ -138,10 +147,48 @@ export function useProfileBets() {
         setProfile(enrichedProfile);
       }
 
-      setBets(loadedBets);
-      setAllBets(loadedAllBets);
+      const loadedMatches = (matchesRes.data || []).map(normalizeMatch);
+      const mismatchedBets = findBetsWithMismatchedStageByMatchId(loadedMatches, loadedAllBets);
+      const healed = await healBetsStagesFromMatches(loadedMatches, loadedAllBets);
+      const nextAllBets = healed.betsList;
+      const nextBets = loadedBets.map(
+        (bet) => nextAllBets.find((item) => item.id === bet.id) ?? bet
+      );
+
+      if (healed.updated > 0) {
+        await syncProfilesForBets(
+          new Set(mismatchedBets.map((bet) => bet.profileId)),
+          nextAllBets,
+          enrichedProfiles
+        );
+      }
+
+      setBets(nextBets);
+      setAllBets(nextAllBets);
       setProfiles(enrichedProfiles);
-      setMatches((matchesRes.data || []).map(normalizeMatch));
+      setMatches(loadedMatches);
+      void syncSportsRuMatches(false)
+        .then(async () => {
+          const refreshed = await httpClient.get<Match[]>("/matches");
+          const normalized = (refreshed.data || []).map(normalizeMatch);
+          setMatches(normalized);
+          const healedAfterSync = await healBetsStagesFromMatches(normalized, nextAllBets);
+          if (healedAfterSync.updated > 0) {
+            setAllBets(healedAfterSync.betsList);
+            if (activeProfileId != null) {
+              setBets(
+                healedAfterSync.betsList.filter((item) => item.profileId === activeProfileId)
+              );
+            }
+          }
+          await settleAllPendingBetsRef.current(
+            normalized,
+            healedAfterSync.updated > 0 ? healedAfterSync.betsList : nextAllBets
+          );
+        })
+        .catch((cause) => {
+          console.error(cause);
+        });
       setPickems((pickemsRes.data || []).map(normalizePickemMajor));
       setMedals(
         (medalsRes.data || [])
@@ -173,6 +220,47 @@ export function useProfileBets() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const patchBetsMajorStage = async (betsToUpdate: Bet[], majorStage: string | null) => {
+    if (betsToUpdate.length === 0) return [];
+
+    return Promise.all(
+      betsToUpdate.map(async (bet) => {
+        const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, {
+          ...bet,
+          majorStage,
+        });
+        return normalizeBet(res.data);
+      })
+    );
+  };
+
+  const healBetsStagesFromMatches = async (matchList: Match[], betsList: Bet[]) => {
+    const toUpdate = findBetsWithMismatchedStageByMatchId(matchList, betsList);
+    if (toUpdate.length === 0) {
+      return { betsList, updated: 0 };
+    }
+
+    const stageByMatchId = new Map(matchList.map((match) => [match.id, match.majorStage ?? null]));
+    const savedBets = await Promise.all(
+      toUpdate.map(async (bet) => {
+        const matchId = bet.matchId?.trim();
+        if (!matchId) return null;
+        const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, {
+          ...bet,
+          majorStage: stageByMatchId.get(matchId) ?? null,
+        });
+        return normalizeBet(res.data);
+      })
+    );
+
+    const nextAllBets = applyBetStageUpdates(
+      betsList,
+      savedBets.filter((bet): bet is Bet => bet != null)
+    );
+
+    return { betsList: nextAllBets, updated: savedBets.length };
+  };
 
   const syncProfile = async (
     currentProfile: Profile,
@@ -611,9 +699,15 @@ export function useProfileBets() {
     setMedals((prev) => prev.filter((item) => item.id !== medal.id));
   };
 
-  const settleMatchBets = async (match: Match): Promise<MatchSettlementResult> => {
-    const plan = planMatchBetSettlements(match, allBets);
-    const skipped = countSkippedWaitBets(match, allBets);
+  const applyBetSettlements = async (
+    matchList: Match[],
+    betsSource: Bet[],
+  ): Promise<MatchSettlementResult> => {
+    const plan = matchList.flatMap((item) => planMatchBetSettlements(item, betsSource));
+    const skipped = matchList.reduce(
+      (sum, item) => sum + countSkippedWaitBets(item, betsSource),
+      0,
+    );
     if (plan.length === 0) {
       return { settled: 0, skipped };
     }
@@ -622,11 +716,11 @@ export function useProfileBets() {
       plan.map(async ({ bet, nextStatus }) => {
         const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { ...bet, status: nextStatus });
         return normalizeBet(res.data);
-      })
+      }),
     );
 
     const savedById = new Map(savedBets.map((item) => [item.id, item]));
-    const nextAllBets = allBets.map((item) => savedById.get(item.id) ?? item);
+    const nextAllBets = betsSource.map((item) => savedById.get(item.id) ?? item);
     setAllBets(nextAllBets);
 
     const affectedProfileIds = new Set(plan.map(({ bet }) => bet.profileId));
@@ -637,6 +731,24 @@ export function useProfileBets() {
     }
 
     return { settled: plan.length, skipped };
+  };
+
+  const settleMatchBets = async (match: Match): Promise<MatchSettlementResult> =>
+    applyBetSettlements([match], allBets);
+
+  const settleAllPendingBets = async (
+    matchList: Match[],
+    betsSource: Bet[] = allBets,
+  ): Promise<MatchSettlementResult> => applyBetSettlements(matchList, betsSource);
+
+  settleAllPendingBetsRef.current = settleAllPendingBets;
+
+  const syncSportsRuMatchesFromServer = async (force = false) => {
+    await syncSportsRuMatches(force);
+    const refreshed = await httpClient.get<Match[]>("/matches");
+    const normalized = (refreshed.data || []).map(normalizeMatch);
+    setMatches(normalized);
+    await settleAllPendingBets(normalized);
   };
 
   const updateMatch = async (match: Match, data: MatchCreateInput) => {
@@ -658,9 +770,24 @@ export function useProfileBets() {
     const saved = normalizeMatch(res.data);
     setMatches((prev) => prev.map((m) => (m.id === saved.id ? saved : m)));
 
-    if (hasWinner) {
-      await settleMatchBets(saved);
+    let nextAllBets = allBets;
+    const nextStage = saved.majorStage ?? null;
+    const linkedBets = findBetsWithMismatchedStage(saved, allBets);
+    if (linkedBets.length > 0) {
+      const savedBets = await patchBetsMajorStage(linkedBets, nextStage);
+      nextAllBets = applyBetStageUpdates(allBets, savedBets);
+      setAllBets(nextAllBets);
+      if (profile) {
+        setBets(nextAllBets.filter((item) => item.profileId === profile.id));
+      }
+      await syncProfilesForBets(
+        new Set(linkedBets.map((bet) => bet.profileId)),
+        nextAllBets,
+        profiles
+      );
     }
+
+    await applyBetSettlements([saved], nextAllBets);
   };
 
   return {
@@ -689,6 +816,7 @@ export function useProfileBets() {
     deleteProfile,
     addMatch,
     updateMatch,
+    syncSportsRuMatches: syncSportsRuMatchesFromServer,
     settleMatchBets,
     deleteMatch,
     addEvent,

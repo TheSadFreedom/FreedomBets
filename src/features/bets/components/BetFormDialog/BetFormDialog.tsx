@@ -24,7 +24,7 @@ import ScoreboardOutlinedIcon from "@mui/icons-material/ScoreboardOutlined";
 import type { Bet, BetMarket, BetTeamSide, MatchFormat } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match } from "@/entities/match";
-import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
+import { parseIsoDate } from "@/shared/lib/date/isoDate";
 import DateInput, { type DateInputHandle } from "@/shared/ui/DateInput/DateInput";
 import {
   AT_LEAST_ONE_MAP_LABELS,
@@ -180,7 +180,7 @@ interface BetFormDialogProps {
 const emptyForm = (profileId: number): BetFormValues => {
   const base: BetFormValues = {
     profileId,
-    date: todayIsoDateLocal(),
+    date: "",
     time: "12:00",
     format: "BO3",
     organization1: "",
@@ -256,7 +256,7 @@ const BetFormDialog = ({
   const matchOptions = useMemo(() => {
     const includeIds = [...new Set([seed?.matchId, selectedMatchId].filter(Boolean))] as string[];
     const options = getMatchSelectOptions(matches, {
-      onDate: todayIsoDateLocal(),
+      ...(form.date.trim() ? { onDate: form.date.trim() } : {}),
       includeIds: includeIds.length > 0 ? includeIds : undefined,
     });
     if (!seed?.eventOrganization?.trim() && !seed?.eventName?.trim()) return options;
@@ -267,7 +267,7 @@ const BetFormDialog = ({
         match.eventOrganization.trim().toLowerCase() === org &&
         match.eventName.trim().toLowerCase() === name
     );
-  }, [matches, seed, selectedMatchId]);
+  }, [matches, seed, selectedMatchId, form.date]);
   const selectedMatchOption = useMemo(
     () => matchOptions.find((item) => item.id === selectedMatchId),
     [matchOptions, selectedMatchId]
@@ -472,6 +472,15 @@ const BetFormDialog = ({
     });
   };
 
+  const handleDateChange = (iso: string) => {
+    update("date", iso);
+    if (!selectedMatchId) return;
+    const match = matches.find((item) => item.id === selectedMatchId);
+    if (match && iso && match.date !== iso) {
+      setSelectedMatchId("");
+    }
+  };
+
   const buildPayload = (): BetFormValues => {
     const date = dateRef.current?.commit() ?? form.date;
     const time = timeRef.current?.commit() ?? form.time;
@@ -499,7 +508,8 @@ const BetFormDialog = ({
       !Number.isFinite(payload.odds) ||
       payload.odds <= 0 ||
       !payload.eventOrganization.trim() ||
-      !payload.eventName.trim()
+      !payload.eventName.trim() ||
+      (!isEdit && !parseIsoDate(payload.date.trim()))
     ) {
       return;
     }
@@ -524,7 +534,7 @@ const BetFormDialog = ({
     form.eventName.trim() &&
     form.organization1.trim() &&
     form.organization2.trim() &&
-    (isEdit || Boolean(selectedMatchId)) &&
+    (isEdit || (Boolean(parseIsoDate(form.date.trim())) && Boolean(selectedMatchId))) &&
     (!eventRequiresStage || Boolean(form.majorStage)) &&
     (isMapsTotalMarket(form.betMarket) ||
       form.betMarket === "match" ||
@@ -594,7 +604,7 @@ const BetFormDialog = ({
                     ref={dateRef}
                     label="Дата"
                     value={form.date}
-                    onChange={(iso) => update("date", iso)}
+                    onChange={handleDateChange}
                     fullWidth
                     sx={fieldSx}
                   />
@@ -733,15 +743,39 @@ const BetFormDialog = ({
               </Section>
             </>
           ) : (
-            <Section>
-              <SectionTitle>Матч</SectionTitle>
-              <FieldsStack>
-                <FormControl
-                  fullWidth
-                  size="small"
-                  sx={fieldSx}
-                  disabled={matchOptions.length === 0}
-                >
+            <>
+              <Section>
+                <SectionTitle>Когда</SectionTitle>
+                <FieldsGrid $twoCol>
+                  <DateInput
+                    ref={dateRef}
+                    label="Дата"
+                    value={form.date}
+                    onChange={handleDateChange}
+                    allowEmpty
+                    fullWidth
+                    sx={fieldSx}
+                  />
+                  <TimeInput
+                    ref={timeRef}
+                    label="Время"
+                    value={form.time}
+                    onChange={(value) => update("time", value)}
+                    fullWidth
+                    sx={fieldSx}
+                  />
+                </FieldsGrid>
+              </Section>
+
+              <Section>
+                <SectionTitle>Матч</SectionTitle>
+                <FieldsStack>
+                  <FormControl
+                    fullWidth
+                    size="small"
+                    sx={fieldSx}
+                    disabled={!form.date.trim() || matchOptions.length === 0}
+                  >
                   <InputLabel>Матч</InputLabel>
                   <Select
                     value={selectedMatchId}
@@ -798,9 +832,11 @@ const BetFormDialog = ({
                     ))}
                   </Select>
                 </FormControl>
-                {matchOptions.length === 0 ? (
+                {!form.date.trim() ? (
+                  <SectionHint>Выберите дату — покажем матчи на этот день</SectionHint>
+                ) : matchOptions.length === 0 ? (
                   <SectionHint>
-                    Нет доступных матчей на сегодня — создайте матч кнопкой «Новый матч»
+                    Нет матчей на выбранную дату — создайте матч кнопкой «Новый матч»
                   </SectionHint>
                 ) : selectedMatchOption ? (
                   <>
@@ -816,8 +852,9 @@ const BetFormDialog = ({
                     ) : null}
                   </>
                 ) : null}
-              </FieldsStack>
-            </Section>
+                </FieldsStack>
+              </Section>
+            </>
           )}
 
           <Section>

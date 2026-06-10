@@ -1,7 +1,8 @@
-import { useState, type MouseEvent } from "react";
+import { useMemo, useRef, useState, type MouseEvent } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { AccordionDetails, AccordionSummary } from "@mui/material";
+import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
+import { AccordionDetails, AccordionSummary, Fade, Popper } from "@mui/material";
 import type { Bet, BetTeamSide } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match } from "@/entities/match";
@@ -16,6 +17,8 @@ import {
 } from "@/features/matches/lib/matchMaps";
 import { hasMatchScore } from "@/features/matches/lib/matchScore";
 import type { MatchSettlementResult } from "@/features/matches/lib/settleBetsForMatch";
+import { getTeamRecentMatches } from "@/features/matches/lib/getTeamRecentMatches";
+import TeamRecentFormPopover from "@/features/matches/components/TeamRecentFormPopover/TeamRecentFormPopover";
 import { formatIsoDateDots } from "@/shared/lib/date/isoDate";
 import ConfirmDialog from "@/shared/ui/ConfirmDialog/ConfirmDialog";
 import EventLogo from "@/shared/ui/EventLogo/EventLogo";
@@ -55,6 +58,7 @@ import {
   StatusBadge,
   TeamName,
   TeamPanel,
+  TeamPanelWrap,
 } from "./MatchCard.styled";
 
 const STATUS_LABELS: Record<Match["status"], string> = {
@@ -86,6 +90,7 @@ function scoreTone(
 
 interface MatchCardProps {
   match: Match;
+  allMatches: Match[];
   relatedBets: Bet[];
   profileNameById: Map<number, string>;
   activeProfileId: number;
@@ -97,10 +102,15 @@ interface MatchCardProps {
   onSettleBets?: () => Promise<MatchSettlementResult>;
   onEditBet?: (bet: Bet) => void;
   events?: EventRecord[];
+  readOnly?: boolean;
+  externalUrl?: string;
 }
+
+const HOVER_HIDE_DELAY_MS = 140;
 
 const MatchCard = ({
   match,
+  allMatches,
   relatedBets,
   profileNameById,
   activeProfileId,
@@ -112,6 +122,8 @@ const MatchCard = ({
   onSettleBets,
   onEditBet,
   events = [],
+  readOnly = false,
+  externalUrl,
 }: MatchCardProps) => {
   void statusClock;
 
@@ -126,6 +138,34 @@ const MatchCard = ({
   const [settlementNote, setSettlementNote] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [hoveredTeam, setHoveredTeam] = useState<1 | 2 | null>(null);
+  const hideHoverTimerRef = useRef<number | null>(null);
+  const team1AnchorRef = useRef<HTMLDivElement>(null);
+  const team2AnchorRef = useRef<HTMLDivElement>(null);
+
+  const team1RecentMatches = useMemo(
+    () => getTeamRecentMatches(allMatches, match.organization1, match.id),
+    [allMatches, match.id, match.organization1],
+  );
+  const team2RecentMatches = useMemo(
+    () => getTeamRecentMatches(allMatches, match.organization2, match.id),
+    [allMatches, match.id, match.organization2],
+  );
+
+  const showTeamHover = (team: 1 | 2) => {
+    if (hideHoverTimerRef.current != null) {
+      window.clearTimeout(hideHoverTimerRef.current);
+      hideHoverTimerRef.current = null;
+    }
+    setHoveredTeam(team);
+  };
+
+  const scheduleHideTeamHover = () => {
+    hideHoverTimerRef.current = window.setTimeout(() => {
+      setHoveredTeam(null);
+      hideHoverTimerRef.current = null;
+    }, HOVER_HIDE_DELAY_MS);
+  };
 
   const status = getMatchEffectiveStatus(match);
   const seriesScore = getMatchSeriesScore(match);
@@ -161,7 +201,7 @@ const MatchCard = ({
         setSettlementNote("Нет ставок на матч для авто-расчёта (нужен счёт и WAIT).");
       } else {
         const skippedPart =
-          result.skipped > 0 ? ` · пропущено ${result.skipped} (карта/пистолет)` : "";
+          result.skipped > 0 ? ` · пропущено ${result.skipped} (пистолет)` : "";
         setSettlementNote(`Рассчитано ${result.settled} ставок${skippedPart}`);
       }
     } finally {
@@ -198,27 +238,44 @@ const MatchCard = ({
 
               <MatchTopActions>
                 <StatusBadge $status={status}>{STATUS_LABELS[status]}</StatusBadge>
-                <CardIconButton
-                  type="button"
-                  onClick={(event) => {
-                    stopSummaryToggle(event);
-                    onEdit();
-                  }}
-                  aria-label="Редактировать матч"
-                >
-                  <EditOutlinedIcon sx={{ fontSize: 16 }} />
-                </CardIconButton>
-                <CardIconButton
-                  type="button"
-                  $danger
-                  onClick={(event) => {
-                    stopSummaryToggle(event);
-                    setDeleteOpen(true);
-                  }}
-                  aria-label="Удалить матч"
-                >
-                  <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-                </CardIconButton>
+                {readOnly ? (
+                  externalUrl ? (
+                    <CardIconButton
+                      as="a"
+                      href={externalUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={stopSummaryToggle}
+                      aria-label="Открыть на Sports.ru"
+                    >
+                      <OpenInNewOutlinedIcon sx={{ fontSize: 16 }} />
+                    </CardIconButton>
+                  ) : null
+                ) : (
+                  <>
+                    <CardIconButton
+                      type="button"
+                      onClick={(event) => {
+                        stopSummaryToggle(event);
+                        onEdit();
+                      }}
+                      aria-label="Редактировать матч"
+                    >
+                      <EditOutlinedIcon sx={{ fontSize: 16 }} />
+                    </CardIconButton>
+                    <CardIconButton
+                      type="button"
+                      $danger
+                      onClick={(event) => {
+                        stopSummaryToggle(event);
+                        setDeleteOpen(true);
+                      }}
+                      aria-label="Удалить матч"
+                    >
+                      <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                    </CardIconButton>
+                  </>
+                )}
               </MatchTopActions>
             </MatchTopBar>
 
@@ -232,22 +289,34 @@ const MatchCard = ({
               </MatchDateCol>
 
               <MatchTeamsCol>
-                <TeamPanel
-                  type="button"
-                  $align="end"
-                  $leading={team1Leading}
-                  title={`Ставка на ${match.organization1}`}
-                  aria-label={`Ставка на ${match.organization1}`}
-                  onClick={(event) => {
-                    stopSummaryToggle(event);
-                    onBet(1);
-                  }}
+                <TeamPanelWrap
+                  ref={team1AnchorRef}
+                  onMouseEnter={() => showTeamHover(1)}
+                  onMouseLeave={scheduleHideTeamHover}
                 >
-                  <TeamName>{match.organization1}</TeamName>
-                  <LogoRing>
-                    <TeamLogo name={match.organization1} size={36} />
-                  </LogoRing>
-                </TeamPanel>
+                  <TeamPanel
+                    as={readOnly ? "div" : "button"}
+                    type={readOnly ? undefined : "button"}
+                    $align="end"
+                    $leading={team1Leading}
+                    $readOnly={readOnly}
+                    title={readOnly ? match.organization1 : `Ставка на ${match.organization1}`}
+                    aria-label={readOnly ? match.organization1 : `Ставка на ${match.organization1}`}
+                    onClick={
+                      readOnly
+                        ? undefined
+                        : (event: MouseEvent) => {
+                            stopSummaryToggle(event);
+                            onBet(1);
+                          }
+                    }
+                  >
+                    <TeamName>{match.organization1}</TeamName>
+                    <LogoRing>
+                      <TeamLogo name={match.organization1} size={36} />
+                    </LogoRing>
+                  </TeamPanel>
+                </TeamPanelWrap>
 
                 <MatchScoreCenter>
                   {hasScores && seriesScore ? (
@@ -265,23 +334,74 @@ const MatchCard = ({
                   )}
                 </MatchScoreCenter>
 
-                <TeamPanel
-                  type="button"
-                  $align="start"
-                  $leading={team2Leading}
-                  title={`Ставка на ${match.organization2}`}
-                  aria-label={`Ставка на ${match.organization2}`}
-                  onClick={(event) => {
-                    stopSummaryToggle(event);
-                    onBet(2);
-                  }}
+                <TeamPanelWrap
+                  ref={team2AnchorRef}
+                  onMouseEnter={() => showTeamHover(2)}
+                  onMouseLeave={scheduleHideTeamHover}
                 >
-                  <LogoRing>
-                    <TeamLogo name={match.organization2} size={36} />
-                  </LogoRing>
-                  <TeamName>{match.organization2}</TeamName>
-                </TeamPanel>
+                  <TeamPanel
+                    as={readOnly ? "div" : "button"}
+                    type={readOnly ? undefined : "button"}
+                    $align="start"
+                    $leading={team2Leading}
+                    $readOnly={readOnly}
+                    title={readOnly ? match.organization2 : `Ставка на ${match.organization2}`}
+                    aria-label={readOnly ? match.organization2 : `Ставка на ${match.organization2}`}
+                    onClick={
+                      readOnly
+                        ? undefined
+                        : (event: MouseEvent) => {
+                            stopSummaryToggle(event);
+                            onBet(2);
+                          }
+                    }
+                  >
+                    <LogoRing>
+                      <TeamLogo name={match.organization2} size={36} />
+                    </LogoRing>
+                    <TeamName>{match.organization2}</TeamName>
+                  </TeamPanel>
+                </TeamPanelWrap>
               </MatchTeamsCol>
+
+              <Popper
+                open={hoveredTeam === 1}
+                anchorEl={team1AnchorRef.current}
+                placement="bottom-end"
+                transition
+                modifiers={[{ name: "offset", options: { offset: [0, 6] } }]}
+                sx={{ zIndex: 1400 }}
+              >
+                {({ TransitionProps }) => (
+                  <Fade {...TransitionProps} timeout={160}>
+                    <div onMouseEnter={() => showTeamHover(1)} onMouseLeave={scheduleHideTeamHover}>
+                      <TeamRecentFormPopover
+                        teamName={match.organization1}
+                        items={team1RecentMatches}
+                      />
+                    </div>
+                  </Fade>
+                )}
+              </Popper>
+              <Popper
+                open={hoveredTeam === 2}
+                anchorEl={team2AnchorRef.current}
+                placement="bottom-start"
+                transition
+                modifiers={[{ name: "offset", options: { offset: [0, 6] } }]}
+                sx={{ zIndex: 1400 }}
+              >
+                {({ TransitionProps }) => (
+                  <Fade {...TransitionProps} timeout={160}>
+                    <div onMouseEnter={() => showTeamHover(2)} onMouseLeave={scheduleHideTeamHover}>
+                      <TeamRecentFormPopover
+                        teamName={match.organization2}
+                        items={team2RecentMatches}
+                      />
+                    </div>
+                  </Fade>
+                )}
+              </Popper>
             </MatchBody>
           </MatchSummaryContent>
         </AccordionSummary>
@@ -342,14 +462,16 @@ const MatchCard = ({
         ) : null}
       </MatchAccordion>
 
-      <ConfirmDialog
-        open={deleteOpen}
-        title="Удалить матч?"
-        message={`Матч ${match.organization1} vs ${match.organization2} будет удалён без возможности восстановления.`}
-        confirming={deleting}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDeleteConfirm}
-      />
+      {!readOnly ? (
+        <ConfirmDialog
+          open={deleteOpen}
+          title="Удалить матч?"
+          message={`Матч ${match.organization1} vs ${match.organization2} будет удалён без возможности восстановления.`}
+          confirming={deleting}
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={handleDeleteConfirm}
+        />
+      ) : null}
     </>
   );
 };

@@ -32,3 +32,26 @@ export function getSettledBets(bets: Bet[]): Bet[] {
 export function calcSettledWagered(bets: Bet[]): number {
   return getSettledBets(bets).reduce((sum, b) => sum + b.amount, 0);
 }
+
+export interface WinRateBucketResult {
+  winRate: number | null;
+  settled: number;
+  wins: number;
+  losses: number;
+  pending: number;
+}
+
+export function calcWinRateBucket(bets: Bet[]): WinRateBucketResult {
+  const settled = getSettledBets(bets);
+  const wins = settled.filter((b) => b.status === "WIN").length;
+  const losses = settled.filter((b) => b.status === "LOSE").length;
+  const pending = bets.filter((b) => b.status === "WAIT").length;
+
+  return {
+    winRate: settled.length > 0 ? Math.round((wins / settled.length) * 100) : null,
+    settled: settled.length,
+    wins,
+    losses,
+    pending,
+  };
+}

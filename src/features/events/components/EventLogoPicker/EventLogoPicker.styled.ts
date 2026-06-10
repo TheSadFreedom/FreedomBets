@@ -17,11 +17,14 @@ export const PickerHint = styled.div`
   color: rgba(255, 255, 255, 0.45);
 `;
 
-export const LogoGrid = styled.div`
+export const LogoGrid = styled.div<{ $compact?: boolean }>`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
-  gap: 8px;
-  max-height: 220px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(${({ $compact }) => ($compact ? "72px" : "88px")}, 1fr)
+  );
+  gap: ${({ $compact }) => ($compact ? "6px" : "8px")};
+  max-height: ${({ $compact }) => ($compact ? "140px" : "220px")};
   overflow: auto;
   padding: 2px;
 `;

@@ -1,15 +1,17 @@
-import styled, { css } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { media } from "@/shared/styles/breakpoints";
 import {
   MOBILE_FAB_GAP,
   MOBILE_FAB_SIZE_PRIMARY,
   MOBILE_FAB_SIZE_SECONDARY,
+  MOBILE_FAB_SIZE_SYNC,
   mobileQuickActionsBottomInset,
 } from "@/shared/styles/mobileLayout";
 
 export const ActionsRoot = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
   gap: 10px;
   width: 100%;
 
@@ -127,6 +129,75 @@ export const ActionButton = styled.button<{ $primary?: boolean }>`
     ${media.down("md")} {
       font-size: ${({ $primary }) => ($primary ? "28px" : "24px")};
     }
+  }
+`;
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+export const SyncActionButton = styled.button<{ $syncing?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid rgba(100, 181, 246, 0.35);
+  border-radius: 50%;
+  background: linear-gradient(
+    145deg,
+    rgba(38, 50, 62, 0.96) 0%,
+    rgba(22, 28, 34, 0.98) 100%
+  );
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  font-family: inherit;
+  color: #90caf9;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  ${media.down("md")} {
+    width: ${MOBILE_FAB_SIZE_SYNC};
+    height: ${MOBILE_FAB_SIZE_SYNC};
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: rgba(100, 181, 246, 0.55);
+    box-shadow:
+      0 8px 22px rgba(33, 150, 243, 0.18),
+      0 4px 16px rgba(0, 0, 0, 0.28);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.72;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #64b5f6;
+    outline-offset: 2px;
+  }
+
+  svg {
+    font-size: 24px;
+    color: #90caf9;
+    animation: ${({ $syncing }) => ($syncing ? css`${spin} 0.9s linear infinite` : "none")};
   }
 `;
 

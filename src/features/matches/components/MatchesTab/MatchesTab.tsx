@@ -84,6 +84,7 @@ const MatchesTab = ({
     <MatchCard
       key={match.id}
       match={match}
+      allMatches={matches}
       relatedBets={relatedBetsByMatchId.get(match.id) ?? []}
       profileNameById={profileNameById}
       activeProfileId={activeProfileId}
@@ -95,6 +96,7 @@ const MatchesTab = ({
       onSettleBets={() => onSettleMatchBets(match)}
       onEditBet={onEditBet}
       events={events}
+      externalUrl={match.sportsRuUrl ?? undefined}
     />
   );
 
@@ -104,7 +106,7 @@ const MatchesTab = ({
   return (
     <TabRoot>
       {!hasMatches ? (
-        <EmptyState>Нет матчей. Добавьте первый матч вручную.</EmptyState>
+        <EmptyState>Нет матчей. Добавьте вручную или обновите с Sports.ru.</EmptyState>
       ) : (
         <>
           {liveMatches.length > 0 ? (

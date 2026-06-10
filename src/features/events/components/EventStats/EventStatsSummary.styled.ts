@@ -194,9 +194,9 @@ export const EventStatsSummaryWld = styled.div`
 export const EventStatsSummaryWldBadge = styled.span<{
   $variant: "win" | "loss" | "pending";
 }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
   min-width: 22px;
   height: 22px;
   padding: 0 5px;
@@ -204,6 +204,7 @@ export const EventStatsSummaryWldBadge = styled.span<{
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 
   ${({ $variant }) => {

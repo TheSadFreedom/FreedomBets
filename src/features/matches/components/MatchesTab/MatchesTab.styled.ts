@@ -63,7 +63,7 @@ export const MatchSectionTitle = styled.h3`
 export const MatchList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 15px;
 `;
 
 export const EmptyState = styled.p`

@@ -228,9 +228,9 @@ export const StatsWldRow = styled.div`
 export const StatsWldBadge = styled.span<{
   $variant: "win" | "loss" | "pending";
 }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
   min-width: 22px;
   height: 20px;
   padding: 0 5px;
@@ -238,6 +238,8 @@ export const StatsWldBadge = styled.span<{
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 
   ${({ $variant }) => {
     switch ($variant) {
@@ -278,42 +280,12 @@ export const OddsGrid = styled.div`
   }
 `;
 
-export const OddsCard = styled.div<{ $accent?: string }>`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-height: 88px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+export const FormatGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 
-  ${({ $accent }) =>
-    $accent &&
-    css`
-      border-color: ${$accent}33;
-      background: ${$accent}0c;
-    `}
-`;
-
-export const OddsCardLabel = styled.div`
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.2;
-  color: rgba(255, 255, 255, 0.48);
-`;
-
-export const OddsCardValue = styled.div<{ $color?: string }>`
-  font-size: 22px;
-  font-weight: 800;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: ${({ $color }) => $color ?? "rgba(255,255,255,0.35)"};
-`;
-
-export const OddsCardHint = styled.div`
-  margin-top: auto;
-  font-size: 10px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.34);
+  ${media.down("xs")} {
+    grid-template-columns: 1fr;
+  }
 `;

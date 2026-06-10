@@ -259,7 +259,17 @@ export const ScoreVsLabel = styled.span`
   }
 `;
 
-export const TeamPanel = styled.button<{ $align: "start" | "end"; $leading?: boolean }>`
+export const TeamPanelWrap = styled.div`
+  position: relative;
+  min-width: 0;
+  width: 100%;
+`;
+
+export const TeamPanel = styled.button<{
+  $align: "start" | "end";
+  $leading?: boolean;
+  $readOnly?: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: ${({ $align }) => ($align === "end" ? "flex-end" : "flex-start")};
@@ -271,7 +281,7 @@ export const TeamPanel = styled.button<{ $align: "start" | "end"; $leading?: boo
   padding: 10px 14px;
   border-radius: 12px;
   font-family: inherit;
-  cursor: pointer;
+  cursor: ${({ $readOnly }) => ($readOnly ? "default" : "pointer")};
   color: rgba(255, 255, 255, 0.92);
   background: ${({ $leading }) =>
     $leading ? "rgba(76, 175, 80, 0.08)" : "rgba(255, 255, 255, 0.04)"};
@@ -283,12 +293,22 @@ export const TeamPanel = styled.button<{ $align: "start" | "end"; $leading?: boo
     transform 0.15s ease;
 
   &:hover {
-    border-color: rgba(102, 187, 106, 0.4);
-    background: rgba(76, 175, 80, 0.1);
+    border-color: ${({ $readOnly, $leading }) =>
+      $readOnly
+        ? $leading
+          ? "rgba(102, 187, 106, 0.28)"
+          : "rgba(255, 255, 255, 0.08)"
+        : "rgba(102, 187, 106, 0.4)"};
+    background: ${({ $readOnly, $leading }) =>
+      $readOnly
+        ? $leading
+          ? "rgba(76, 175, 80, 0.08)"
+          : "rgba(255, 255, 255, 0.04)"
+        : "rgba(76, 175, 80, 0.1)"};
   }
 
   &:active {
-    transform: scale(0.99);
+    transform: ${({ $readOnly }) => ($readOnly ? "none" : "scale(0.99)")};
   }
 
   &:focus-visible {

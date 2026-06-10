@@ -26,6 +26,9 @@ export interface Match {
   score1?: number | null;
   /** @deprecated Старые записи; серия считается из maps */
   score2?: number | null;
+  /** Импорт с Sports.ru */
+  sportsRuSeriesId?: string | null;
+  sportsRuUrl?: string | null;
 }
 
 export type MatchFormValues = Omit<Match, "id">;

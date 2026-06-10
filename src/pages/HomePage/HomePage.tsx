@@ -37,6 +37,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     revertToPending,
     addMatch,
     updateMatch,
+    syncSportsRuMatches,
     settleMatchBets,
     deleteMatch,
     addEvent,
@@ -80,6 +81,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     <Container>
       <HomeQuickActions
         onNewMatch={() => setCreateMatchOpen(true)}
+        onSyncSportsRu={syncSportsRuMatches}
         onNewEvent={() => setCreateEventOpen(true)}
       />
 
