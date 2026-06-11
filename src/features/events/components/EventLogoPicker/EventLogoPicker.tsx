@@ -14,21 +14,22 @@ import {
 interface EventLogoPickerProps {
   value: string | null;
   onChange: (slug: string) => void;
+  compact?: boolean;
 }
 
-const EventLogoPicker = ({ value, onChange }: EventLogoPickerProps) => {
+const EventLogoPicker = ({ value, onChange, compact = false }: EventLogoPickerProps) => {
   const logos = useEventLogosManifest();
 
   return (
     <PickerRoot>
-      <PickerTitle>Логотип турнира</PickerTitle>
-      <PickerHint>Выберите файл из папки public/events</PickerHint>
+      {!compact ? <PickerTitle>Логотип турнира</PickerTitle> : null}
+      {!compact ? <PickerHint>Выберите файл из папки public/events</PickerHint> : null}
       {logos.length === 0 ? (
         <Typography variant="body2" sx={{ opacity: 0.55 }}>
           Нет файлов в public/events — добавьте картинки и перезапустите npm start
         </Typography>
       ) : (
-        <LogoGrid>
+        <LogoGrid $compact={compact}>
           {logos.map((logo) => {
             const active = value === logo.id;
             return (
@@ -40,7 +41,11 @@ const EventLogoPicker = ({ value, onChange }: EventLogoPickerProps) => {
                 title={formatEventLogoLabel(logo.id)}
               >
                 <Box display="flex" justifyContent="center">
-                  <EventLogo logoSlug={logo.id} label={formatEventLogoLabel(logo.id)} size={40} />
+                  <EventLogo
+                    logoSlug={logo.id}
+                    label={formatEventLogoLabel(logo.id)}
+                    size={compact ? 32 : 40}
+                  />
                 </Box>
                 <LogoOptionLabel>{formatEventLogoLabel(logo.id)}</LogoOptionLabel>
               </LogoOption>

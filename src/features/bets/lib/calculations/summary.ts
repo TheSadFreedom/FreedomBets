@@ -7,6 +7,7 @@ import {
   countByStatus,
   getSettledBets,
 } from "./basic";
+import { FORMAT_WIN_RATE_BUCKETS, calcWinRateByFormat } from "./formatBuckets";
 import { ODDS_WIN_RATE_BUCKETS, calcWinRateInOddsRange } from "./oddsBuckets";
 
 export interface SummaryStats {
@@ -23,6 +24,18 @@ export interface SummaryStats {
     label: string;
     winRate: number | null;
     settled: number;
+    wins: number;
+    losses: number;
+    pending: number;
+  }>;
+  formatWinRates: Array<{
+    id: string;
+    label: string;
+    winRate: number | null;
+    settled: number;
+    wins: number;
+    losses: number;
+    pending: number;
   }>;
 }
 
@@ -42,8 +55,15 @@ export function calcSummaryStats(bets: Bet[]): SummaryStats {
       return {
         id: bucket.id,
         label: bucket.label,
-        winRate: result?.winRate ?? null,
-        settled: result?.settled ?? 0,
+        ...result,
+      };
+    }),
+    formatWinRates: FORMAT_WIN_RATE_BUCKETS.map((bucket) => {
+      const result = calcWinRateByFormat(bets, bucket.id);
+      return {
+        id: bucket.id,
+        label: bucket.label,
+        ...result,
       };
     }),
   };

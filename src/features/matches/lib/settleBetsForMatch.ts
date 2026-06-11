@@ -1,9 +1,12 @@
 import type { Bet, BetStatus } from "@/entities/bet";
 import type { Match } from "@/entities/match";
+import { betTeamOnMatch, seriesScoreForBet } from "@/features/matches/lib/betTeamAlignment";
 import { findBetsForMatch } from "@/features/matches/lib/findBetsForMatch";
 import {
+  getMapWinner,
   getMatchSeriesScore,
   mapsNeededToWin,
+  normalizeMapsForFormat,
 } from "@/features/matches/lib/matchMaps";
 import { hasMatchScore } from "@/features/matches/lib/matchScore";
 
@@ -25,24 +28,45 @@ export function getMatchMapsPlayed(match: Match): number | null {
   return series.score1 + series.score2;
 }
 
+/** Авто-расчёт ставки на победу на карте */
+export function resolveMapBetStatus(bet: Bet, match: Match): BetStatus | null {
+  if (bet.betMarket !== "map") return null;
+  if (bet.mapNumber == null) return null;
+
+  const maps = normalizeMapsForFormat(match.maps, match.format);
+  const mapIndex = bet.mapNumber - 1;
+  if (mapIndex < 0 || mapIndex >= maps.length) return null;
+
+  const winner = getMapWinner(maps[mapIndex]);
+  if (winner == null) return null;
+
+  return betTeamOnMatch(bet, match) === winner ? "WIN" : "LOSE";
+}
+
 /** Авто-расчёт ставки «возьмёт хотя бы одну карту» */
 export function resolveAtLeastOneMapBetStatus(bet: Bet, match: Match): BetStatus | null {
-  if (bet.status !== "WAIT" || bet.betMarket !== "atLeastOneMap") return null;
-  if (match.format === "BO1" || getMatchSeriesWinner(match) == null) return null;
-  if (!hasMatchScore(match)) return null;
+  if (bet.betMarket !== "atLeastOneMap") return null;
+  if (match.format === "BO1" || !hasMatchScore(match)) return null;
 
   const series = getMatchSeriesScore(match);
   if (!series) return null;
 
-  const mapsWon = bet.betTeam === 1 ? series.score1 : series.score2;
-  const tookAtLeastOne = mapsWon >= 1;
+  const teamOnMatch = betTeamOnMatch(bet, match);
+  const mapsWon = teamOnMatch === 1 ? series.score1 : series.score2;
   const pickedYes = bet.yesNo === true;
-  return tookAtLeastOne === pickedYes ? "WIN" : "LOSE";
+
+  if (pickedYes && mapsWon >= 1) return "WIN";
+  if (!pickedYes && mapsWon >= 1) return "LOSE";
+
+  const winner = getMatchSeriesWinner(match);
+  if (winner != null && mapsWon === 0) return pickedYes ? "LOSE" : "WIN";
+
+  return null;
 }
 
 /** Авто-расчёт ставки на точный счёт BO3 */
 export function resolveExactScoreBetStatus(bet: Bet, match: Match): BetStatus | null {
-  if (bet.status !== "WAIT" || bet.betMarket !== "exactScore") return null;
+  if (bet.betMarket !== "exactScore") return null;
   if (match.format !== "BO3" || getMatchSeriesWinner(match) == null) return null;
   if (!hasMatchScore(match)) return null;
   if (bet.exactScore1 == null || bet.exactScore2 == null) return null;
@@ -50,28 +74,41 @@ export function resolveExactScoreBetStatus(bet: Bet, match: Match): BetStatus | 
   const series = getMatchSeriesScore(match);
   if (!series) return null;
 
+  const aligned = seriesScoreForBet(bet, match, series);
   const matchesScore =
-    series.score1 === bet.exactScore1 && series.score2 === bet.exactScore2;
+    aligned.score1 === bet.exactScore1 && aligned.score2 === bet.exactScore2;
   return matchesScore ? "WIN" : "LOSE";
 }
 
 /** Авто-расчёт ставки на количество карт (тотал 2,5 в BO3) */
-export function resolveMapsTotalBetStatus(bet: Bet, mapsPlayed: number): BetStatus | null {
-  if (bet.status !== "WAIT" || bet.betMarket !== "mapsTotal") return null;
+export function resolveMapsTotalBetStatus(bet: Bet, match: Match): BetStatus | null {
+  if (bet.betMarket !== "mapsTotal") return null;
+  if (match.format !== "BO3") return null;
+
+  const mapsPlayed = getMatchMapsPlayed(match);
+  if (mapsPlayed == null) return null;
+
   const pickedUnder = bet.betTeam === 1;
-  const wins = pickedUnder ? mapsPlayed < 2.5 : mapsPlayed > 2.5;
-  return wins ? "WIN" : "LOSE";
+  const seriesOver = getMatchSeriesWinner(match) != null;
+
+  if (!pickedUnder && mapsPlayed >= 3) return "WIN";
+  if (pickedUnder && mapsPlayed >= 3) return "LOSE";
+  if (pickedUnder && mapsPlayed === 2 && seriesOver) return "WIN";
+  if (!pickedUnder && mapsPlayed === 2 && seriesOver) return "LOSE";
+
+  return null;
 }
 
-/** Авто-расчёт возможен для ставок на исход матча и тотал карт */
-export function resolveAutoBetStatus(bet: Bet, match: Match): BetStatus | null {
-  if (bet.status !== "WAIT") return null;
+/** Ожидаемый статус ставки по текущему счёту матча (кроме пистолетного раунда). */
+export function resolveExpectedBetStatus(bet: Bet, match: Match): BetStatus | null {
+  if (bet.betMarket === "pistol") return null;
+
+  if (bet.betMarket === "map") {
+    return resolveMapBetStatus(bet, match);
+  }
 
   if (bet.betMarket === "mapsTotal") {
-    if (match.format !== "BO3" || getMatchSeriesWinner(match) == null) return null;
-    const mapsPlayed = getMatchMapsPlayed(match);
-    if (mapsPlayed == null) return null;
-    return resolveMapsTotalBetStatus(bet, mapsPlayed);
+    return resolveMapsTotalBetStatus(bet, match);
   }
 
   if (bet.betMarket === "atLeastOneMap") {
@@ -86,7 +123,13 @@ export function resolveAutoBetStatus(bet: Bet, match: Match): BetStatus | null {
 
   const winner = getMatchSeriesWinner(match);
   if (winner == null) return null;
-  return bet.betTeam === winner ? "WIN" : "LOSE";
+  return betTeamOnMatch(bet, match) === winner ? "WIN" : "LOSE";
+}
+
+/** Авто-расчёт WAIT-ставки */
+export function resolveAutoBetStatus(bet: Bet, match: Match): BetStatus | null {
+  if (bet.status !== "WAIT") return null;
+  return resolveExpectedBetStatus(bet, match);
 }
 
 export interface BetSettlementPlan {
@@ -95,30 +138,27 @@ export interface BetSettlementPlan {
 }
 
 export function planMatchBetSettlements(match: Match, bets: Bet[]): BetSettlementPlan[] {
-  if (getMatchSeriesWinner(match) == null) return [];
+  return planMatchBetRecalculations(match, bets).filter(({ bet }) => bet.status === "WAIT");
+}
 
+/** Пересчёт ставок: новые WAIT и исправление WIN/LOSE после смены счёта. */
+export function planMatchBetRecalculations(match: Match, bets: Bet[]): BetSettlementPlan[] {
   return findBetsForMatch(match, bets).flatMap((bet) => {
-    const nextStatus = resolveAutoBetStatus(bet, match);
-    return nextStatus ? [{ bet, nextStatus }] : [];
+    const nextStatus = resolveExpectedBetStatus(bet, match);
+    if (!nextStatus || bet.status === nextStatus) return [];
+    return [{ bet, nextStatus }];
   });
 }
 
-/** WAIT-ставки на карту/пистолет — без данных по картам не рассчитываются */
+/** WAIT-ставки на пистолетный раунд — только вручную */
 export function countSkippedWaitBets(match: Match, bets: Bet[]): number {
-  if (getMatchSeriesWinner(match) == null) return 0;
-
   return findBetsForMatch(match, bets).filter(
-    (bet) =>
-      bet.status === "WAIT" &&
-      bet.betMarket !== "match" &&
-      bet.betMarket !== "mapsTotal" &&
-      bet.betMarket !== "atLeastOneMap" &&
-      bet.betMarket !== "exactScore"
+    (bet) => bet.status === "WAIT" && bet.betMarket === "pistol",
   ).length;
 }
 
 export function countPendingMatchBets(match: Match, bets: Bet[]): number {
-  return planMatchBetSettlements(match, bets).length;
+  return planMatchBetRecalculations(match, bets).length;
 }
 
 export interface MatchSettlementResult {

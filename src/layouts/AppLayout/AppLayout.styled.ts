@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-import { mobilePageBackdrop } from "@/shared/styles/mobileTokens";
 
 /** Общая ширина контента header + main */
 const CONTENT_MAX_WIDTH = "1720px";
@@ -16,10 +14,6 @@ export const Header = styled.header`
   overflow: visible;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background: #181818;
-
-  ${media.down("md")} {
-    display: none;
-  }
 `;
 
 export const HeaderInner = styled.div`
@@ -30,19 +24,6 @@ export const HeaderInner = styled.div`
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 16px 24px;
-
-  ${media.down("md")} {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-    gap: 10px;
-    padding: 4px 0 8px;
-  }
-
-  ${media.down("xs")} {
-    gap: 8px;
-    padding: 2px 0 6px;
-  }
 `;
 
 export const HeaderLeft = styled.nav`
@@ -52,12 +33,6 @@ export const HeaderLeft = styled.nav`
   flex-wrap: wrap;
   justify-self: start;
   padding: 8px 0;
-
-  ${media.down("md")} {
-    justify-self: center;
-    order: 2;
-    gap: 8px;
-  }
 `;
 
 export const HeaderLink = styled.a`
@@ -90,11 +65,6 @@ export const HeaderLinkLogo = styled.img`
   max-width: 110px;
   object-fit: contain;
   object-position: center;
-
-  ${media.down("xs")} {
-    height: 24px;
-    max-width: 88px;
-  }
 `;
 
 export const HeaderCenter = styled.div`
@@ -103,10 +73,6 @@ export const HeaderCenter = styled.div`
   padding: 0;
   margin: 0;
   justify-self: center;
-
-  ${media.down("md")} {
-    order: 1;
-  }
 `;
 
 export const LogoButton = styled.button`
@@ -147,16 +113,6 @@ export const LogoMark = styled.img`
   object-fit: contain;
   vertical-align: top;
   pointer-events: none;
-
-  ${media.down("sm")} {
-    width: 58px;
-    height: 58px;
-  }
-
-  ${media.down("xs")} {
-    width: 48px;
-    height: 48px;
-  }
 `;
 
 export const HeaderRight = styled.div`
@@ -166,14 +122,6 @@ export const HeaderRight = styled.div`
   justify-self: end;
   min-width: 0;
   padding: 8px 0;
-
-  ${media.down("md")} {
-    justify-self: center;
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    padding-bottom: 4px;
-  }
 `;
 
 export const Main = styled.main`
@@ -184,13 +132,4 @@ export const Main = styled.main`
   padding: 20px 20px max(32px, env(safe-area-inset-bottom));
   box-sizing: border-box;
   min-width: 0;
-  ${mobilePageBackdrop};
-
-  ${media.down("md")} {
-    padding: max(12px, env(safe-area-inset-top)) 12px 0;
-  }
-
-  ${media.down("xs")} {
-    padding: max(12px, env(safe-area-inset-top)) 10px 0;
-  }
 `;

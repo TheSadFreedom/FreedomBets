@@ -7,7 +7,7 @@ if errorlevel 1 pause & exit /b 1
 start cmd /k "npm run server"
 timeout /t 2 >nul
 
-start cmd /k "npm run preview:app"
+start cmd /k "npm run preview"
 timeout /t 5 >nul
 
-start "" "http://localhost:8080/"
+start "" "http://localhost:4173/"

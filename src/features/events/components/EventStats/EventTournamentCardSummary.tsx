@@ -19,8 +19,9 @@ import {
   EventDateChip,
   EventEditButton,
   EventLogoWrap,
+  MetricTile,
+  MetricTileWinner,
   EventTierBadge,
-  EventWinnerChip,
 } from "./EventStats.styled";
 
 type EventTournamentCardSummaryProps = {
@@ -58,12 +59,33 @@ const EventTournamentCardSummary = ({
     <EventCardLayout>
       <EventCardHead>
         <EventLogoWrap>
-          <EventLogo logoSlug={logoSlug} label={displayName} size={32} />
+          <EventLogo logoSlug={logoSlug} label={displayName} size={28} />
         </EventLogoWrap>
         <EventCardIdentity>
           {eventName ? <EventCardOrg>{eventOrganization}</EventCardOrg> : null}
           <EventCardName title={displayName}>{displayName}</EventCardName>
         </EventCardIdentity>
+      </EventCardHead>
+
+      <EventCardTags>
+        <EventTierBadge $tier={eventTier}>{eventTier}</EventTierBadge>
+        {majorStage ? <MajorStageBadge stage={majorStage} compact /> : null}
+        <EventDateChip>
+          <AccessTimeIcon />
+          {formatIsoDateRange(date, endDate)}
+        </EventDateChip>
+      </EventCardTags>
+
+      <EventCardStats $withWinner={Boolean(winnerOrganization)}>
+        {winnerOrganization ? (
+          <MetricTile $variant="winner" $accent="#ffd54f">
+            <MetricTileWinner title={`Победитель: ${winnerOrganization}`}>
+              <TeamLogo name={winnerOrganization} logoSlug={winnerLogoSlug} size={18} />
+              <span>{winnerOrganization}</span>
+            </MetricTileWinner>
+          </MetricTile>
+        ) : null}
+        <EventStatsMetrics item={metrics} />
         <EventCardActions>
           <EventEditButton
             type="button"
@@ -87,25 +109,6 @@ const EventTournamentCardSummary = ({
             <DeleteOutlineIcon sx={{ fontSize: 16 }} />
           </EventEditButton>
         </EventCardActions>
-      </EventCardHead>
-
-      <EventCardTags>
-        <EventTierBadge $tier={eventTier}>{eventTier}</EventTierBadge>
-        {majorStage ? <MajorStageBadge stage={majorStage} compact /> : null}
-        {winnerOrganization ? (
-          <EventWinnerChip title={`Победитель: ${winnerOrganization}`}>
-            <TeamLogo name={winnerOrganization} logoSlug={winnerLogoSlug} size={16} />
-            <span>{winnerOrganization}</span>
-          </EventWinnerChip>
-        ) : null}
-        <EventDateChip>
-          <AccessTimeIcon />
-          {formatIsoDateRange(date, endDate)}
-        </EventDateChip>
-      </EventCardTags>
-
-      <EventCardStats>
-        <EventStatsMetrics item={metrics} />
       </EventCardStats>
     </EventCardLayout>
   );

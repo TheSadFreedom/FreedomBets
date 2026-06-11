@@ -1,6 +1,4 @@
 import styled, { css, keyframes } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 const shimmer = keyframes`
   0% { background-position: 200% center; }
   100% { background-position: -200% center; }
@@ -25,9 +23,6 @@ export const HeroCard = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
 
-  ${media.down("sm")} {
-    padding: 16px;
-  }
 `;
 
 export const HeroGlow = styled.div`
@@ -160,9 +155,6 @@ export const ListSection = styled.div`
   gap: 8px;
   padding: 12px 14px 14px;
 
-  ${media.down("sm")} {
-    padding: 10px 10px 12px;
-  }
 `;
 
 export const RankingRow = styled.div<{ $active?: boolean }>`
@@ -189,11 +181,6 @@ export const RankingRow = styled.div<{ $active?: boolean }>`
     transform: translateX(2px);
   }
 
-  ${media.down("sm")} {
-    grid-template-columns: auto 1fr;
-    gap: 10px;
-    padding: 12px;
-  }
 `;
 
 export const RowLeft = styled.div`
@@ -238,17 +225,6 @@ export const RowRight = styled.div`
   gap: 2px;
   flex-shrink: 0;
 
-  ${media.down("sm")} {
-    grid-column: 1 / -1;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
-    margin-top: 2px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-  }
 `;
 
 export const ProfitValue = styled.span<{ $positive: boolean }>`

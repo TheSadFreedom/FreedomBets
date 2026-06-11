@@ -1,7 +1,5 @@
 import { Accordion } from "@mui/material";
 import styled, { css, keyframes } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 const shimmer = keyframes`
   0% { background-position: 200% center; }
   100% { background-position: -200% center; }
@@ -13,9 +11,6 @@ export const TabRoot = styled.div`
   gap: 16px;
   min-width: 0;
 
-  ${media.down("sm")} {
-    gap: 12px;
-  }
 `;
 
 export const PickemHeroCard = styled.div`
@@ -30,9 +25,6 @@ export const PickemHeroCard = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
 
-  ${media.down("sm")} {
-    padding: 16px;
-  }
 `;
 
 export const HeroGlow = styled.div`
@@ -57,11 +49,6 @@ export const HeroContent = styled.div`
   gap: 14px;
   flex-wrap: wrap;
 
-  ${media.down("sm")} {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
 `;
 
 export const HeroLeft = styled.div`
@@ -98,18 +85,12 @@ export const HeroTitle = styled.h2`
   letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.95);
 
-  ${media.down("sm")} {
-    font-size: 16px;
-  }
 `;
 
 export const HeroHint = styled.span`
   font-size: 12px;
   color: rgba(255, 255, 255, 0.45);
 
-  ${media.down("xs")} {
-    font-size: 11px;
-  }
 `;
 
 export const PickemSection = styled.section`
@@ -178,11 +159,6 @@ export const AddButton = styled.button`
     cursor: not-allowed;
   }
 
-  ${media.down("sm")} {
-    width: 100%;
-    justify-content: center;
-    padding: 10px 14px;
-  }
 `;
 
 export const PickemAccordion = styled(Accordion)<{ $complete?: boolean }>`
@@ -248,21 +224,6 @@ export const PickemAccordion = styled(Accordion)<{ $complete?: boolean }>`
     gap: 12px;
   }
 
-  ${media.down("sm")} {
-    .MuiAccordionSummary-root {
-      min-height: 48px;
-      padding: 6px 8px 6px 10px;
-    }
-
-    .MuiAccordionSummary-content {
-      margin: 6px 0 !important;
-    }
-
-    .MuiAccordionDetails-root {
-      padding: 4px 10px 12px;
-      gap: 10px;
-    }
-  }
 `;
 
 export const PickemCardHeader = styled.div`
@@ -272,10 +233,6 @@ export const PickemCardHeader = styled.div`
   width: 100%;
   min-width: 0;
 
-  ${media.down("sm")} {
-    flex-wrap: wrap;
-    gap: 6px 8px;
-  }
 `;
 
 export const EventLogoWrap = styled.div`
@@ -285,11 +242,6 @@ export const EventLogoWrap = styled.div`
   width: 36px;
   height: 36px;
 
-  ${media.down("sm")} {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-  }
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -318,9 +270,6 @@ export const PickemOrg = styled.span`
   line-height: 1.2;
   white-space: nowrap;
 
-  ${media.down("sm")} {
-    display: none;
-  }
 `;
 
 export const PickemName = styled.span`
@@ -333,9 +282,6 @@ export const PickemName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${media.down("sm")} {
-    font-size: 13px;
-  }
 `;
 
 export const PickemHeaderMeta = styled.div`
@@ -344,11 +290,6 @@ export const PickemHeaderMeta = styled.div`
   gap: 8px;
   flex-shrink: 0;
 
-  ${media.down("sm")} {
-    flex: 1 1 100%;
-    padding-left: 40px;
-    gap: 6px;
-  }
 `;
 
 export const PickemProgressTrack = styled.div`
@@ -358,11 +299,6 @@ export const PickemProgressTrack = styled.div`
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 
-  ${media.down("sm")} {
-    flex: 1;
-    width: auto;
-    min-width: 48px;
-  }
 `;
 
 export const PickemProgressFill = styled.div<{ $value: number; $complete?: boolean }>`
@@ -451,23 +387,6 @@ export const StagesGrid = styled.div`
   gap: 10px;
   width: 100%;
 
-  ${media.down("sm")} {
-    gap: 8px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: thin;
-    padding-bottom: 2px;
-
-    &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 999px;
-    }
-  }
 `;
 
 export const StageCard = styled.div<{ $hasImage?: boolean; $accent?: string }>`
@@ -478,13 +397,6 @@ export const StageCard = styled.div<{ $hasImage?: boolean; $accent?: string }>`
   min-width: 0;
   padding: 12px;
 
-  ${media.down("sm")} {
-    flex: 0 0 auto;
-    width: min(68vw, 176px);
-    scroll-snap-align: start;
-    gap: 8px;
-    padding: 10px;
-  }
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -513,11 +425,6 @@ export const StageCardHeader = styled.div`
   gap: 8px;
   min-width: 0;
 
-  ${media.down("sm")} {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
 `;
 
 export const StageCardStatus = styled.span<{ $uploaded?: boolean }>`
@@ -531,13 +438,6 @@ export const StageCardStatus = styled.span<{ $uploaded?: boolean }>`
   text-transform: uppercase;
   color: ${({ $uploaded }) => ($uploaded ? "#a5d6a7" : "rgba(255, 255, 255, 0.34)")};
 
-  ${media.down("xs")} {
-    font-size: 0;
-
-    &::before {
-      margin: 0;
-    }
-  }
 
   &::before {
     content: "";
@@ -590,11 +490,6 @@ export const StageUploadButton = styled.button`
     cursor: wait;
   }
 
-  ${media.down("sm")} {
-    gap: 6px;
-    padding: 10px 8px;
-    font-size: 11px;
-  }
 `;
 
 export const StageImageButton = styled.button`
@@ -644,9 +539,6 @@ export const StageActions = styled.div`
   display: flex;
   justify-content: flex-end;
 
-  ${media.down("sm")} {
-    width: 100%;
-  }
 `;
 
 export const ReplaceImageButton = styled.button`
@@ -660,10 +552,6 @@ export const ReplaceImageButton = styled.button`
   cursor: pointer;
   transition: all 0.15s ease;
 
-  ${media.down("sm")} {
-    width: 100%;
-    padding: 7px 10px;
-  }
 
   &:hover:not(:disabled) {
     color: rgba(255, 255, 255, 0.88);

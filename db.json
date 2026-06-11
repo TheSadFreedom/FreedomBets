@@ -3,8 +3,8 @@
     {
       "id": "1",
       "name": "Никита",
-      "balance": 8374.65,
-      "totalBets": 77,
+      "balance": 6833.63,
+      "totalBets": 103,
       "winRate": 51,
       "balanceBase": 10000
     },
@@ -44,7 +44,10 @@
       "pistolRound": null,
       "eventTier": "Small",
       "majorStage": "Closed Qualifier",
-      "matchId": "cbfa"
+      "matchId": "cbfa",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "4e29",
@@ -500,7 +503,10 @@
       "eventTier": "Small",
       "majorStage": "Closed Qualifier",
       "status": "LOSE",
-      "matchId": "bc57"
+      "matchId": "bc57",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "5e21",
@@ -609,9 +615,12 @@
       "odds": 1.06,
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "WIN",
-      "matchId": "6774"
+      "matchId": "6774",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "e5ea",
@@ -718,8 +727,11 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
-      "status": "WIN",
-      "matchId": "d046"
+      "status": "LOSE",
+      "matchId": "d046",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "9d2c",
@@ -826,9 +838,12 @@
       "odds": 1.52,
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "LOSE",
-      "matchId": "df51"
+      "matchId": "df51",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "0c59",
@@ -870,7 +885,10 @@
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
       "status": "WIN",
-      "matchId": "85ef"
+      "matchId": "85ef",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "ac69",
@@ -1044,7 +1062,10 @@
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
       "status": "WIN",
-      "matchId": "3637"
+      "matchId": "3637",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "96d9",
@@ -1109,7 +1130,10 @@
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
       "status": "LOSE",
-      "matchId": "a240"
+      "matchId": "a240",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "9fea",
@@ -1214,9 +1238,12 @@
       "odds": 2.05,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "LOSE",
-      "matchId": "ac68"
+      "matchId": "ac68",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "184f",
@@ -1235,9 +1262,12 @@
       "odds": 7.3,
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "LOSE",
-      "matchId": "78a6"
+      "matchId": "78a6",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "2d09",
@@ -1256,9 +1286,12 @@
       "odds": 1.12,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "WIN",
-      "matchId": "ac68"
+      "matchId": "ac68",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "952a",
@@ -1343,9 +1376,12 @@
       "odds": 2.05,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "LOSE",
-      "matchId": "ac68"
+      "matchId": "ac68",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "a5f9",
@@ -1364,9 +1400,12 @@
       "odds": 2.7,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "LOSE",
-      "matchId": "ac68"
+      "matchId": "ac68",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "3b2b",
@@ -1385,9 +1424,12 @@
       "odds": 1.3,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "WIN",
-      "matchId": "4fd0"
+      "matchId": "4fd0",
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null
     },
     {
       "id": "e228",
@@ -1496,7 +1538,7 @@
       "odds": 1.22,
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "LOSE",
       "matchId": "871a"
     },
@@ -1520,7 +1562,7 @@
       "odds": 2.36,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "LOSE",
       "matchId": "a391"
     },
@@ -1544,8 +1586,8 @@
       "odds": 3.2,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "status": "WAIT",
+      "majorStage": "Group",
+      "status": "LOSE",
       "matchId": "26d7"
     },
     {
@@ -1568,8 +1610,8 @@
       "odds": 1.93,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "status": "WAIT",
+      "majorStage": "Group",
+      "status": "WIN",
       "matchId": "a782"
     },
     {
@@ -1592,8 +1634,8 @@
       "odds": 1.9,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "status": "WAIT",
+      "majorStage": "Group",
+      "status": "WIN",
       "matchId": "ef4f"
     },
     {
@@ -1616,8 +1658,8 @@
       "odds": 1.65,
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "status": "WAIT",
+      "majorStage": "Group",
+      "status": "LOSE",
       "matchId": "b31d"
     },
     {
@@ -1640,7 +1682,7 @@
       "odds": 1.87,
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "WIN",
       "matchId": "b31d"
     },
@@ -1664,7 +1706,7 @@
       "odds": 1.2,
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "WIN",
       "matchId": "b31d"
     },
@@ -1688,7 +1730,7 @@
       "odds": 1.7,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
+      "majorStage": "Group",
       "status": "WIN",
       "matchId": "26d7"
     },
@@ -1712,8 +1754,8 @@
       "odds": 1.55,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "status": "WAIT",
+      "majorStage": "Group",
+      "status": "WIN",
       "matchId": "a782"
     },
     {
@@ -1736,9 +1778,633 @@
       "odds": 1.42,
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "status": "WAIT",
+      "majorStage": "Group",
+      "status": "WIN",
       "matchId": "ef4f"
+    },
+    {
+      "id": "9e5d",
+      "profileId": 1,
+      "date": "2026-06-10",
+      "time": "22:00",
+      "format": "BO3",
+      "organization1": "G2 Ares",
+      "organization2": "Illwill",
+      "betMarket": "match",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — G2 Ares",
+      "amount": 450,
+      "odds": 2.29,
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "status": "WIN",
+      "matchId": "ef4f"
+    },
+    {
+      "id": "6ea5",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "13:57",
+      "format": "BO3",
+      "organization1": "9z",
+      "organization2": "PARIVISION",
+      "betMarket": "mapsTotal",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Количество карт — больше 2,5",
+      "amount": 800,
+      "odds": 1.65,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "b0c8"
+    },
+    {
+      "id": "7e0a",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "13:11",
+      "format": "BO3",
+      "organization1": "Genone",
+      "organization2": "Lazer Cats",
+      "betMarket": "mapsTotal",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Количество карт — меньше 2,5",
+      "amount": 300,
+      "odds": 1.6,
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "status": "LOSE",
+      "matchId": "c2fa"
+    },
+    {
+      "id": "8c86",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "14:00",
+      "format": "BO3",
+      "organization1": "BetBoom",
+      "organization2": "The Mongolz",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — The Mongolz",
+      "amount": 1000,
+      "odds": 1.3,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "LOSE",
+      "matchId": "1c66"
+    },
+    {
+      "id": "b67d",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "15:30",
+      "format": "BO3",
+      "organization1": "Virtus.pro",
+      "organization2": "Kolesie",
+      "betMarket": "match",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Virtus.pro",
+      "amount": 675,
+      "odds": 1.48,
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "status": "LOSE",
+      "matchId": "00ab"
+    },
+    {
+      "id": "1af6",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "15:30",
+      "format": "BO3",
+      "organization1": "Virtus.pro",
+      "organization2": "Kolesie",
+      "betMarket": "exactScore",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": 2,
+      "exactScore2": 0,
+      "betType": "Точный счёт — 2:0",
+      "amount": 200,
+      "odds": 2.6,
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "status": "LOSE",
+      "matchId": "00ab"
+    },
+    {
+      "id": "3872",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "15:30",
+      "format": "BO3",
+      "organization1": "Virtus.pro",
+      "organization2": "Kolesie",
+      "betMarket": "atLeastOneMap",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": true,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Возьмёт карту — Virtus.pro — Да",
+      "amount": 850,
+      "odds": 1.14,
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "status": "LOSE",
+      "matchId": "00ab"
+    },
+    {
+      "id": "365d",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "16:00",
+      "format": "BO3",
+      "organization1": "Cybershoke",
+      "organization2": "AM",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — AM",
+      "amount": 50,
+      "odds": 2.8,
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "majorStage": "Playoff",
+      "status": "LOSE",
+      "matchId": "44ba"
+    },
+    {
+      "id": "6190",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "16:00",
+      "format": "BO3",
+      "organization1": "Cybershoke",
+      "organization2": "AM",
+      "betMarket": "mapsTotal",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Количество карт — больше 2,5",
+      "amount": 50,
+      "odds": 2,
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "majorStage": "Playoff",
+      "status": "WIN",
+      "matchId": "44ba"
+    },
+    {
+      "id": "f27c",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "13:57",
+      "format": "BO3",
+      "organization1": "9z",
+      "organization2": "PARIVISION",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — PARIVISION",
+      "amount": 100,
+      "odds": 3.01,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "LOSE",
+      "matchId": "b0c8"
+    },
+    {
+      "id": "0eef",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "13:15",
+      "format": "BO3",
+      "organization1": "Inox Division",
+      "organization2": "Acend",
+      "betMarket": "match",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Inox Division",
+      "amount": 231,
+      "odds": 1.4,
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "majorStage": "Playoff",
+      "status": "LOSE",
+      "matchId": "7a5c"
+    },
+    {
+      "id": "6e74",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "16:00",
+      "format": "BO3",
+      "organization1": "Rustec",
+      "organization2": "Illwill",
+      "betMarket": "mapsTotal",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Количество карт — больше 2,5",
+      "amount": 200,
+      "odds": 1.9,
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "status": "LOSE",
+      "matchId": "bf25"
+    },
+    {
+      "id": "d214",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "13:11",
+      "format": "BO3",
+      "organization1": "Genone",
+      "organization2": "Lazer Cats",
+      "betMarket": "match",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Genone",
+      "amount": 360,
+      "odds": 1.5,
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "status": "WIN",
+      "matchId": "c2fa"
+    },
+    {
+      "id": "8df0",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "14:00",
+      "format": "BO3",
+      "organization1": "BetBoom",
+      "organization2": "The Mongolz",
+      "betMarket": "mapsTotal",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Количество карт — меньше 2,5",
+      "amount": 350,
+      "odds": 1.6,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "LOSE",
+      "matchId": "1c66"
+    },
+    {
+      "id": "0dda",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "17:15",
+      "format": "BO3",
+      "organization1": "FUT",
+      "organization2": "Vitality",
+      "betMarket": "exactScore",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": 1,
+      "exactScore2": 2,
+      "betType": "Точный счёт — 1:2",
+      "amount": 300,
+      "odds": 3.29,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "f859"
+    },
+    {
+      "id": "0fae",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "17:15",
+      "format": "BO3",
+      "organization1": "FUT",
+      "organization2": "Vitality",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Vitality",
+      "amount": 2800,
+      "odds": 1.19,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "f859"
+    },
+    {
+      "id": "01e6",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "17:15",
+      "format": "BO3",
+      "organization1": "Legacy",
+      "organization2": "Mouz",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Mouz",
+      "amount": 700,
+      "odds": 1.69,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "01df"
+    },
+    {
+      "id": "a4da",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "17:15",
+      "format": "BO3",
+      "organization1": "Legacy",
+      "organization2": "Mouz",
+      "betMarket": "mapsTotal",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Количество карт — больше 2,5",
+      "amount": 300,
+      "odds": 1.99,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "LOSE",
+      "matchId": "01df"
+    },
+    {
+      "id": "eb60",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "17:12",
+      "format": "BO3",
+      "organization1": "FUT",
+      "organization2": "Vitality",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Vitality",
+      "amount": 1000,
+      "odds": 1.75,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "f859"
+    },
+    {
+      "id": "7246",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "20:10",
+      "format": "BO3",
+      "organization1": "G2",
+      "organization2": "Falcons",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Falcons",
+      "amount": 900,
+      "odds": 1.46,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "4d6e"
+    },
+    {
+      "id": "1937",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "20:10",
+      "format": "BO3",
+      "organization1": "G2",
+      "organization2": "Falcons",
+      "betMarket": "atLeastOneMap",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": true,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Возьмёт карту — Falcons — Да",
+      "amount": 2000,
+      "odds": 1.13,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "4d6e"
+    },
+    {
+      "id": "cc16",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "19:11",
+      "format": "BO3",
+      "organization1": "B8",
+      "organization2": "Furia",
+      "betMarket": "map",
+      "betTeam": 2,
+      "mapNumber": 2,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Карта 2 — Furia",
+      "amount": 500,
+      "odds": 1.32,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "3642"
+    },
+    {
+      "id": "4468",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "21:26",
+      "format": "BO3",
+      "organization1": "Monte",
+      "organization2": "Aurora",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Aurora",
+      "amount": 2500,
+      "odds": 1.1,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WIN",
+      "matchId": "273f"
+    },
+    {
+      "id": "99a4",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "22:06",
+      "format": "BO3",
+      "organization1": "Heroic Academy",
+      "organization2": "Kolesie",
+      "betMarket": "match",
+      "betTeam": 2,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Kolesie",
+      "amount": 600,
+      "odds": 1.42,
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "status": "WIN",
+      "matchId": "0c23"
+    },
+    {
+      "id": "904c",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "23:10",
+      "format": "BO3",
+      "organization1": "Spirit",
+      "organization2": "Natus Vincere",
+      "betMarket": "match",
+      "betTeam": 1,
+      "mapNumber": null,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Победа в матче — Spirit",
+      "amount": 3000,
+      "odds": 1.72,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WAIT",
+      "matchId": "b5a1"
+    },
+    {
+      "id": "3cf9",
+      "profileId": 1,
+      "date": "2026-06-11",
+      "time": "23:45",
+      "format": "BO3",
+      "organization1": "Spirit",
+      "organization2": "Natus Vincere",
+      "betMarket": "map",
+      "betTeam": 2,
+      "mapNumber": 2,
+      "pistolRound": null,
+      "yesNo": null,
+      "exactScore1": null,
+      "exactScore2": null,
+      "betType": "Карта 2 — Natus Vincere",
+      "amount": 300,
+      "odds": 2.25,
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "status": "WAIT",
+      "matchId": "b5a1"
     }
   ],
   "matches": [
@@ -1752,9 +2418,26 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "status": "finished",
-      "score1": 2,
-      "score2": 1,
-      "majorStage": "Closed Qualifier"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Closed Qualifier",
+      "maps": [
+        {
+          "name": "Inferno",
+          "score1": 16,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 12,
+          "score2": 16
+        },
+        {
+          "name": "Ancient",
+          "score1": 16,
+          "score2": 14
+        }
+      ]
     },
     {
       "id": "1ca7",
@@ -1766,9 +2449,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 0,
-      "score2": 2,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 3,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "d675",
@@ -1780,9 +2480,26 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 3",
       "status": "finished",
-      "score1": 2,
-      "score2": 0,
-      "majorStage": "Playoff"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Playoff",
+      "maps": [
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "02a1",
@@ -1794,9 +2511,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 2,
-      "score2": 0,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 13,
+          "score2": 5
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 2
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "87f5",
@@ -1808,9 +2542,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 2,
-      "score2": 0,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 16,
+          "score2": 14
+        },
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "62f3",
@@ -1822,9 +2573,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 2,
-      "score2": 0,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 6
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 10
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "de1c",
@@ -1836,9 +2604,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 2,
-      "score2": 0,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 5
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "fe47",
@@ -1850,9 +2635,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 2,
-      "score2": 0,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 5
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "c042",
@@ -1864,9 +2666,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 0,
-      "score2": 2,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 2,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "8780",
@@ -1878,9 +2697,26 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 3",
       "status": "finished",
-      "score1": 2,
-      "score2": 0,
-      "majorStage": "Playoff"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Playoff",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "0fcf",
@@ -1892,9 +2728,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "status": "finished",
-      "score1": 1,
-      "score2": 2,
-      "majorStage": "Stage 1"
+      "score1": null,
+      "score2": null,
+      "majorStage": "Stage 1",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 5,
+          "score2": 13
+        },
+        {
+          "name": "Nuke",
+          "score1": 16,
+          "score2": 12
+        },
+        {
+          "name": "Mirage",
+          "score1": 12,
+          "score2": 16
+        }
+      ]
     },
     {
       "id": "a8da",
@@ -1905,10 +2758,17 @@
       "organization2": "GamerLegion",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "score1": 13,
-      "score2": 4,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Stage 2"
+      "majorStage": "Stage 2",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 4
+        }
+      ]
     },
     {
       "id": "76fc",
@@ -1919,10 +2779,17 @@
       "organization2": "FlyQuest",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "score1": 13,
-      "score2": 9,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Stage 2"
+      "majorStage": "Stage 2",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 9
+        }
+      ]
     },
     {
       "id": "f060",
@@ -1933,10 +2800,17 @@
       "organization2": "B8",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "score1": 13,
-      "score2": 11,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Stage 2"
+      "majorStage": "Stage 2",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 11
+        }
+      ]
     },
     {
       "id": "e63a",
@@ -1947,10 +2821,17 @@
       "organization2": "TYLOO",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "score1": 9,
-      "score2": 13,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Stage 2"
+      "majorStage": "Stage 2",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 9,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "8168",
@@ -1961,10 +2842,17 @@
       "organization2": "BIG",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "score1": 13,
-      "score2": 8,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Stage 2"
+      "majorStage": "Stage 2",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 8
+        }
+      ]
     },
     {
       "id": "69b6",
@@ -1975,10 +2863,27 @@
       "organization2": "100 Thieves",
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 3",
-      "score1": 0,
-      "score2": 2,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Playoff"
+      "majorStage": "Playoff",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 9,
+          "score2": 13
+        },
+        {
+          "name": "Dust2",
+          "score1": 6,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "49ac",
@@ -1989,10 +2894,17 @@
       "organization2": "BetBoom",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "score1": 13,
-      "score2": 5,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Stage 2"
+      "majorStage": "Stage 2",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 5
+        }
+      ]
     },
     {
       "id": "a3a2",
@@ -2003,10 +2915,17 @@
       "organization2": "MIBR",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "score1": 8,
-      "score2": 13,
+      "score1": null,
+      "score2": null,
       "status": "finished",
-      "majorStage": "Stage 2"
+      "majorStage": "Stage 2",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 8,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "d147",
@@ -2018,9 +2937,16 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 13,
-      "score2": 9,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 9
+        }
+      ]
     },
     {
       "id": "bc57",
@@ -2032,9 +2958,26 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 8
+        },
+        {
+          "name": "Nuke",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 3,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "6774",
@@ -2045,10 +2988,27 @@
       "organization2": "GenOne",
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 1,
-      "status": "finished"
+      "majorStage": "Group",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "Dust2",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Anubis",
+          "score1": 13,
+          "score2": 10
+        }
+      ]
     },
     {
       "id": "8245",
@@ -2060,9 +3020,16 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 13,
-      "score2": 11,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 11
+        }
+      ]
     },
     {
       "id": "2d87",
@@ -2074,9 +3041,16 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 6,
-      "score2": 13,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 6,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "2e93",
@@ -2088,9 +3062,16 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 13,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 2
+        }
+      ]
     },
     {
       "id": "2938",
@@ -2102,9 +3083,16 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 8,
-      "score2": 13,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Inferno",
+          "score1": 8,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "9f15",
@@ -2116,9 +3104,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 2,
-      "score2": 1,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "Mirage",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 11
+        }
+      ]
     },
     {
       "id": "2ee3",
@@ -2130,9 +3135,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Ancient",
+          "score1": 4,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "1bde",
@@ -2144,9 +3166,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 3
+        },
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 1
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "fff7",
@@ -2158,9 +3197,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 0,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "Anubis",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "6897",
@@ -2172,9 +3228,26 @@
       "eventOrganization": "Stake Ranked",
       "eventName": "Episode 3",
       "majorStage": "Open Qualifier",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 8
+        },
+        {
+          "name": "Nuke",
+          "score1": 17,
+          "score2": 18
+        },
+        {
+          "name": "Overpass",
+          "score1": 6,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "d046",
@@ -2186,9 +3259,26 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 10
+        },
+        {
+          "name": "Dust2",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 9
+        }
+      ]
     },
     {
       "id": "327f",
@@ -2200,9 +3290,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 0,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Overpass",
+          "score1": 4,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "7065",
@@ -2214,9 +3321,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Nuke",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "Ancient",
+          "score1": 8,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "3637",
@@ -2228,9 +3352,26 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
-      "score1": 0,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Ancient",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "a09b",
@@ -2242,9 +3383,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 6
+        },
+        {
+          "name": "Dust2",
+          "score1": 8,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "c0b1",
@@ -2256,9 +3414,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 0,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 6,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "ead1",
@@ -2270,9 +3445,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 3
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 8
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "d981",
@@ -2284,9 +3476,26 @@
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
       "majorStage": "Stage 2",
-      "score1": 0,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 16
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "1e7b",
@@ -2298,9 +3507,26 @@
       "eventOrganization": "NODWIN",
       "eventName": "Clutch Series 9",
       "majorStage": "Playoff",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 5,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "Overpass",
+          "score1": 3,
+          "score2": 13
+        }
+      ]
     },
     {
       "id": "55cc",
@@ -2312,9 +3538,26 @@
       "eventOrganization": "NODWIN",
       "eventName": "Clutch Series 9",
       "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 16,
+          "score2": 12
+        },
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 8
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "df51",
@@ -2325,10 +3568,27 @@
       "organization2": "brazylijski luz",
       "eventOrganization": "European Pro League",
       "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": 0,
-      "score2": 2,
-      "status": "finished"
+      "majorStage": "Group",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 14,
+          "score2": 16
+        },
+        {
+          "name": "Ancient",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "85ef",
@@ -2340,9 +3600,26 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
-      "score1": 2,
-      "score2": 1,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 6
+        }
+      ]
     },
     {
       "id": "fc0f",
@@ -2354,9 +3631,26 @@
       "eventOrganization": "NODWIN",
       "eventName": "Clutch Series 9",
       "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 8
+        },
+        {
+          "name": "Anubis",
+          "score1": 13,
+          "score2": 4
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
     },
     {
       "id": "a240",
@@ -2368,182 +3662,14 @@
       "eventOrganization": "CCT",
       "eventName": "2026 Europe Series 4",
       "majorStage": "Closed Qualifier",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
-    },
-    {
-      "id": "deff",
-      "date": "2026-06-09",
-      "time": "22:00",
-      "format": "BO3",
-      "organization1": "BIG",
-      "organization2": "B8",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 2",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
-    },
-    {
-      "id": "6c63",
-      "date": "2026-06-09",
-      "time": "19:30",
-      "format": "BO3",
-      "organization1": "Legacy",
-      "organization2": "TYLOO",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 2",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
-    },
-    {
-      "id": "ccd4",
-      "date": "2026-06-09",
-      "time": "17:00",
-      "format": "BO3",
-      "organization1": "Monte",
-      "organization2": "paiN",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 2",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
-    },
-    {
-      "id": "67c7",
-      "date": "2026-06-09",
-      "time": "13:00",
-      "format": "BO3",
-      "organization1": "CYBERSHOKE",
-      "organization2": "ex-RUBY",
-      "eventOrganization": "NODWIN",
-      "eventName": "Clutch Series 9",
-      "majorStage": "Playoff",
-      "score1": 0,
-      "score2": 2,
-      "status": "finished"
-    },
-    {
-      "id": "ac68",
-      "date": "2026-06-09",
-      "time": "16:00",
-      "format": "BO3",
-      "organization1": "ex-RUBY",
-      "organization2": "RUSTEC",
-      "eventOrganization": "CCT",
-      "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 1,
-      "status": "finished"
-    },
-    {
-      "id": "78a6",
-      "date": "2026-06-09",
-      "time": "15:30",
-      "format": "BO3",
-      "organization1": "Lavked",
-      "organization2": "Misa",
-      "eventOrganization": "European Pro League",
-      "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
-    },
-    {
-      "id": "c7d6",
-      "date": "2026-06-09",
-      "time": "19:20",
-      "format": "BO3",
-      "organization1": "KOLESIE",
-      "organization2": "RUSTEC",
-      "eventOrganization": "NODWIN",
-      "eventName": "Clutch Series 9",
-      "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
-    },
-    {
-      "id": "4fd0",
-      "date": "2026-06-09",
-      "time": "19:00",
-      "format": "BO3",
-      "organization1": "Virtus.pro",
-      "organization2": "Oxuji",
-      "eventOrganization": "CCT",
-      "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
-    },
-    {
-      "id": "2c04",
-      "date": "2026-06-09",
-      "time": "22:00",
-      "format": "BO3",
-      "organization1": "PsychoFace",
-      "organization2": "GenOne",
-      "eventOrganization": "CCT",
-      "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "score1": 1,
-      "score2": 2,
-      "status": "finished"
-    },
-    {
-      "id": "871a",
-      "date": "2026-06-10",
-      "time": "13:00",
-      "format": "BO3",
-      "organization1": "aAa",
-      "organization2": "RUSTEC",
-      "eventOrganization": "European Pro League",
-      "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 1,
-      "status": "finished"
-    },
-    {
-      "id": "a391",
-      "date": "2026-06-10",
-      "time": "13:00",
-      "format": "BO3",
-      "organization1": "SPARTA",
-      "organization2": "brazylijski luz",
-      "eventOrganization": "CCT",
-      "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "score1": 2,
-      "score2": 0,
-      "status": "finished"
-    },
-    {
-      "id": "26d7",
-      "date": "2026-06-10",
-      "time": "16:00",
-      "format": "BO3",
-      "organization1": "Ursa",
-      "organization2": "HEROIC Academy",
-      "eventOrganization": "CCT",
-      "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
       "score1": null,
       "score2": null,
-      "status": "live",
+      "status": "finished",
       "maps": [
         {
-          "name": "Dust2",
-          "score1": 2,
-          "score2": 13
+          "name": "Anubis",
+          "score1": 22,
+          "score2": 20
         },
         {
           "name": "Mirage",
@@ -2558,208 +3684,88 @@
       ]
     },
     {
-      "id": "a782",
-      "date": "2026-06-10",
-      "time": "19:00",
-      "format": "BO3",
-      "organization1": "KOLESIE",
-      "organization2": "Leo",
-      "eventOrganization": "CCT",
-      "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "ef4f",
-      "date": "2026-06-10",
+      "id": "deff",
+      "date": "2026-06-09",
       "time": "22:00",
       "format": "BO3",
-      "organization1": "illwill",
-      "organization2": "G2 Ares",
-      "eventOrganization": "CCT",
-      "eventName": "2026 Europe Series 4",
-      "majorStage": "Playoff",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "c2fa",
-      "date": "2026-06-11",
-      "time": "13:00",
-      "format": "BO3",
-      "organization1": "Lazer Cats",
-      "organization2": "GenOne",
-      "eventOrganization": "European Pro League",
-      "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "b0c8",
-      "date": "2026-06-11",
-      "time": "14:00",
-      "format": "BO3",
-      "organization1": "PARIVISION",
-      "organization2": "9z",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "1c66",
-      "date": "2026-06-11",
-      "time": "14:00",
-      "format": "BO3",
-      "organization1": "The MongolZ",
-      "organization2": "BetBoom",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "00ab",
-      "date": "2026-06-11",
-      "time": "15:30",
-      "format": "BO3",
-      "organization1": "KOLESIE",
-      "organization2": "Virtus.pro",
-      "eventOrganization": "European Pro League",
-      "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "f859",
-      "date": "2026-06-11",
-      "time": "16:30",
-      "format": "BO3",
-      "organization1": "Vitality",
-      "organization2": "FUT",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "01df",
-      "date": "2026-06-11",
-      "time": "16:30",
-      "format": "BO3",
-      "organization1": "MOUZ",
-      "organization2": "Legacy",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "3642",
-      "date": "2026-06-11",
-      "time": "19:00",
-      "format": "BO3",
-      "organization1": "FURIA",
+      "organization1": "BIG",
       "organization2": "B8",
       "eventOrganization": "IEM",
       "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
+      "majorStage": "Stage 2",
       "score1": null,
       "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "4d6e",
-      "date": "2026-06-11",
-      "time": "19:00",
-      "format": "BO3",
-      "organization1": "Falcons",
-      "organization2": "G2",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "b5a1",
-      "date": "2026-06-11",
-      "time": "21:30",
-      "format": "BO3",
-      "organization1": "Natus Vincere",
-      "organization2": "Spirit",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "273f",
-      "date": "2026-06-11",
-      "time": "21:30",
-      "format": "BO3",
-      "organization1": "Aurora",
-      "organization2": "Monte",
-      "eventOrganization": "IEM",
-      "eventName": "Cologne Major 2026",
-      "majorStage": "Stage 3",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "47c6",
-      "date": "2026-06-12",
-      "time": "18:00",
-      "format": "BO3",
-      "organization1": "brazylijski luz",
-      "organization2": "HYPERSPIRIT",
-      "eventOrganization": "European Pro League",
-      "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": null,
-      "score2": null,
-      "status": "scheduled"
-    },
-    {
-      "id": "b31d",
-      "date": "2026-06-10",
-      "time": "16:30",
-      "format": "BO3",
-      "organization1": "G2 Ares",
-      "organization2": "Young Ninjas",
-      "eventOrganization": "European Pro League",
-      "eventName": "Series 7",
-      "majorStage": "Playoff",
-      "score1": null,
-      "score2": null,
-      "status": "live",
+      "status": "finished",
       "maps": [
         {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 7
+        },
+        {
           "name": "Overpass",
-          "score1": 8,
+          "score1": 6,
           "score2": 13
         },
         {
-          "name": "Dust 2",
+          "name": "Dust2",
+          "score1": 8,
+          "score2": 13
+        }
+      ]
+    },
+    {
+      "id": "6c63",
+      "date": "2026-06-09",
+      "time": "19:30",
+      "format": "BO3",
+      "organization1": "Legacy",
+      "organization2": "TYLOO",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 2",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 4
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
+    },
+    {
+      "id": "ccd4",
+      "date": "2026-06-09",
+      "time": "17:00",
+      "format": "BO3",
+      "organization1": "Monte",
+      "organization2": "paiN",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 2",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 5
+        },
+        {
+          "name": "Dust2",
           "score1": 13,
           "score2": 11
         },
@@ -2769,6 +3775,1281 @@
           "score2": null
         }
       ]
+    },
+    {
+      "id": "67c7",
+      "date": "2026-06-09",
+      "time": "13:00",
+      "format": "BO3",
+      "organization1": "CYBERSHOKE",
+      "organization2": "ex-RUBY",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "majorStage": "Playoff",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Dust2",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
+    },
+    {
+      "id": "ac68",
+      "date": "2026-06-09",
+      "time": "16:00",
+      "format": "BO3",
+      "organization1": "ex-RUBY",
+      "organization2": "RUSTEC",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 2
+        }
+      ]
+    },
+    {
+      "id": "78a6",
+      "date": "2026-06-09",
+      "time": "15:30",
+      "format": "BO3",
+      "organization1": "Lavked",
+      "organization2": "Misa",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 5
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 10
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
+    },
+    {
+      "id": "c7d6",
+      "date": "2026-06-09",
+      "time": "19:20",
+      "format": "BO3",
+      "organization1": "KOLESIE",
+      "organization2": "RUSTEC",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "majorStage": "Playoff",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
+    },
+    {
+      "id": "4fd0",
+      "date": "2026-06-09",
+      "time": "19:00",
+      "format": "BO3",
+      "organization1": "Virtus.pro",
+      "organization2": "Oxuji",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 16,
+          "score2": 13
+        },
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ]
+    },
+    {
+      "id": "2c04",
+      "date": "2026-06-09",
+      "time": "22:00",
+      "format": "BO3",
+      "organization1": "PsychoFace",
+      "organization2": "GenOne",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "score1": null,
+      "score2": null,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "Nuke",
+          "score1": 6,
+          "score2": 13
+        }
+      ]
+    },
+    {
+      "id": "871a",
+      "date": "2026-06-10",
+      "time": "13:00",
+      "format": "BO3",
+      "organization1": "Rustec",
+      "organization2": "aAa",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "score1": 1,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 16
+        },
+        {
+          "name": "Nuke",
+          "score1": 8,
+          "score2": 13
+        }
+      ],
+      "sportsRuSeriesId": "6299346e-c6f2-4273-9b41-b77a46b0016d",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/against-all-authority-rustec-2026-06-10/"
+    },
+    {
+      "id": "a391",
+      "date": "2026-06-10",
+      "time": "13:15",
+      "format": "BO3",
+      "organization1": "Brazylijski Luz",
+      "organization2": "Sparta",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "score1": 0,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "Dust2",
+          "score1": 5,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "sportsRuSeriesId": "05af2dad-8e09-4541-9f8a-a7dbb663b746",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/brazylijski-luz-sparta-2026-06-10/"
+    },
+    {
+      "id": "26d7",
+      "date": "2026-06-10",
+      "time": "16:13",
+      "format": "BO3",
+      "organization1": "Heroic Academy",
+      "organization2": "Ursa",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "score1": 1,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 2
+        },
+        {
+          "name": "Mirage",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 9,
+          "score2": 13
+        }
+      ],
+      "sportsRuSeriesId": "b720e9f7-5d93-443f-bf92-a2e3c4dd53bf",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/heroic-academy-ursa-2026-06-10/"
+    },
+    {
+      "id": "a782",
+      "date": "2026-06-10",
+      "time": "19:10",
+      "format": "BO3",
+      "organization1": "Leo",
+      "organization2": "Kolesie",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "score1": 2,
+      "score2": 1,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 19,
+          "score2": 17
+        },
+        {
+          "name": "Nuke",
+          "score1": 3,
+          "score2": 13
+        },
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 6
+        }
+      ],
+      "sportsRuSeriesId": "136da669-42ec-401b-870e-5c6c878bfac0",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/lg-kolesie-2026-06-10/"
+    },
+    {
+      "id": "ef4f",
+      "date": "2026-06-10",
+      "time": "22:35",
+      "format": "BO3",
+      "organization1": "G2 Ares",
+      "organization2": "Illwill",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "majorStage": "Group",
+      "score1": 2,
+      "score2": 1,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 19,
+          "score2": 16
+        },
+        {
+          "name": "Overpass",
+          "score1": 4,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 4
+        }
+      ],
+      "sportsRuSeriesId": "a80f2aa8-3966-43ae-944b-b18085ec656f",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/g2-ares-illwill-2026-06-10/"
+    },
+    {
+      "id": "c2fa",
+      "date": "2026-06-11",
+      "time": "13:11",
+      "format": "BO3",
+      "organization1": "Genone",
+      "organization2": "Lazer Cats",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "score1": 2,
+      "score2": 1,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Ancient",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Anubis",
+          "score1": 13,
+          "score2": 5
+        }
+      ],
+      "sportsRuSeriesId": "5c9e4100-01be-4e46-80d7-5b21da9cf2d4",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/genone-lazer-cats-2026-06-11/"
+    },
+    {
+      "id": "b0c8",
+      "date": "2026-06-11",
+      "time": "13:57",
+      "format": "BO3",
+      "organization1": "9z",
+      "organization2": "PARIVISION",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 2,
+      "score2": 1,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 1
+        },
+        {
+          "name": "Dust2",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 9
+        }
+      ],
+      "sportsRuSeriesId": "9b904aae-f4f8-456f-b3a1-ed36ce32298e",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/9z-team-parivision-2026-06-11/"
+    },
+    {
+      "id": "1c66",
+      "date": "2026-06-11",
+      "time": "14:00",
+      "format": "BO3",
+      "organization1": "BetBoom",
+      "organization2": "The Mongolz",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 2,
+      "score2": 1,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 13,
+          "score2": 6
+        },
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 11
+        }
+      ],
+      "sportsRuSeriesId": "a6eb72b1-d436-4e27-9ab6-622e2ddc628b",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/the-mongolz-betboom-2026-06-11/"
+    },
+    {
+      "id": "00ab",
+      "date": "2026-06-11",
+      "time": "16:01",
+      "format": "BO3",
+      "organization1": "Virtus.pro",
+      "organization2": "Kolesie",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "score1": 0,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Overpass",
+          "score1": 9,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "sportsRuSeriesId": "3a0ba21d-8594-4d00-8875-3f19c0e4f548",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/virtuspro-kolesie-2026-06-11/"
+    },
+    {
+      "id": "f859",
+      "date": "2026-06-11",
+      "time": "17:12",
+      "format": "BO3",
+      "organization1": "FUT",
+      "organization2": "Vitality",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 1,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 13,
+          "score2": 5
+        },
+        {
+          "name": "Overpass",
+          "score1": 2,
+          "score2": 13
+        },
+        {
+          "name": "Nuke",
+          "score1": 8,
+          "score2": 13
+        }
+      ],
+      "sportsRuSeriesId": "7d8baed5-411e-402d-8bf6-44d30a5fa88b",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/team-vitality-fut-esports-2026-06-11/"
+    },
+    {
+      "id": "01df",
+      "date": "2026-06-11",
+      "time": "17:07",
+      "format": "BO3",
+      "organization1": "Legacy",
+      "organization2": "Mouz",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 0,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 5,
+          "score2": 13
+        },
+        {
+          "name": "Nuke",
+          "score1": 6,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "sportsRuSeriesId": "b86da5db-228e-45c1-8a64-67f013a463c0",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/mouz-fake-natty-2026-06-11/"
+    },
+    {
+      "id": "3642",
+      "date": "2026-06-11",
+      "time": "19:11",
+      "format": "BO3",
+      "organization1": "B8",
+      "organization2": "Furia",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 0,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "Inferno",
+          "score1": 4,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "sportsRuSeriesId": "21e6f62a-57ab-4a2e-8508-68635ebb2985",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/furia-esports-b8-2026-06-11/"
+    },
+    {
+      "id": "4d6e",
+      "date": "2026-06-11",
+      "time": "20:03",
+      "format": "BO3",
+      "organization1": "G2",
+      "organization2": "Falcons",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 1,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 10
+        },
+        {
+          "name": "Dust2",
+          "score1": 8,
+          "score2": 13
+        },
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 16
+        }
+      ],
+      "sportsRuSeriesId": "4e148412-5f59-4b98-b93e-96a1aadf841b",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/g2-esports-falcons-esports-2026-06-11/"
+    },
+    {
+      "id": "b5a1",
+      "date": "2026-06-11",
+      "time": "23:45",
+      "format": "BO3",
+      "organization1": "Spirit",
+      "organization2": "Natus Vincere",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 1,
+      "score2": 0,
+      "status": "live",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 1
+        },
+        {
+          "name": "Anubis",
+          "score1": 0,
+          "score2": 0
+        },
+        {
+          "name": "Mirage",
+          "score1": 0,
+          "score2": 0
+        }
+      ],
+      "sportsRuSeriesId": "96daac7b-cde6-4804-b958-b8840d21493b",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/natus-vincere-team-spirit-2026-06-11/"
+    },
+    {
+      "id": "273f",
+      "date": "2026-06-11",
+      "time": "21:26",
+      "format": "BO3",
+      "organization1": "Monte",
+      "organization2": "Aurora",
+      "eventOrganization": "IEM",
+      "eventName": "Cologne Major 2026",
+      "majorStage": "Stage 3",
+      "score1": 0,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "Anubis",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "sportsRuSeriesId": "430306f5-7ba5-416d-9c22-1dbfe3cc08ab",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/monte-aurora-2026-06-11/"
+    },
+    {
+      "id": "47c6",
+      "date": "2026-06-12",
+      "time": "18:00",
+      "format": "BO3",
+      "organization1": "Hyperspirit",
+      "organization2": "Brazylijski Luz",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "score1": null,
+      "score2": null,
+      "status": "scheduled",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "sportsRuSeriesId": "ee86794b-2fa2-4718-bd03-ec2f60603c3f",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/brazylijski-luz-hyperspirit-2026-06-13/"
+    },
+    {
+      "id": "b31d",
+      "date": "2026-06-10",
+      "time": "16:30",
+      "format": "BO3",
+      "organization1": "Young Ninjas",
+      "organization2": "G2 Ares",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "majorStage": "Group",
+      "score1": 1,
+      "score2": 2,
+      "status": "finished",
+      "maps": [
+        {
+          "name": "Overpass",
+          "score1": 13,
+          "score2": 7
+        },
+        {
+          "name": "Dust2",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 2,
+          "score2": 13
+        }
+      ],
+      "sportsRuSeriesId": "1d67af31-214f-4b48-a55d-3f6097200357",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/young-ninjas-g2-ares-2026-06-10/"
+    },
+    {
+      "id": "e345",
+      "date": "2026-06-10",
+      "time": "16:05",
+      "format": "BO3",
+      "organization1": "Atreides",
+      "organization2": "Sparta",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "majorStage": "Playoff",
+      "maps": [
+        {
+          "name": "Inferno",
+          "score1": 9,
+          "score2": 13
+        },
+        {
+          "name": "Nuke",
+          "score1": 10,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "finished",
+      "score1": 0,
+      "score2": 2,
+      "sportsRuSeriesId": "a391d39f-caec-4a5d-8d33-3480e806b358",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/sparta-atreides-2026-06-10/"
+    },
+    {
+      "id": "bde8",
+      "date": "2026-06-10",
+      "time": "19:10",
+      "format": "BO3",
+      "organization1": "Inox Division",
+      "organization2": "Walczaki",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "majorStage": "Playoff",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 17,
+          "score2": 19
+        },
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 11
+        },
+        {
+          "name": "Nuke",
+          "score1": 8,
+          "score2": 13
+        }
+      ],
+      "status": "finished",
+      "score1": 1,
+      "score2": 2,
+      "sportsRuSeriesId": "60ad1425-e6ad-4151-9579-dad19f4cf119",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/walczaki-inox-division-2026-06-10/"
+    },
+    {
+      "id": "ec97",
+      "majorStage": "Group",
+      "date": "2026-06-12",
+      "time": "13:00",
+      "format": "BO3",
+      "organization1": "aAa",
+      "organization2": "Young Ninjas",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "scheduled",
+      "score1": null,
+      "score2": null,
+      "sportsRuSeriesId": "6e85c405-2cc6-48fd-ae4f-b3281f0ecfc1",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/against-all-authority-young-ninjas-2026-06-12/"
+    },
+    {
+      "id": "7a5c",
+      "majorStage": "Playoff",
+      "date": "2026-06-11",
+      "time": "13:15",
+      "format": "BO3",
+      "organization1": "Inox Division",
+      "organization2": "Acend",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "Inferno",
+          "score1": 13,
+          "score2": 10
+        },
+        {
+          "name": "Overpass",
+          "score1": 10,
+          "score2": 13
+        }
+      ],
+      "status": "finished",
+      "score1": 1,
+      "score2": 2,
+      "sportsRuSeriesId": "1038848e-447a-4eb8-b8a0-66bcb97fb9ac",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/acend-inox-division-2026-06-11/"
+    },
+    {
+      "id": "44ba",
+      "majorStage": "Playoff",
+      "date": "2026-06-11",
+      "time": "16:11",
+      "format": "BO3",
+      "organization1": "Cybershoke",
+      "organization2": "AM",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "maps": [
+        {
+          "name": "Ancient",
+          "score1": 13,
+          "score2": 3
+        },
+        {
+          "name": "Overpass",
+          "score1": 11,
+          "score2": 13
+        },
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 10
+        }
+      ],
+      "status": "finished",
+      "score1": 2,
+      "score2": 1,
+      "sportsRuSeriesId": "6a24670c-6bff-4e56-9cee-33910006211a",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/cybershoke-esports-am-gaming-2026-06-11/"
+    },
+    {
+      "id": "c606",
+      "majorStage": "Playoff",
+      "date": "2026-06-11",
+      "time": "19:09",
+      "format": "BO3",
+      "organization1": "Kolesie",
+      "organization2": "Sparta",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "Dust2",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "finished",
+      "score1": 2,
+      "score2": 0,
+      "sportsRuSeriesId": "f2e6af54-4769-4b87-8d6e-e0d9ec86b89c",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/sparta-kolesie-2026-06-11/"
+    },
+    {
+      "id": "f1b2",
+      "majorStage": "Group",
+      "date": "2026-06-11",
+      "time": "13:07",
+      "format": "BO3",
+      "organization1": "Brazylijski Luz",
+      "organization2": "PsychoFace",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "Mirage",
+          "score1": 1,
+          "score2": 13
+        },
+        {
+          "name": "Dust2",
+          "score1": 9,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "finished",
+      "score1": 0,
+      "score2": 2,
+      "sportsRuSeriesId": "d4309657-fddb-49ec-aa77-55500eb7867a",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/brazylijski-luz-psychoface-2026-06-11/"
+    },
+    {
+      "id": "bf25",
+      "majorStage": "Group",
+      "date": "2026-06-11",
+      "time": "16:07",
+      "format": "BO3",
+      "organization1": "Rustec",
+      "organization2": "Illwill",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "Dust2",
+          "score1": 17,
+          "score2": 19
+        },
+        {
+          "name": "Mirage",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "finished",
+      "score1": 0,
+      "score2": 2,
+      "sportsRuSeriesId": "12ff3955-5ee3-4837-a63f-edb8f046da0c",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/rustec-illwill-2026-06-11/"
+    },
+    {
+      "id": "c0ba",
+      "majorStage": "Group",
+      "date": "2026-06-11",
+      "time": "19:05",
+      "format": "BO3",
+      "organization1": "Oxuji",
+      "organization2": "Bebop",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "Nuke",
+          "score1": 13,
+          "score2": 5
+        },
+        {
+          "name": "Mirage",
+          "score1": 7,
+          "score2": 13
+        },
+        {
+          "name": "Overpass",
+          "score1": 9,
+          "score2": 13
+        }
+      ],
+      "status": "finished",
+      "score1": 1,
+      "score2": 2,
+      "sportsRuSeriesId": "bf1af2f6-d5d0-4325-8c3c-d7b56e42e43f",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/oxuji-bebop-2026-06-11/"
+    },
+    {
+      "id": "0c23",
+      "majorStage": "Group",
+      "date": "2026-06-11",
+      "time": "22:06",
+      "format": "BO3",
+      "organization1": "Heroic Academy",
+      "organization2": "Kolesie",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "Anubis",
+          "score1": 13,
+          "score2": 9
+        },
+        {
+          "name": "Overpass",
+          "score1": 4,
+          "score2": 13
+        },
+        {
+          "name": "Mirage",
+          "score1": 5,
+          "score2": 13
+        }
+      ],
+      "status": "finished",
+      "score1": 1,
+      "score2": 2,
+      "sportsRuSeriesId": "335a6a3f-7645-4447-9da5-c69266e72ed5",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/heroic-academy-kolesie-2026-06-11/"
+    },
+    {
+      "id": "6a77",
+      "majorStage": "Group",
+      "date": "2026-06-12",
+      "time": "13:00",
+      "format": "BO3",
+      "organization1": "G2 Ares",
+      "organization2": "Ex Ruby",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "scheduled",
+      "score1": null,
+      "score2": null,
+      "sportsRuSeriesId": "df64cc0c-865a-4440-b00f-6499b4887089",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/g2-ares-exruby-2026-06-12/"
+    },
+    {
+      "id": "06b1",
+      "majorStage": "Group",
+      "date": "2026-06-12",
+      "time": "16:00",
+      "format": "BO3",
+      "organization1": "Inox Division",
+      "organization2": "Virtus.pro",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "scheduled",
+      "score1": null,
+      "score2": null,
+      "sportsRuSeriesId": "aa60452d-86ff-48f3-a264-d8bad64d5fe4",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/virtuspro-inox-division-2026-06-12/"
+    },
+    {
+      "id": "81dc",
+      "majorStage": "Group",
+      "date": "2026-06-12",
+      "time": "19:00",
+      "format": "BO3",
+      "organization1": "Genone",
+      "organization2": "Sparta",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "scheduled",
+      "score1": null,
+      "score2": null,
+      "sportsRuSeriesId": "4a438614-5d64-41b8-8938-1928636dc462",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/genone-sparta-2026-06-12/"
+    },
+    {
+      "id": "f58a",
+      "majorStage": "Group",
+      "date": "2026-06-12",
+      "time": "22:00",
+      "format": "BO3",
+      "organization1": "Leo",
+      "organization2": "Ursa",
+      "eventOrganization": "CCT",
+      "eventName": "2026 Europe Series 4",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "scheduled",
+      "score1": null,
+      "score2": null,
+      "sportsRuSeriesId": "fdca9f2b-75b0-4ac4-82a6-540c393c6321",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/lg-ursa-2026-06-12/"
+    },
+    {
+      "id": "ce1c",
+      "majorStage": "Playoff",
+      "date": "2026-06-12",
+      "time": "15:30",
+      "format": "BO3",
+      "organization1": "Virtus.pro",
+      "organization2": "Genone",
+      "eventOrganization": "European Pro League",
+      "eventName": "Series 7",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "scheduled",
+      "score1": null,
+      "score2": null,
+      "sportsRuSeriesId": "49e517b5-414a-4ec2-9062-c64a7699871e",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/virtuspro-genone-2026-06-12/"
+    },
+    {
+      "id": "6e01",
+      "majorStage": null,
+      "date": "2026-06-10",
+      "time": "13:05",
+      "format": "BO3",
+      "organization1": "Acend",
+      "organization2": "Arcred",
+      "eventOrganization": "NODWIN",
+      "eventName": "Clutch Series 9",
+      "maps": [
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        },
+        {
+          "name": "",
+          "score1": null,
+          "score2": null
+        }
+      ],
+      "status": "finished",
+      "score1": 0,
+      "score2": 0,
+      "sportsRuSeriesId": "9c7c3b1c-31e7-40a5-99db-3521f80e9e01",
+      "sportsRuUrl": "https://cyber.sports.ru/cs/match/arcred-acend-2026-06-10/"
     }
   ],
   "pickems": [
@@ -3023,8 +5304,11 @@
       "eventTier": "Small",
       "logoSlug": "esports-world-cup",
       "stages": [
+        "Group",
         "Playoff"
-      ]
+      ],
+      "winnerOrganization": null,
+      "winnerLogoSlug": null
     },
     {
       "id": "e78a",
@@ -3048,6 +5332,7 @@
       "eventTier": "Small",
       "stages": [
         "Closed Qualifier",
+        "Group",
         "Playoff"
       ],
       "winnerOrganization": null,
@@ -3359,21 +5644,6 @@
       ],
       "winnerOrganization": "Vitality",
       "winnerLogoSlug": "vitality"
-    },
-    {
-      "id": "e754",
-      "eventOrganization": "XSE",
-      "eventName": "Pro League 2026",
-      "logoSlug": "xse",
-      "date": "2026-07-01",
-      "endDate": "2026-07-12",
-      "eventTier": "Big",
-      "stages": [
-        "Group",
-        "Playoff"
-      ],
-      "winnerOrganization": null,
-      "winnerLogoSlug": null
     }
   ]
 }

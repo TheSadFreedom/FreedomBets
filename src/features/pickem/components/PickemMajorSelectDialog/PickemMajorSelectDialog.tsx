@@ -6,8 +6,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { Bet } from "@/entities/bet";
@@ -25,7 +23,7 @@ import {
   FooterButton,
   dialogBackdropSx,
 } from "@/features/matches/components/MatchFormDialog/MatchFormDialog.styled";
-import { resolveDialogPaperSx } from "@/shared/styles/dialogSx";
+import { dialogPaperSx } from "@/shared/styles/dialogSx";
 
 interface PickemMajorSelectDialogProps {
   open: boolean;
@@ -44,8 +42,6 @@ const PickemMajorSelectDialog = ({
   onClose,
   onSubmit,
 }: PickemMajorSelectDialogProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const options = useMemo(
     () => getMajorEventOptions(bets, pickems, events),
     [bets, pickems, events]
@@ -76,11 +72,10 @@ const PickemMajorSelectDialog = ({
       open={open}
       onClose={onClose}
       fullWidth
-      fullScreen={isMobile}
       maxWidth="sm"
       slotProps={{
         backdrop: { sx: dialogBackdropSx },
-        paper: { sx: resolveDialogPaperSx(isMobile) },
+        paper: { sx: dialogPaperSx },
       }}
     >
       <DialogShell>

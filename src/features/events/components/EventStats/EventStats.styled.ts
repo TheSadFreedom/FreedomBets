@@ -2,7 +2,6 @@ import { Accordion } from "@mui/material";
 import styled, { css } from "styled-components";
 import type { EventTier } from "@/entities/event";
 import { eventTierStyles } from "@/features/events/lib/eventTier";
-import { media } from "@/shared/styles/breakpoints";
 import { mobileCardSurface, mobileEmptyState } from "@/shared/styles/mobileTokens";
 
 export const EventStatsRoot = styled.section`
@@ -11,9 +10,6 @@ export const EventStatsRoot = styled.section`
   gap: 10px;
   min-width: 0;
 
-  ${media.down("md")} {
-    gap: 14px;
-  }
 `;
 
 export const EventStatsCard = styled.div`
@@ -21,13 +17,6 @@ export const EventStatsCard = styled.div`
   border-radius: 14px;
   overflow: hidden;
 
-  ${media.down("md")} {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    overflow: visible;
-  }
 `;
 
 export const FiltersPanel = styled.div`
@@ -35,19 +24,6 @@ export const FiltersPanel = styled.div`
   background: rgba(0, 0, 0, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
-  ${media.down("md")} {
-    position: sticky;
-    top: 0;
-    z-index: 8;
-    padding: 12px;
-    margin-bottom: 4px;
-    border-radius: 14px;
-    ${mobileCardSurface};
-    border-bottom: none;
-    backdrop-filter: blur(10px);
-    background:
-      linear-gradient(145deg, rgba(36, 36, 36, 0.98) 0%, rgba(22, 22, 22, 0.99) 100%);
-  }
 `;
 
 export const FiltersHeader = styled.div`
@@ -71,10 +47,6 @@ export const FiltersWrapper = styled.div`
   grid-template-columns: 1fr;
   gap: 8px;
 
-  ${media.up("md")} {
-    display: flex;
-    flex-wrap: wrap;
-  }
 `;
 
 export const FiltersActions = styled.div`
@@ -85,9 +57,9 @@ export const FiltersActions = styled.div`
 `;
 
 export const filterControlSx = {
-  width: { xs: "100%", sm: "auto" },
-  minWidth: { xs: 0, sm: 148 },
-  flex: { xs: "1 1 100%", sm: "1 1 148px" },
+  width: "auto",
+  minWidth: 148,
+  flex: "1 1 148px",
   "& .MuiOutlinedInput-root": {
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderRadius: "10px",
@@ -115,9 +87,6 @@ export const EventScrollArea = styled.div`
   min-width: 0;
   padding: 6px 8px 8px;
 
-  ${media.down("md")} {
-    padding: 0 0 10px;
-  }
 `;
 
 export const EventGrid = styled.div`
@@ -126,17 +95,11 @@ export const EventGrid = styled.div`
   gap: 6px;
   min-width: 0;
 
-  ${media.down("md")} {
-    gap: 10px;
-  }
 `;
 
 export const EmptySearch = styled.p`
   ${mobileEmptyState};
 
-  ${media.down("md")} {
-    margin: 0;
-  }
 `;
 
 export const EventAccordion = styled(Accordion)`
@@ -174,11 +137,8 @@ export const EventAccordion = styled(Accordion)`
   .MuiAccordionSummary-root {
     align-items: center;
     min-height: 0 !important;
-    padding: 8px 10px 8px 12px;
+    padding: 6px 10px 6px 12px;
 
-    ${media.down("md")} {
-      padding: 10px 10px 10px 12px;
-    }
   }
 
   .MuiAccordionSummary-content {
@@ -188,9 +148,6 @@ export const EventAccordion = styled(Accordion)`
   .MuiAccordionDetails-root {
     padding: 0 10px 10px;
 
-    ${media.down("md")} {
-      padding: 0 10px 12px;
-    }
   }
 `;
 
@@ -199,36 +156,21 @@ export const EventSummaryContent = styled.div`
   min-width: 0;
 `;
 
+const eventMetricsTileGap = 8;
+
 export const EventCardLayout = styled.div`
   display: grid;
   width: 100%;
   min-width: 0;
-  gap: 8px 14px;
+  gap: 6px 14px;
   align-items: center;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
     "head stats"
     "tags stats";
 
-  ${media.down("md")} {
-    gap: 8px;
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "head"
-      "tags"
-      "stats";
-  }
 
-  ${media.up("md")} {
-    ${media.down("lg")} {
-      gap: 8px;
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "head"
-        "tags"
-        "stats";
-    }
-  }
+
 `;
 
 export const EventCardHead = styled.div`
@@ -266,9 +208,6 @@ export const EventCardName = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${media.down("md")} {
-    font-size: 15px;
-  }
 `;
 
 export const EventCardTags = styled.div`
@@ -279,18 +218,6 @@ export const EventCardTags = styled.div`
   gap: 6px;
   min-width: 0;
 
-  ${media.down("md")} {
-    flex-wrap: nowrap;
-    gap: 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 1px;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 `;
 
 export const EventWinnerChip = styled.span`
@@ -337,38 +264,25 @@ export const EventDateChip = styled.span`
     flex-shrink: 0;
   }
 
-  ${media.up("md")} {
-    min-height: 20px;
-    padding: 0 7px;
-    font-size: 10px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.48);
-    background: transparent;
-    border: none;
-    padding: 0;
-
-    svg {
-      font-size: 12px;
-    }
-  }
 `;
 
-export const EventCardStats = styled.div`
+export const EventCardStats = styled.div<{ $withWinner?: boolean }>`
   grid-area: stats;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: ${eventMetricsTileGap}px;
   min-width: 0;
 
-  ${media.down("md")} {
-    justify-content: stretch;
-    width: 100%;
-  }
+
 `;
 
 export const EventCardActions = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  align-self: stretch;
   gap: 4px;
   flex-shrink: 0;
 `;
@@ -395,9 +309,6 @@ export const EventEditButton = styled.button<{ $danger?: boolean }>`
     opacity: 1;
   }
 
-  ${media.down("md")} {
-    opacity: 1;
-  }
 
   @media (hover: none) {
     opacity: 1;
@@ -415,13 +326,9 @@ export const EventLogoWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
 
-  ${media.down("md")} {
-    width: 36px;
-    height: 36px;
-  }
 
   .MuiAvatar-root {
     border-radius: 0;
@@ -445,26 +352,17 @@ export const EventTierBadge = styled.span<{ $tier: EventTier }>`
   background: ${({ $tier }) => eventTierStyles[$tier].bg};
   border: 1px solid ${({ $tier }) => eventTierStyles[$tier].border};
 
-  ${media.up("md")} {
-    min-height: 20px;
-    padding: 2px 6px;
-  }
 `;
 
 export const EventMetricsGrid = styled.div`
   display: flex;
   flex-wrap: nowrap;
-  align-items: stretch;
+  align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 8px;
   width: auto;
 
-  ${media.down("md")} {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
-    width: 100%;
-  }
+
 `;
 
 const metricHighlight = css`
@@ -472,22 +370,30 @@ const metricHighlight = css`
   border-color: rgba(76, 175, 80, 0.2);
 `;
 
+const metricTileWidths = {
+  winner: "120px",
+  winRate: "96px",
+  record: "112px",
+  profit: "148px",
+} as const;
+
 export const MetricTile = styled.div<{
   $accent?: string;
   $highlight?: boolean;
+  $variant?: keyof typeof metricTileWidths;
 }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  min-height: 34px;
-  padding: 4px 7px;
-  border-radius: 8px;
-  min-width: 0;
+  min-height: 50px;
+  padding: 7px 10px;
+  border-radius: 9px;
   flex: 0 0 auto;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
   transition: background 0.15s ease;
+  box-sizing: border-box;
 
   ${({ $highlight }) => $highlight && metricHighlight}
 
@@ -499,75 +405,95 @@ export const MetricTile = styled.div<{
       background: ${$accent}0f;
     `}
 
-  ${media.down("md")} {
-    align-items: center;
-    text-align: center;
-    min-height: 52px;
-    padding: 8px 6px;
-    border-radius: 10px;
-  }
+  ${({ $variant }) =>
+    $variant &&
+    css`
+    `}
+
 `;
 
 export const MetricTileLabel = styled.div`
-  font-size: 8px;
-  font-weight: 500;
+  font-size: 9px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  opacity: 0.5;
-  margin-bottom: 2px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 4px;
   line-height: 1;
 
-  ${media.down("md")} {
-    font-size: 9px;
-    margin-bottom: 4px;
-  }
 `;
 
-export const MetricTileValue = styled.div<{ $color?: string }>`
+export const MetricTileWinner = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  color: #ffe082;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+
+  span {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+`;
+
+export const MetricTileValue = styled.div<{ $color?: string; $compact?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  min-height: 14px;
-  font-size: 11px;
-  font-weight: 700;
+  width: 100%;
+  min-height: 18px;
+  font-size: ${({ $compact }) => ($compact ? "15px" : "17px")};
+  font-weight: 800;
   line-height: 1.1;
   color: ${({ $color }) => $color ?? "#fff"};
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-  ${media.down("md")} {
-    justify-content: center;
-    font-size: 13px;
-    min-height: 16px;
-  }
+
 `;
 
 export const WldBadges = styled.div`
   display: inline-flex;
   flex-wrap: nowrap;
-  gap: 3px;
+  gap: 4px;
   align-items: center;
   justify-content: flex-start;
-  min-height: 14px;
+  width: 100%;
+  min-height: 20px;
 
-  ${media.down("md")} {
-    justify-content: center;
-  }
+
 `;
 
 export const WldBadge = styled.span<{
   $variant: "win" | "loss" | "pending";
 }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-width: 20px;
+  height: 20px;
   padding: 0 4px;
   border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 
   ${({ $variant }) => {
     switch ($variant) {
@@ -603,9 +529,4 @@ export const EventDetailsPanel = styled.div`
   flex-direction: column;
   gap: 8px;
 
-  ${media.down("md")} {
-    padding: 10px;
-    border-radius: 12px;
-    gap: 10px;
-  }
 `;

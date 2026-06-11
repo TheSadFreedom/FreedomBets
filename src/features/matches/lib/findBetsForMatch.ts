@@ -18,19 +18,27 @@ function teamsMatch(bet: Bet, match: Match): boolean {
   return (a1 === b1 && a2 === b2) || (a1 === b2 && a2 === b1);
 }
 
-function eventTeamsFormatMatch(bet: Bet, match: Match): boolean {
+function eventTeamsFormatMatch(
+  bet: Bet,
+  match: Match,
+  options?: { ignoreStage?: boolean }
+): boolean {
   return (
     bet.format === match.format &&
     norm(bet.eventOrganization) === norm(match.eventOrganization) &&
     norm(bet.eventName) === norm(match.eventName) &&
-    stagesEqual(bet.majorStage, match.majorStage) &&
+    (options?.ignoreStage || stagesEqual(bet.majorStage, match.majorStage)) &&
     teamsMatch(bet, match)
   );
 }
 
 /** Сопоставление старых ставок без matchId по турниру, командам, формату и дате/времени. */
-export function legacyBetMatchesMatch(bet: Bet, match: Match): boolean {
-  if (!eventTeamsFormatMatch(bet, match)) {
+export function legacyBetMatchesMatch(
+  bet: Bet,
+  match: Match,
+  options?: { ignoreStage?: boolean }
+): boolean {
+  if (!eventTeamsFormatMatch(bet, match, options)) {
     return false;
   }
   if (bet.date === match.date) {
@@ -70,6 +78,19 @@ export function isBetForMatch(bet: Bet, match: Match): boolean {
     return linkedMatchId === match.id;
   }
   return legacyBetMatchesMatch(bet, match);
+}
+
+/** Как isBetForMatch, но для старых ставок стадия не учитывается. */
+export function isBetLinkedToMatch(bet: Bet, match: Match): boolean {
+  const linkedMatchId = bet.matchId?.trim();
+  if (linkedMatchId) {
+    return linkedMatchId === match.id;
+  }
+  return legacyBetMatchesMatch(bet, match, { ignoreStage: true });
+}
+
+export function findLinkedBetsForMatch(match: Match, bets: Bet[]): Bet[] {
+  return bets.filter((bet) => isBetLinkedToMatch(bet, match));
 }
 
 export function findBetsForMatch(match: Match, bets: Bet[]): Bet[] {

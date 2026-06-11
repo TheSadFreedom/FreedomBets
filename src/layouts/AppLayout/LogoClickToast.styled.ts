@@ -1,6 +1,4 @@
 import styled, { keyframes } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 const toastIn = keyframes`
   from {
     opacity: 0;
@@ -56,14 +54,7 @@ export const LogoToastLayer = styled.div`
   z-index: 1400;
   pointer-events: none;
 
-  ${media.down("sm")} {
-    top: calc(64px + env(safe-area-inset-top, 0px));
-    width: min(92vw, 360px);
-  }
 
-  ${media.down("md")} {
-    top: calc(118px + env(safe-area-inset-top, 0px));
-  }
 `;
 
 export const LogoToastCard = styled.div<{ $closing?: boolean }>`
@@ -84,11 +75,6 @@ export const LogoToastCard = styled.div<{ $closing?: boolean }>`
     ${pulseGlow} 2.4s ease-in-out infinite;
   backdrop-filter: blur(10px);
 
-  ${media.down("xs")} {
-    gap: 10px;
-    padding: 12px 12px 14px;
-    border-radius: 14px;
-  }
 `;
 
 export const LogoToastIconWrap = styled.div`

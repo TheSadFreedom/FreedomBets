@@ -10,18 +10,7 @@ export const dialogPaperSx = {
   maxHeight: "92dvh",
 } as const;
 
-export const dialogPaperMobileSx = {
-  m: 0,
-  borderRadius: 0,
-  maxHeight: "100dvh",
-  height: "100dvh",
-} as const;
-
 export const dialogBackdropSx = {
   backdropFilter: "blur(6px)",
   backgroundColor: "rgba(0, 0, 0, 0.65)",
 } as const;
-
-export function resolveDialogPaperSx(isMobile: boolean) {
-  return isMobile ? { ...dialogPaperSx, ...dialogPaperMobileSx } : dialogPaperSx;
-}

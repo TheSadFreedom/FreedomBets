@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const TabRoot = styled.section`
   display: flex;
   flex-direction: column;
@@ -63,7 +61,7 @@ export const MatchSectionTitle = styled.h3`
 export const MatchList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 15px;
 `;
 
 export const EmptyState = styled.p`
@@ -77,7 +75,4 @@ export const EmptyState = styled.p`
   background: rgba(0, 0, 0, 0.2);
   border: 1px dashed rgba(255, 255, 255, 0.1);
 
-  ${media.down("md")} {
-    padding: 24px 16px;
-  }
 `;

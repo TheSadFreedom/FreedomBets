@@ -8,9 +8,8 @@ import {
   StatsMetricSub,
   StatsMetricTile,
   StatsMetricValue,
-  StatsWldBadge,
-  StatsWldRow,
 } from "./StatsSummary.styled";
+import WinRateMetricTile from "./WinRateMetricTile";
 
 interface SummaryGeneralSectionProps {
   bets: Bet[];
@@ -20,12 +19,6 @@ const SummaryGeneralSection = ({ bets }: SummaryGeneralSectionProps) => {
   const stats = useMemo(() => calcSummaryStats(bets), [bets]);
   const hasSettled = stats.settledCount > 0;
   const profitPositive = stats.profit >= 0;
-  const winRateColor = !hasSettled
-    ? undefined
-    : stats.winRate >= 50
-      ? "#81c784"
-      : "#ef5350";
-
   return (
     <StatsMetricsGrid>
       <StatsMetricTile>
@@ -53,17 +46,13 @@ const SummaryGeneralSection = ({ bets }: SummaryGeneralSectionProps) => {
         <StatsMetricSub>только закрытые</StatsMetricSub>
       </StatsMetricTile>
 
-      <StatsMetricTile $accent={winRateColor}>
-        <StatsMetricLabel>Винрейт</StatsMetricLabel>
-        <StatsMetricValue $color={winRateColor}>
-          {hasSettled ? `${stats.winRate}%` : "—"}
-        </StatsMetricValue>
-        <StatsWldRow>
-          <StatsWldBadge $variant="win">{stats.wins}</StatsWldBadge>
-          <StatsWldBadge $variant="loss">{stats.losses}</StatsWldBadge>
-          <StatsWldBadge $variant="pending">{stats.pendingCount}</StatsWldBadge>
-        </StatsWldRow>
-      </StatsMetricTile>
+      <WinRateMetricTile
+        label="Винрейт"
+        winRate={hasSettled ? stats.winRate : null}
+        wins={stats.wins}
+        losses={stats.losses}
+        pending={stats.pendingCount}
+      />
     </StatsMetricsGrid>
   );
 };

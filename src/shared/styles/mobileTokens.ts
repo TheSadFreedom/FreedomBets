@@ -1,5 +1,4 @@
 import { css } from "styled-components";
-import { media } from "./breakpoints";
 
 export const mobileCardSurface = css`
   background: linear-gradient(
@@ -16,14 +15,6 @@ export const mobileCardSurfaceRaised = css`
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
-`;
-
-export const mobilePageBackdrop = css`
-  ${media.down("md")} {
-    background:
-      radial-gradient(circle at 100% 0%, rgba(76, 175, 80, 0.07) 0%, transparent 44%),
-      radial-gradient(circle at 0% 100%, rgba(76, 175, 80, 0.05) 0%, transparent 40%);
-  }
 `;
 
 export const mobileEmptyState = css`

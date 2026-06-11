@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const MedalsBlock = styled.section`
   display: flex;
   flex-direction: column;
@@ -13,10 +11,6 @@ export const MedalsBlock = styled.section`
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
 
-  ${media.down("sm")} {
-    padding: 12px;
-    gap: 10px;
-  }
 `;
 
 export const MedalsHeader = styled.div`
@@ -26,11 +20,6 @@ export const MedalsHeader = styled.div`
   gap: 12px;
   flex-wrap: wrap;
 
-  ${media.down("sm")} {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
 `;
 
 export const MedalsTitleRow = styled.div`
@@ -91,11 +80,6 @@ export const UploadMedalButton = styled.button`
     cursor: wait;
   }
 
-  ${media.down("sm")} {
-    width: 100%;
-    justify-content: center;
-    padding: 9px 12px;
-  }
 `;
 
 const SLOT_SIZE = 84;
@@ -105,9 +89,6 @@ export const MedalsGrid = styled.div`
   flex-wrap: wrap;
   gap: 10px;
 
-  ${media.down("sm")} {
-    gap: 8px;
-  }
 `;
 
 export const MedalTile = styled.div`
@@ -206,9 +187,6 @@ export const DeleteMedalButton = styled.button`
     opacity: 1;
   }
 
-  ${media.down("md")} {
-    opacity: 1;
-  }
 `;
 
 export const MedalsHint = styled.p`

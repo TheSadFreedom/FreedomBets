@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { Avatar, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { buildTeamLogoCandidates, teamLogoSrc } from "@/shared/lib/logos/teamLogo";
 import { useLogoWithFallback } from "@/shared/ui/logo/useLogoWithFallback";
 import { useMultiSrcLogo } from "@/shared/ui/logo/useMultiSrcLogo";
-import { logoAvatarSx } from "./TeamLogo.styled";
+import LogoAvatar from "@/shared/ui/logo/LogoAvatar";
 
 interface TeamLogoProps {
   name: string;
@@ -46,14 +46,15 @@ const TeamLogo = ({
       minWidth={0}
       sx={showName ? { width: "100%", maxWidth: "100%" } : undefined}
     >
-      <Avatar
+      <LogoAvatar
+        size={size}
         src={src}
         alt={name}
+        failed={failed}
         onError={handleError}
-        sx={logoAvatarSx(size, failed)}
       >
         {failed ? initials : null}
-      </Avatar>
+      </LogoAvatar>
       {showName && (
         <Typography
           variant={nameWrap ? "body1" : "body2"}

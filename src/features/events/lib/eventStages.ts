@@ -171,10 +171,10 @@ export function pickEventStage(
   storedEvents: EventRecord[] = [],
   current?: string | null
 ): string | null {
-  const stages = findEventStages(eventOrganization, eventName, storedEvents);
-  if (stages.length === 0) return null;
   const trimmed = current?.trim();
-  if (trimmed && stages.includes(trimmed)) return trimmed;
+  if (trimmed) return trimmed;
+
+  const stages = findEventStages(eventOrganization, eventName, storedEvents);
   return stages[0] ?? null;
 }
 
@@ -183,8 +183,8 @@ export function stageStyleFor(stage: string): { color: string; bg: string; borde
     return majorStageStyles[stage];
   }
   return {
-    color: "rgba(255, 255, 255, 0.82)",
-    bg: "rgba(255, 255, 255, 0.08)",
-    border: "rgba(255, 255, 255, 0.18)",
+    color: "#d8d8d8",
+    bg: "#363636",
+    border: "#4c4c4c",
   };
 }

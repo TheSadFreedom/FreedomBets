@@ -6,11 +6,17 @@ interface EventTierSelectProps {
   value: EventTier;
   onChange: (tier: EventTier) => void;
   label?: string;
+  hideLabel?: boolean;
 }
 
-const EventTierSelect = ({ value, onChange, label = "Статус турнира" }: EventTierSelectProps) => (
+const EventTierSelect = ({
+  value,
+  onChange,
+  label = "Статус турнира",
+  hideLabel = false,
+}: EventTierSelectProps) => (
   <div>
-    <TierLabel>{label}</TierLabel>
+    {!hideLabel ? <TierLabel>{label}</TierLabel> : null}
     <TierChipRow>
       {EVENT_TIERS.map((tier) => (
         <TierChip

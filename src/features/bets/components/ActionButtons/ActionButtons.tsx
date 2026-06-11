@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconButton, Stack, Tooltip, useMediaQuery, useTheme } from "@mui/material";
+import { IconButton, Stack, Tooltip } from "@mui/material";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -17,16 +17,11 @@ interface ActionButtonsProps {
   onRevert: (id: string) => void;
 }
 
+const iconSx = { p: 0.5 } as const;
+
 const ActionButtons = ({ bet, onEdit, onDelete, onWin, onLose, onRevert }: ActionButtonsProps) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const iconSx = {
-    p: isMobile ? 0.75 : 0.5,
-    minWidth: isMobile ? 40 : undefined,
-    minHeight: isMobile ? 40 : undefined,
-  };
 
   const handleDeleteConfirm = async () => {
     setDeleting(true);
@@ -39,86 +34,86 @@ const ActionButtons = ({ bet, onEdit, onDelete, onWin, onLose, onRevert }: Actio
   };
 
   return (
-  <>
-  <Stack
-    direction="row"
-    alignItems="center"
-    flexWrap="wrap"
-    justifyContent={isMobile ? "flex-end" : "flex-start"}
-    sx={{ ml: isMobile ? 0 : -0.5, gap: isMobile ? 0.25 : 0 }}
-  >
-    {bet.status === "WAIT" && (
-      <>
-        <Tooltip title="WIN" arrow>
-          <IconButton
-            size="small"
-            color="success"
-            sx={iconSx}
-            onClick={() => onWin(bet.id)}
-            aria-label="WIN"
-          >
-            <CheckCircleOutlineIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="LOSE" arrow>
-          <IconButton
-            size="small"
-            color="error"
-            sx={iconSx}
-            onClick={() => onLose(bet.id)}
-            aria-label="LOSE"
-          >
-            <HighlightOffIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Редактировать" arrow>
-          <IconButton
-            size="small"
-            color="primary"
-            sx={iconSx}
-            onClick={() => onEdit(bet)}
-            aria-label="Редактировать"
-          >
-            <EditOutlinedIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </>
-    )}
-    {(bet.status === "WIN" || bet.status === "LOSE") && (
-      <Tooltip title="Вернуть в WAIT" arrow>
-        <IconButton
-          size="small"
-          color="warning"
-          sx={iconSx}
-          onClick={() => onRevert(bet.id)}
-          aria-label="Вернуть в WAIT"
-        >
-          <UndoIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    )}
-    <Tooltip title="Удалить" arrow>
-      <IconButton
-        size="small"
-        color="inherit"
-        sx={iconSx}
-        onClick={() => setDeleteOpen(true)}
-        aria-label="Удалить"
+    <>
+      <Stack
+        direction="row"
+        alignItems="center"
+        flexWrap="wrap"
+        justifyContent="flex-start"
+        sx={{ ml: -0.5, gap: 0 }}
       >
-        <DeleteOutlineIcon fontSize="small" />
-      </IconButton>
-    </Tooltip>
-  </Stack>
+        {bet.status === "WAIT" && (
+          <>
+            <Tooltip title="WIN" arrow>
+              <IconButton
+                size="small"
+                color="success"
+                sx={iconSx}
+                onClick={() => onWin(bet.id)}
+                aria-label="WIN"
+              >
+                <CheckCircleOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="LOSE" arrow>
+              <IconButton
+                size="small"
+                color="error"
+                sx={iconSx}
+                onClick={() => onLose(bet.id)}
+                aria-label="LOSE"
+              >
+                <HighlightOffIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Редактировать" arrow>
+              <IconButton
+                size="small"
+                color="primary"
+                sx={iconSx}
+                onClick={() => onEdit(bet)}
+                aria-label="Редактировать"
+              >
+                <EditOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </>
+        )}
+        {(bet.status === "WIN" || bet.status === "LOSE") && (
+          <Tooltip title="Вернуть в WAIT" arrow>
+            <IconButton
+              size="small"
+              color="warning"
+              sx={iconSx}
+              onClick={() => onRevert(bet.id)}
+              aria-label="Вернуть в WAIT"
+            >
+              <UndoIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip title="Удалить" arrow>
+          <IconButton
+            size="small"
+            color="inherit"
+            sx={iconSx}
+            onClick={() => setDeleteOpen(true)}
+            aria-label="Удалить"
+          >
+            <DeleteOutlineIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Stack>
 
-  <ConfirmDialog
-    open={deleteOpen}
-    title="Удалить ставку?"
-    message="Ставка будет удалена без возможности восстановления."
-    confirming={deleting}
-    onClose={() => setDeleteOpen(false)}
-    onConfirm={handleDeleteConfirm}
-  />
-  </>
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Удалить ставку?"
+        message="Ставка будет удалена без возможности восстановления."
+        confirming={deleting}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+      />
+    </>
   );
 };
 

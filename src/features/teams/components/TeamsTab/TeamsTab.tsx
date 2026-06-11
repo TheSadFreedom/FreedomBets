@@ -119,7 +119,7 @@ const TeamsTab = ({ allBets }: TeamsTabProps) => {
               }}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                  backgroundColor: "#2e2e2e",
                   borderRadius: "10px",
                 },
               }}

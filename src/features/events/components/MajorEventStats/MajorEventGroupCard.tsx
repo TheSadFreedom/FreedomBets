@@ -1,8 +1,5 @@
 import { AccordionDetails, AccordionSummary } from "@mui/material";
 
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-
-
 import type { EventStats } from "@/entities/event";
 
 import EventBetsTable from "@/features/bets/components/EventBetsTable/EventBetsTable";
@@ -20,8 +17,6 @@ import {
   EventAccordion,
 
   EventDetailsPanel,
-
-  EventEditButton,
 
   EventSummaryContent,
 
@@ -42,8 +37,6 @@ import {
   StageBetsWrap,
 
   StageEmptyNote,
-
-  MajorStageEdit,
 
   StageMeta,
 
@@ -66,8 +59,6 @@ interface MajorEventGroupCardProps {
   onEditGroup: () => void;
 
   onDeleteGroup: () => void;
-
-  onEditStage: (stage: EventStats) => void;
 
 }
 
@@ -116,8 +107,6 @@ const MajorEventGroupCard = ({
   onEditGroup,
 
   onDeleteGroup,
-
-  onEditStage,
 
 }: MajorEventGroupCardProps) => (
 
@@ -172,17 +161,6 @@ const MajorEventGroupCard = ({
               </MajorStageLabel>
 
               <StageSummary stage={stage} />
-
-              <MajorStageEdit>
-                <EventEditButton
-                  type="button"
-                  aria-label="Редактировать стадию"
-                  onClick={() => onEditStage(stage)}
-                  style={{ opacity: 1, flexShrink: 0 }}
-                >
-                  <EditOutlinedIcon sx={{ fontSize: 15 }} />
-                </EventEditButton>
-              </MajorStageEdit>
 
             </MajorStageHeader>
 

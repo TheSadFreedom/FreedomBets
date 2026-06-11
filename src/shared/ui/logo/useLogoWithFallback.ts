@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SITE_LOGO_SRC, nextLogoExtensionIndex } from "@/shared/lib/logos/assetLogo";
+import { nextLogoExtensionIndex, SITE_LOGO_SRC } from "@/shared/lib/logos/assetLogo";
 
 export function useLogoWithFallback(
   name: string,
@@ -20,6 +20,7 @@ export function useLogoWithFallback(
   const src = failed ? undefined : useSiteLogo ? SITE_LOGO_SRC : getSrc(extIndex);
 
   const handleError = () => {
+    if (failed) return;
     if (!useSiteLogo) {
       const next = nextLogoExtensionIndex(extIndex);
       if (next !== null) {

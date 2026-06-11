@@ -1,7 +1,6 @@
 import styled, { css } from "styled-components";
 import type { EventTier } from "@/entities/event";
 import { eventTierStyles } from "@/features/events/lib/eventTier";
-import { media } from "@/shared/styles/breakpoints";
 import { mobileCardSurface } from "@/shared/styles/mobileTokens";
 
 export const EventStatsSummaryCard = styled.div`
@@ -10,12 +9,6 @@ export const EventStatsSummaryCard = styled.div`
   gap: 8px;
   min-width: 0;
 
-  ${media.up("lg")} {
-    gap: 0;
-    border-radius: 12px;
-    ${mobileCardSurface};
-    overflow: hidden;
-  }
 `;
 
 export const EventStatsSummaryRow = styled.div<{ $tier: EventTier }>`
@@ -39,25 +32,6 @@ export const EventStatsSummaryRow = styled.div<{ $tier: EventTier }>`
     `;
   }}
 
-  ${media.up("lg")} {
-    grid-template-columns: 68px minmax(120px, 1.4fr) 1fr;
-    grid-template-areas: "tier profit metrics";
-    align-items: center;
-    column-gap: 16px;
-    row-gap: 0;
-    padding: 14px 16px;
-    border-radius: 0;
-    background: ${({ $tier }) => {
-      const { color } = eventTierStyles[$tier];
-      return `linear-gradient(90deg, ${color}10 0%, transparent 32%)`;
-    }};
-    box-shadow: none;
-    border: none;
-
-    &:not(:last-child) {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-  }
 `;
 
 export const EventStatsSummaryTop = styled.div`
@@ -68,17 +42,11 @@ export const EventStatsSummaryTop = styled.div`
   gap: 12px;
   min-width: 0;
 
-  ${media.up("lg")} {
-    display: contents;
-  }
 `;
 
 export const EventStatsSummaryTierCell = styled.div`
   min-width: 0;
 
-  ${media.up("lg")} {
-    grid-area: tier;
-  }
 `;
 
 export const EventStatsSummaryProfitBlock = styled.div`
@@ -88,11 +56,6 @@ export const EventStatsSummaryProfitBlock = styled.div`
   min-width: 0;
   text-align: right;
 
-  ${media.up("lg")} {
-    grid-area: profit;
-    align-items: flex-start;
-    text-align: left;
-  }
 `;
 
 export const EventStatsSummaryProfitValue = styled.div<{ $positive?: boolean; $muted?: boolean }>`
@@ -106,9 +69,6 @@ export const EventStatsSummaryProfitValue = styled.div<{ $positive?: boolean; $m
   color: ${({ $muted, $positive }) =>
     $muted ? "rgba(255, 255, 255, 0.35)" : $positive ? "#81c784" : "#e57373"};
 
-  ${media.up("lg")} {
-    font-size: 20px;
-  }
 `;
 
 export const EventStatsSummaryProfitHint = styled.div`
@@ -127,12 +87,6 @@ export const EventStatsSummaryMetrics = styled.div`
   gap: 6px;
   min-width: 0;
 
-  ${media.up("lg")} {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 20px;
-  }
 `;
 
 export const EventStatsSummaryMetricCell = styled.div`
@@ -147,14 +101,6 @@ export const EventStatsSummaryMetricCell = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.06);
   text-align: center;
 
-  ${media.up("lg")} {
-    min-height: 0;
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    border: none;
-    min-width: 72px;
-  }
 `;
 
 export const EventStatsSummaryMetricValue = styled.div<{ $color?: string }>`
@@ -164,9 +110,6 @@ export const EventStatsSummaryMetricValue = styled.div<{ $color?: string }>`
   color: ${({ $color }) => $color ?? "rgba(255, 255, 255, 0.88)"};
   font-variant-numeric: tabular-nums;
 
-  ${media.up("lg")} {
-    font-size: 16px;
-  }
 `;
 
 export const EventStatsSummaryMetricLabel = styled.div`
@@ -178,9 +121,6 @@ export const EventStatsSummaryMetricLabel = styled.div`
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.32);
 
-  ${media.up("lg")} {
-    margin-top: 3px;
-  }
 `;
 
 export const EventStatsSummaryWld = styled.div`
@@ -194,9 +134,9 @@ export const EventStatsSummaryWld = styled.div`
 export const EventStatsSummaryWldBadge = styled.span<{
   $variant: "win" | "loss" | "pending";
 }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
   min-width: 22px;
   height: 22px;
   padding: 0 5px;
@@ -204,6 +144,7 @@ export const EventStatsSummaryWldBadge = styled.span<{
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 
   ${({ $variant }) => {

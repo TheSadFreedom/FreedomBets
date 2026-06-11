@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Bet, BetTeamSide } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match, MatchCreateInput } from "@/entities/match";
@@ -44,9 +44,8 @@ const MatchesTab = ({
   onEditBet,
 }: MatchesTabProps) => {
   const [editingMatch, setEditingMatch] = useState<Match | null>(null);
-  const [statusClock, setStatusClock] = useState(0);
   const { live: liveMatches, scheduled: scheduledMatches, finished: finishedMatches } =
-    useMemo(() => splitMatchesByEffectiveStatus(matches), [matches, statusClock]);
+    useMemo(() => splitMatchesByEffectiveStatus(matches), [matches]);
   const profileNameById = useMemo(() => {
     const map = new Map<number, string>();
     for (const item of profiles) {
@@ -71,11 +70,6 @@ const MatchesTab = ({
     return map;
   }, [matches, allBets]);
 
-  useEffect(() => {
-    const id = window.setInterval(() => setStatusClock((t) => t + 1), 60_000);
-    return () => window.clearInterval(id);
-  }, []);
-
   const closeDialog = () => {
     setEditingMatch(null);
   };
@@ -84,10 +78,10 @@ const MatchesTab = ({
     <MatchCard
       key={match.id}
       match={match}
+      allMatches={matches}
       relatedBets={relatedBetsByMatchId.get(match.id) ?? []}
       profileNameById={profileNameById}
       activeProfileId={activeProfileId}
-      statusClock={statusClock}
       pendingSettlements={pendingSettlementsByMatchId.get(match.id) ?? 0}
       onBet={(team) => onBetMatch(match, team)}
       onEdit={() => setEditingMatch(match)}
@@ -95,6 +89,7 @@ const MatchesTab = ({
       onSettleBets={() => onSettleMatchBets(match)}
       onEditBet={onEditBet}
       events={events}
+      externalUrl={match.sportsRuUrl ?? undefined}
     />
   );
 
@@ -104,7 +99,7 @@ const MatchesTab = ({
   return (
     <TabRoot>
       {!hasMatches ? (
-        <EmptyState>Нет матчей. Добавьте первый матч вручную.</EmptyState>
+        <EmptyState>Нет матчей. Добавьте вручную или обновите с Sports.ru.</EmptyState>
       ) : (
         <>
           {liveMatches.length > 0 ? (

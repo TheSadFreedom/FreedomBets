@@ -1,40 +1,33 @@
-import styled, { css } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
+import styled from "styled-components";
+
+export const TabLoadingFallback = styled.div`
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  padding: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.42);
+`;
 
 export const TabsRoot = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-width: 0;
-
-  ${media.down("md")} {
-    gap: 12px;
-  }
 `;
 
-export const TabLabel = styled.span<{ $compact?: boolean }>`
+export const TabLabel = styled.span`
   display: inline-flex;
   align-items: center;
   line-height: 1;
   min-height: 18px;
-
-  ${({ $compact }) =>
-    $compact &&
-    css`
-      ${media.down("xs")} {
-        display: none;
-      }
-    `}
 `;
 
 export const TabsBar = styled.div`
   display: block;
   position: relative;
   padding: 6px;
-
-  ${media.down("md")} {
-    display: none;
-  }
   border-radius: 16px;
   background:
     radial-gradient(circle at 0% 0%, rgba(76, 175, 80, 0.1) 0%, transparent 42%),
@@ -64,14 +57,6 @@ export const TabsBar = styled.div`
     gap: 4px;
     grid-auto-rows: 40px;
     grid-template-columns: repeat(8, minmax(0, 1fr));
-
-    ${media.down("lg")} {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    ${media.down("xs")} {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   .MuiTabs-indicator {
@@ -168,50 +153,6 @@ export const TabsBar = styled.div`
       outline-offset: 2px;
     }
   }
-
-  ${media.down("md")} {
-    .MuiTab-root {
-      font-size: 12px;
-      gap: 5px;
-      padding: 0 6px;
-    }
-  }
-
-  ${media.down("xs")} {
-    padding: 5px;
-
-    .MuiTabs-flexContainer {
-      grid-auto-rows: 44px;
-      gap: 6px;
-    }
-
-    .MuiTab-root {
-      height: 44px !important;
-      min-height: 44px !important;
-      max-height: 44px !important;
-      font-size: 11px;
-      border-radius: 10px;
-      padding: 0 4px !important;
-      flex-direction: column !important;
-      gap: 3px;
-
-      &.MuiTab-labelIcon {
-        min-height: 44px !important;
-        flex-direction: column !important;
-      }
-
-      .MuiTab-iconWrapper {
-        width: 20px;
-        height: 20px;
-        margin-bottom: 0 !important;
-
-        svg {
-          width: 20px;
-          height: 20px;
-        }
-      }
-    }
-  }
 `;
 
 export const TabsPanel = styled.div`
@@ -220,37 +161,4 @@ export const TabsPanel = styled.div`
   &[hidden] {
     display: none;
   }
-`;
-
-export const MobileTabHeader = styled.div`
-  display: none;
-
-  ${media.down("md")} {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 2px 2px;
-  }
-`;
-
-export const MobileTabHeaderIcon = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  color: #a5d6a7;
-  background: rgba(76, 175, 80, 0.14);
-  border: 1px solid rgba(129, 199, 132, 0.24);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-`;
-
-export const MobileTabHeaderTitle = styled.h2`
-  margin: 0;
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.94);
 `;

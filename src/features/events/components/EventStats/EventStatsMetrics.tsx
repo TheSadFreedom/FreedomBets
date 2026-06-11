@@ -26,14 +26,14 @@ const EventStatsMetrics = ({ item }: EventStatsMetricsProps) => {
 
   return (
     <EventMetricsGrid>
-      <MetricTile $accent={winRateColor}>
+      <MetricTile $variant="winRate" $accent={winRateColor}>
         <MetricTileLabel>WR</MetricTileLabel>
         <MetricTileValue $color={winRateColor}>
           {hasSettled ? `${item.winRate}%` : "—"}
         </MetricTileValue>
       </MetricTile>
 
-      <MetricTile>
+      <MetricTile $variant="record">
         <MetricTileLabel>W·L·⏳</MetricTileLabel>
         <WldBadges>
           <WldBadge $variant="win">{item.wins}</WldBadge>
@@ -42,9 +42,16 @@ const EventStatsMetrics = ({ item }: EventStatsMetricsProps) => {
         </WldBadges>
       </MetricTile>
 
-      <MetricTile $accent={profitPositive ? "#66bb6a" : "#ef5350"} $highlight>
+      <MetricTile
+        $variant="profit"
+        $accent={profitPositive ? "#66bb6a" : "#ef5350"}
+        $highlight
+      >
         <MetricTileLabel>Профит</MetricTileLabel>
-        <MetricTileValue $color={profitPositive ? "#66bb6a" : "#ef5350"}>
+        <MetricTileValue
+          $compact
+          $color={profitPositive ? "#66bb6a" : "#ef5350"}
+        >
           {formatMoneySigned(item.profit)}
         </MetricTileValue>
       </MetricTile>

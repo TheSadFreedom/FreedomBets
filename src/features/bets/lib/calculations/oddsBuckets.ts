@@ -1,5 +1,5 @@
 import type { Bet } from "@/entities/bet";
-import { getSettledBets } from "./basic";
+import { calcWinRateBucket, type WinRateBucketResult } from "./basic";
 
 export const ODDS_WIN_RATE_BUCKETS = [
   { id: "1.00-1.25", label: "1.00 – 1.25", min: 1, max: 1.25 },
@@ -13,12 +13,6 @@ export function calcWinRateInOddsRange(
   bets: Bet[],
   min: number,
   max: number
-): { winRate: number; settled: number } | null {
-  const settled = getSettledBets(bets).filter((b) => b.odds >= min && b.odds <= max);
-  if (settled.length === 0) return null;
-  const wins = settled.filter((b) => b.status === "WIN").length;
-  return {
-    winRate: Math.round((wins / settled.length) * 100),
-    settled: settled.length,
-  };
+): WinRateBucketResult {
+  return calcWinRateBucket(bets.filter((b) => b.odds >= min && b.odds <= max));
 }

@@ -37,6 +37,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     revertToPending,
     addMatch,
     updateMatch,
+    syncSportsRuMatches,
     settleMatchBets,
     deleteMatch,
     addEvent,
@@ -80,6 +81,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     <Container>
       <HomeQuickActions
         onNewMatch={() => setCreateMatchOpen(true)}
+        onSyncSportsRu={syncSportsRuMatches}
         onNewEvent={() => setCreateEventOpen(true)}
       />
 
@@ -90,10 +92,6 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         activeProfileId={profile.id}
         bets={bets}
         balance={profile.balance}
-        onSetBalance={profileBets.setBalance}
-        onUpdateName={profileBets.updateProfileName}
-        onDeleteProfile={profileBets.deleteProfile}
-        onExitProfile={profileBets.exitProfile}
         matches={matches}
         onUpdateMatch={updateMatch}
         onSettleMatchBets={settleMatchBets}
@@ -170,7 +168,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         onClose={() => setEditingBet(null)}
         onSubmit={async (values) => {
           if (!editingBet) return;
-          await updateBet({ ...values, id: editingBet.id }, editingBet);
+          await updateBet({ ...values, id: editingBet.id });
           setEditingBet(null);
         }}
       />

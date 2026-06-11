@@ -1,6 +1,4 @@
 import styled, { css } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const dialogBackdropSx = {
   backdropFilter: "blur(8px)",
   backgroundColor: "rgba(0, 0, 0, 0.68)",
@@ -35,9 +33,6 @@ export const DialogHeader = styled.div`
     radial-gradient(circle at 100% 0%, rgba(129, 199, 132, 0.18) 0%, transparent 52%),
     linear-gradient(180deg, rgba(76, 175, 80, 0.12) 0%, rgba(0, 0, 0, 0.08) 100%);
 
-  ${media.down("sm")} {
-    padding: 16px 14px 14px;
-  }
 `;
 
 export const DialogHeaderRow = styled.div`
@@ -163,10 +158,6 @@ export const DialogBody = styled.div`
   padding: 14px 16px 18px;
   -webkit-overflow-scrolling: touch;
 
-  ${media.down("sm")} {
-    padding: 12px;
-    gap: 8px;
-  }
 `;
 
 export const SectionCard = styled.section<{ $tone?: "default" | "danger" }>`
@@ -251,15 +242,6 @@ export const NameRow = styled.div`
   flex-direction: column;
   gap: 10px;
 
-  ${media.up("sm")} {
-    flex-direction: row;
-    align-items: flex-start;
-
-    & > .MuiFormControl-root {
-      flex: 1;
-      min-width: 0;
-    }
-  }
 `;
 
 export const SaveNameButton = styled.button`
@@ -292,10 +274,6 @@ export const SaveNameButton = styled.button`
     transform: none;
   }
 
-  ${media.down("sm")} {
-    width: 100%;
-    min-height: 44px;
-  }
 `;
 
 export const ActionGrid = styled.div`
@@ -303,9 +281,6 @@ export const ActionGrid = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 
-  ${media.down("xs")} {
-    grid-template-columns: 1fr;
-  }
 `;
 
 export const ActionTile = styled.button<{ $tone?: "primary" | "default" | "danger" }>`

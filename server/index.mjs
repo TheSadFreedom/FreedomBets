@@ -12,6 +12,8 @@ import { cors } from "@tinyhttp/cors";
 import { createApp } from "json-server/lib/app.js";
 import { Observer } from "json-server/lib/observer.js";
 import { extensionFromMime, removePickemDirectory, savePickemImage } from "./pickemFiles.mjs";
+import { recalculateMatchBetsInDb } from "./bets/recalculateMatchBets.mjs";
+import { syncSportsRuMatchesToDb } from "./sportsru/syncMatches.mjs";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -141,6 +143,36 @@ app.post("/pickems/:id/stage-image", upload.single("file"), async (req, res) => 
   }
 });
 
+app.post("/bets/recalculate", async (_req, res) => {
+  try {
+    const payload = await recalculateMatchBetsInDb(db);
+    res.status(200).json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      updated: 0,
+      profilesSynced: 0,
+      error: error instanceof Error ? error.message : "Failed to recalculate bets",
+    });
+  }
+});
+
+app.post("/sportsru/sync", async (req, res) => {
+  try {
+    const force = req.query?.refresh === "1" || req.query?.force === "1";
+    const payload = await syncSportsRuMatchesToDb(db, { force });
+    res.status(200).json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      created: 0,
+      updated: 0,
+      total: 0,
+      error: error instanceof Error ? error.message : "Failed to sync Sports.ru matches",
+    });
+  }
+});
+
 app.delete("/uploads/pickems/:pickemId", async (req, res) => {
   try {
     await removePickemDirectory(req.params.pickemId ?? "");
@@ -162,6 +194,7 @@ function logRoutes(data) {
   );
   console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("pickems/:id/stage-image"));
   console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("uploads/pickems/:pickemId"));
+  console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("sportsru/sync"));
 }
 
 app.listen(port, () => {

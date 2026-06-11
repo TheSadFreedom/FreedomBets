@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const NewBetCardRoot = styled.button`
   position: relative;
   display: flex;
@@ -9,16 +7,7 @@ export const NewBetCardRoot = styled.button`
   width: 100%;
   padding: 20px 22px;
 
-  ${media.down("sm")} {
-    flex-wrap: wrap;
-    gap: 14px;
-    padding: 16px 14px;
-  }
 
-  ${media.down("xs")} {
-    gap: 12px;
-    padding: 14px 12px;
-  }
   text-align: left;
   cursor: pointer;
   overflow: hidden;
@@ -117,15 +106,6 @@ export const IconWrap = styled.div`
     color: #a5d6a7;
   }
 
-  ${media.down("xs")} {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-
-    svg {
-      font-size: 24px;
-    }
-  }
 `;
 
 export const Content = styled.div`
@@ -144,9 +124,6 @@ export const Title = styled.span`
   letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.95);
 
-  ${media.down("xs")} {
-    font-size: 15px;
-  }
 `;
 
 export const Subtitle = styled.span`
@@ -185,9 +162,6 @@ export const ActionWrap = styled.div`
   width: 40px;
   height: 40px;
 
-  ${media.down("sm")} {
-    margin-left: auto;
-  }
   border-radius: 12px;
   background: rgba(76, 175, 80, 0.15);
   border: 1px solid rgba(76, 175, 80, 0.3);
@@ -216,9 +190,4 @@ export const PendingNote = styled.span`
   background: rgba(255, 167, 38, 0.12);
   border: 1px solid rgba(255, 167, 38, 0.28);
 
-  ${media.down("sm")} {
-    width: 100%;
-    text-align: center;
-    margin-top: 2px;
-  }
 `;

@@ -1,7 +1,6 @@
 import { Accordion } from "@mui/material";
 import styled, { css } from "styled-components";
 import type { MatchStatus } from "@/entities/match";
-import { media } from "@/shared/styles/breakpoints";
 
 const statusAccent: Record<MatchStatus, string> = {
   scheduled: "rgba(255, 167, 38, 0.85)",
@@ -77,9 +76,6 @@ export const MatchAccordion = styled(Accordion)<{ $status: MatchStatus }>`
   .MuiAccordionDetails-root {
     padding: 0 16px 16px;
 
-    ${media.down("md")} {
-      padding: 0 12px 12px;
-    }
   }
 `;
 
@@ -88,9 +84,6 @@ export const MatchSummaryContent = styled.div`
   min-width: 0;
   padding: 14px 16px 16px;
 
-  ${media.down("md")} {
-    padding: 12px;
-  }
 `;
 
 export const MatchTopBar = styled.div`
@@ -170,10 +163,6 @@ export const MatchBody = styled.div`
   gap: 16px;
   min-width: 0;
 
-  ${media.down("md")} {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
 `;
 
 export const MatchDateCol = styled.div`
@@ -183,12 +172,6 @@ export const MatchDateCol = styled.div`
   gap: 6px;
   min-width: 0;
 
-  ${media.down("md")} {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
 `;
 
 export const MatchDate = styled.span`
@@ -226,9 +209,6 @@ export const MatchTeamsCol = styled.div`
   gap: 12px;
   min-width: 0;
 
-  ${media.down("md")} {
-    gap: 8px;
-  }
 `;
 
 export const MatchScoreCenter = styled.div`
@@ -239,10 +219,6 @@ export const MatchScoreCenter = styled.div`
   min-width: 88px;
   padding: 0 4px;
 
-  ${media.down("md")} {
-    min-width: 64px;
-    padding: 0 2px;
-  }
 `;
 
 export const ScoreVsLabel = styled.span`
@@ -253,13 +229,19 @@ export const ScoreVsLabel = styled.span`
   text-transform: lowercase;
   padding: 0 6px;
 
-  ${media.down("md")} {
-    font-size: 12px;
-    padding: 0 4px;
-  }
 `;
 
-export const TeamPanel = styled.button<{ $align: "start" | "end"; $leading?: boolean }>`
+export const TeamPanelWrap = styled.div`
+  position: relative;
+  min-width: 0;
+  width: 100%;
+`;
+
+export const TeamPanel = styled.button<{
+  $align: "start" | "end";
+  $leading?: boolean;
+  $readOnly?: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: ${({ $align }) => ($align === "end" ? "flex-end" : "flex-start")};
@@ -271,7 +253,7 @@ export const TeamPanel = styled.button<{ $align: "start" | "end"; $leading?: boo
   padding: 10px 14px;
   border-radius: 12px;
   font-family: inherit;
-  cursor: pointer;
+  cursor: ${({ $readOnly }) => ($readOnly ? "default" : "pointer")};
   color: rgba(255, 255, 255, 0.92);
   background: ${({ $leading }) =>
     $leading ? "rgba(76, 175, 80, 0.08)" : "rgba(255, 255, 255, 0.04)"};
@@ -283,12 +265,22 @@ export const TeamPanel = styled.button<{ $align: "start" | "end"; $leading?: boo
     transform 0.15s ease;
 
   &:hover {
-    border-color: rgba(102, 187, 106, 0.4);
-    background: rgba(76, 175, 80, 0.1);
+    border-color: ${({ $readOnly, $leading }) =>
+      $readOnly
+        ? $leading
+          ? "rgba(102, 187, 106, 0.28)"
+          : "rgba(255, 255, 255, 0.08)"
+        : "rgba(102, 187, 106, 0.4)"};
+    background: ${({ $readOnly, $leading }) =>
+      $readOnly
+        ? $leading
+          ? "rgba(76, 175, 80, 0.08)"
+          : "rgba(255, 255, 255, 0.04)"
+        : "rgba(76, 175, 80, 0.1)"};
   }
 
   &:active {
-    transform: scale(0.99);
+    transform: ${({ $readOnly }) => ($readOnly ? "none" : "scale(0.99)")};
   }
 
   &:focus-visible {
@@ -296,11 +288,6 @@ export const TeamPanel = styled.button<{ $align: "start" | "end"; $leading?: boo
     outline-offset: 2px;
   }
 
-  ${media.down("md")} {
-    min-height: 48px;
-    padding: 8px 10px;
-    gap: 8px;
-  }
 `;
 
 export const TeamName = styled.span`
@@ -314,9 +301,6 @@ export const TeamName = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${media.down("md")} {
-    font-size: 14px;
-  }
 `;
 
 export const LogoRing = styled.div`
@@ -331,10 +315,6 @@ export const LogoRing = styled.div`
     border-radius: 0;
   }
 
-  ${media.down("md")} {
-    width: 32px;
-    height: 32px;
-  }
 `;
 
 export const ScoreLine = styled.div`
@@ -353,9 +333,6 @@ export const ScorePrimary = styled.span<{ $tone: "win" | "lose" | "neutral" }>`
   color: ${({ $tone }) =>
     $tone === "win" ? "#66bb6a" : $tone === "lose" ? "#ef5350" : "rgba(255, 255, 255, 0.72)"};
 
-  ${media.down("md")} {
-    font-size: 26px;
-  }
 `;
 
 export const MapsSection = styled.div`
@@ -481,10 +458,6 @@ export const CardIconButton = styled.button<{ $danger?: boolean }>`
   ${MatchAccordion}:hover &,
   ${MatchAccordion}:focus-within &,
   ${MatchAccordion}.Mui-expanded & {
-    opacity: 1;
-  }
-
-  @media (hover: none), ${media.down("md")} {
     opacity: 1;
   }
 
