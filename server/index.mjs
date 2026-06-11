@@ -12,6 +12,7 @@ import { cors } from "@tinyhttp/cors";
 import { createApp } from "json-server/lib/app.js";
 import { Observer } from "json-server/lib/observer.js";
 import { extensionFromMime, removePickemDirectory, savePickemImage } from "./pickemFiles.mjs";
+import { recalculateMatchBetsInDb } from "./bets/recalculateMatchBets.mjs";
 import { syncSportsRuMatchesToDb } from "./sportsru/syncMatches.mjs";
 
 const upload = multer({
@@ -139,6 +140,20 @@ app.post("/pickems/:id/stage-image", upload.single("file"), async (req, res) => 
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to upload pickem image" });
+  }
+});
+
+app.post("/bets/recalculate", async (_req, res) => {
+  try {
+    const payload = await recalculateMatchBetsInDb(db);
+    res.status(200).json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      updated: 0,
+      profilesSynced: 0,
+      error: error instanceof Error ? error.message : "Failed to recalculate bets",
+    });
   }
 });
 

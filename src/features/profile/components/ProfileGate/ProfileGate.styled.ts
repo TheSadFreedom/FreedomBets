@@ -1,15 +1,10 @@
 import styled from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const GateRoot = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
   padding: 12px 0 28px;
 
-  ${media.down("sm")} {
-    padding: 8px 0 20px;
-  }
 `;
 
 export const GateCard = styled.div`
@@ -33,9 +28,6 @@ export const GateHero = styled.div`
     linear-gradient(180deg, rgba(76, 175, 80, 0.1) 0%, rgba(0, 0, 0, 0.12) 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
-  ${media.down("sm")} {
-    padding: 18px 16px 14px;
-  }
 `;
 
 export const GateTitle = styled.h1`
@@ -59,10 +51,6 @@ export const GateBody = styled.div`
   gap: 16px;
   padding: 18px 20px 20px;
 
-  ${media.down("sm")} {
-    padding: 14px 16px 16px;
-    gap: 14px;
-  }
 `;
 
 export const GateSectionTitle = styled.h2`

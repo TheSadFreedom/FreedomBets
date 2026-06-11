@@ -1,6 +1,12 @@
 import { randomBytes } from "node:crypto";
 import { fetchSportsRuMatches } from "./fetchMatches.mjs";
-import { applyCanonicalTeamNames, reloadTeamSynonyms, teamsMatch } from "./teamNames.mjs";
+import { recalculateMatchBetsInDb } from "../bets/recalculateMatchBets.mjs";
+import {
+  alignTeamsToReference,
+  applyCanonicalTeamNames,
+  reloadTeamSynonyms,
+  teamsMatch,
+} from "./teamNames.mjs";
 
 const TRACKED_FIELDS = [
   "date",
@@ -136,8 +142,9 @@ export async function syncSportsRuMatchesToDb(db, { force = false } = {}) {
     const found = findExistingMatch(existing, dto, bets);
 
     if (found) {
+      const aligned = alignTeamsToReference(record, applyCanonicalTeamNames(found));
       // majorStage только вручную — Sports.ru не передаёт и не перезаписывает
-      let next = { ...found, ...record, id: found.id };
+      let next = { ...found, ...aligned, id: found.id };
       next.majorStage = found.majorStage ?? null;
       if (!found.sportsRuSeriesId) {
         next = preserveManualFields(next, found);
@@ -165,11 +172,17 @@ export async function syncSportsRuMatchesToDb(db, { force = false } = {}) {
   db.data.matches = existing;
   await db.write();
 
+  const recalculated =
+    updated > 0 || created > 0
+      ? await recalculateMatchBetsInDb(db)
+      : { updated: 0, profilesSynced: 0, changes: [] };
+
   return {
     created,
     updated,
     removed,
     total: parsed.length,
+    betsRecalculated: recalculated.updated,
     meta: {
       ...meta,
       syncedAt: new Date().toISOString(),

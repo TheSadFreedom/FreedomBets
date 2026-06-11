@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { Avatar, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { buildEventLogoCandidates } from "@/shared/lib/logos/eventLogo";
 import { useMultiSrcLogo } from "@/shared/ui/logo/useMultiSrcLogo";
-import { logoAvatarSx } from "@/shared/ui/OrganizationLogo/OrganizationLogo.styled";
+import LogoAvatar from "@/shared/ui/logo/LogoAvatar";
 
 interface EventLogoProps {
   logoSlug?: string | null;
@@ -19,18 +19,18 @@ const EventLogo = ({ logoSlug, label = "", size = 28, showName = false }: EventL
   const { src, failed, handleError } = useMultiSrcLogo(candidateSrcs);
   const displayLabel = label.trim() || logoSlug?.trim() || "Турнир";
   const initials = displayLabel.trim().slice(0, 2).toUpperCase() || "?";
-  const showImage = Boolean(logoSlug?.trim() && src && !failed);
 
   return (
     <Box display="inline-flex" alignItems="center" gap={0.75} minWidth={0}>
-      <Avatar
-        src={showImage ? src : undefined}
+      <LogoAvatar
+        size={size}
+        src={src}
         alt={displayLabel}
+        failed={failed}
         onError={handleError}
-        sx={logoAvatarSx(size, !showImage)}
       >
         {initials}
-      </Avatar>
+      </LogoAvatar>
       {showName ? (
         <Typography variant="body2" noWrap title={displayLabel} fontWeight={600}>
           {displayLabel}

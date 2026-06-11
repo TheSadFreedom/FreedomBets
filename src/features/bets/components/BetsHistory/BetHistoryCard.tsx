@@ -1,8 +1,13 @@
 import type { Bet } from "@/entities/bet";
 import { formatBetDescription } from "@/entities/bet";
+import { formatEventLabel } from "@/features/events/lib/eventDisplay";
+import type { Match } from "@/entities/match";
 import ActionButtons from "@/features/bets/components/ActionButtons/ActionButtons";
 import { resolveEventLogoSlug } from "@/features/events/lib/eventDisplay";
 import type { EventRecord } from "@/entities/eventRecord";
+import { seriesScoreForBet } from "@/features/matches/lib/betTeamAlignment";
+import { findMatchForBet } from "@/features/matches/lib/findBetsForMatch";
+import { getMatchSeriesScore } from "@/features/matches/lib/matchMaps";
 import EventLogo from "@/shared/ui/EventLogo/EventLogo";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
 import { formatIsoDateDots } from "@/shared/lib/date/isoDate";
@@ -23,7 +28,9 @@ import {
   BetCardLeft,
   BetCardResult,
   BetCardResultPayout,
+  BetCardTeamInfo,
   BetCardTeamRow,
+  BetCardTeamScore,
   StatusBadge,
 } from "./BetsHistory.styled";
 
@@ -38,14 +45,35 @@ export function formatBetPayout(bet: Bet): string {
 }
 
 function formatEventTitle(bet: Bet): string {
-  const org = bet.eventOrganization.trim();
-  const name = bet.eventName.trim();
-  if (org && name) return `${org} ${name}`;
-  return name || org || "Турнир";
+  const label = formatEventLabel(bet.eventOrganization, bet.eventName, {
+    majorStage: bet.majorStage,
+  });
+  return label || "Турнир";
+}
+
+function scoreTone(
+  side: 1 | 2,
+  series: { score1: number; score2: number },
+): "win" | "lose" | "neutral" {
+  if (series.score1 === series.score2) return "neutral";
+  const leading: 1 | 2 = series.score1 > series.score2 ? 1 : 2;
+  return side === leading ? "win" : "lose";
+}
+
+function resolveBetMatchSeriesScore(
+  bet: Bet,
+  matches: Match[],
+): { score1: number; score2: number } | null {
+  const match = findMatchForBet(bet, matches);
+  if (!match) return null;
+  const series = getMatchSeriesScore(match);
+  if (!series) return null;
+  return seriesScoreForBet(bet, match, series);
 }
 
 interface BetHistoryCardProps {
   bet: Bet;
+  matches?: Match[];
   events?: EventRecord[];
   onEdit: (bet: Bet) => void;
   onDelete: (bet: Bet) => void;
@@ -56,13 +84,17 @@ interface BetHistoryCardProps {
 
 const BetHistoryCard = ({
   bet,
+  matches = [],
   events = [],
   onEdit,
   onDelete,
   onWin,
   onLose,
   onRevert,
-}: BetHistoryCardProps) => (
+}: BetHistoryCardProps) => {
+  const seriesScore = resolveBetMatchSeriesScore(bet, matches);
+
+  return (
   <BetCard $status={bet.status}>
     <BetCardHeader>
       <BetCardHeaderLeft>
@@ -95,10 +127,24 @@ const BetHistoryCard = ({
     <BetCardBody>
       <BetCardLeft>
         <BetCardTeamRow>
-          <TeamLogo name={bet.organization1} size={20} showName />
+          {seriesScore ? (
+            <BetCardTeamScore $tone={scoreTone(1, seriesScore)} aria-label={`Счёт ${bet.organization1}`}>
+              {seriesScore.score1}
+            </BetCardTeamScore>
+          ) : null}
+          <BetCardTeamInfo>
+            <TeamLogo name={bet.organization1} size={20} showName />
+          </BetCardTeamInfo>
         </BetCardTeamRow>
         <BetCardTeamRow>
-          <TeamLogo name={bet.organization2} size={20} showName />
+          {seriesScore ? (
+            <BetCardTeamScore $tone={scoreTone(2, seriesScore)} aria-label={`Счёт ${bet.organization2}`}>
+              {seriesScore.score2}
+            </BetCardTeamScore>
+          ) : null}
+          <BetCardTeamInfo>
+            <TeamLogo name={bet.organization2} size={20} showName />
+          </BetCardTeamInfo>
         </BetCardTeamRow>
       </BetCardLeft>
 
@@ -121,6 +167,7 @@ const BetHistoryCard = ({
       </BetCardResult>
     </BetCardBody>
   </BetCard>
-);
+  );
+};
 
 export default BetHistoryCard;

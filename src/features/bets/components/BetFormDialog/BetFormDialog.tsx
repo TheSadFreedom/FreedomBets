@@ -9,8 +9,6 @@ import {
   Select,
   TextField,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -45,9 +43,12 @@ import {
   betAmountFromBalancePercent,
 } from "@/features/bets/lib/amountPresets";
 import { getBetFormSuggestions } from "@/features/bets/lib/formSuggestions";
-import EventStageSelect from "@/features/events/components/EventStageSelect/EventStageSelect";
 import { eventSelectKey, getEventSelectOptions } from "@/features/events/lib/eventDisplay";
-import { collectEventStages, pickEventStage } from "@/features/events/lib/eventStages";
+import {
+  collectEventStages,
+  findEventStages,
+  pickEventStage,
+} from "@/features/events/lib/eventStages";
 import {
   findMatchForBetFields,
   formatMatchSecondaryLabel,
@@ -89,7 +90,6 @@ import {
   TeamPickPlaceholder,
   TeamPickRow,
   dialogBackdropSx,
-  dialogPaperMobileSx,
   dialogPaperSx,
   fieldSx,
 } from "./BetFormDialog.styled";
@@ -282,6 +282,51 @@ const BetFormDialog = ({
     [bets, events, form.eventOrganization, form.eventName, form.majorStage, matches]
   );
   const eventRequiresStage = selectedEventStages.length > 0;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const org = form.eventOrganization.trim();
+    const name = form.eventName.trim();
+    if (!org && !name) {
+      setForm((prev) => (prev.majorStage === null ? prev : { ...prev, majorStage: null }));
+      return;
+    }
+
+    const stages = collectEventStages(org, name, events, { bets, matches });
+    if (stages.length === 0) {
+      setForm((prev) => (prev.majorStage === null ? prev : { ...prev, majorStage: null }));
+      return;
+    }
+
+    const matchStage = selectedMatchOption?.match.majorStage?.trim() || null;
+    const configured = findEventStages(org, name, events);
+    let next: string | null = null;
+
+    if (matchStage && stages.includes(matchStage)) {
+      next = matchStage;
+    } else if (configured.length === 1) {
+      next = configured[0]!;
+    } else if (matchStage) {
+      next = matchStage;
+    } else {
+      next = pickEventStage(org, name, events, null);
+      if (next && !stages.includes(next)) {
+        next = stages[0] ?? null;
+      }
+    }
+
+    setForm((prev) => (prev.majorStage === next ? prev : { ...prev, majorStage: next }));
+  }, [
+    open,
+    form.eventOrganization,
+    form.eventName,
+    selectedMatchId,
+    selectedMatchOption,
+    events,
+    matches,
+    bets,
+  ]);
 
   const availableMarkets = useMemo(
     () =>
@@ -543,18 +588,14 @@ const BetFormDialog = ({
       (form.mapNumber != null && form.mapNumber >= 1 && form.mapNumber <= mapCount)) &&
     (form.betMarket !== "pistol" || form.pistolRound === 1 || form.pistolRound === 2);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="md"
+      maxWidth="sm"
       fullWidth
-      fullScreen={isMobile}
       slotProps={{
-        paper: { sx: isMobile ? { ...dialogPaperSx, ...dialogPaperMobileSx } : dialogPaperSx },
+        paper: { sx: dialogPaperSx },
         backdrop: { sx: dialogBackdropSx },
       }}
     >
@@ -652,12 +693,6 @@ const BetFormDialog = ({
                       ...prev,
                       eventOrganization: option.eventOrganization,
                       eventName: option.eventName,
-                      majorStage: pickEventStage(
-                        option.eventOrganization,
-                        option.eventName,
-                        events,
-                        prev.majorStage
-                      ),
                     }));
                   }}
                   renderValue={(value) => {
@@ -707,12 +742,8 @@ const BetFormDialog = ({
                   ))}
                 </Select>
               </FormControl>
-              {eventRequiresStage ? (
-                <EventStageSelect
-                  stages={selectedEventStages}
-                  value={form.majorStage}
-                  onChange={(stage) => update("majorStage", stage)}
-                />
+              {form.majorStage ? (
+                <SectionHint>Стадия: {form.majorStage}</SectionHint>
               ) : null}
                   <SectionHint>
                     На каждой карте по {PISTOL_ROUNDS_PER_MAP} пистолетных раунда.
@@ -843,12 +874,8 @@ const BetFormDialog = ({
                     <SectionHint>
                       {formatMatchSecondaryLabel(selectedMatchOption.match)}
                     </SectionHint>
-                    {eventRequiresStage ? (
-                      <EventStageSelect
-                        stages={selectedEventStages}
-                        value={form.majorStage}
-                        onChange={(stage) => update("majorStage", stage)}
-                      />
+                    {form.majorStage ? (
+                      <SectionHint>Стадия: {form.majorStage}</SectionHint>
                     ) : null}
                   </>
                 ) : null}
@@ -944,7 +971,7 @@ const BetFormDialog = ({
                     >
                       <TeamPickLogoWrap>
                         {team1Name ? (
-                          <TeamLogo name={team1Name} size={40} />
+                          <TeamLogo name={team1Name} size={32} />
                         ) : (
                           <TeamPickPlaceholder>1</TeamPickPlaceholder>
                         )}
@@ -958,7 +985,7 @@ const BetFormDialog = ({
                     >
                       <TeamPickLogoWrap>
                         {team2Name ? (
-                          <TeamLogo name={team2Name} size={40} />
+                          <TeamLogo name={team2Name} size={32} />
                         ) : (
                           <TeamPickPlaceholder>2</TeamPickPlaceholder>
                         )}

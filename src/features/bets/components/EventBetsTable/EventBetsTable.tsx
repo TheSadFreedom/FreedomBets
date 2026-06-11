@@ -11,7 +11,6 @@ import {
 import type { Bet } from "@/entities/bet";
 import BetDescriptionCell from "@/features/bets/components/BetDescriptionCell/BetDescriptionCell";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
-import EventBetsMobileListView from "./EventBetsMobileList";
 import { BetsTableWrap } from "./EventBetsTable.styled";
 
 interface EventBetsTableProps {
@@ -65,9 +64,7 @@ const EventBetsTable = ({ bets }: EventBetsTableProps) => {
   if (bets.length === 0) return null;
 
   return (
-    <>
-      <EventBetsMobileListView bets={bets} />
-      <BetsTableWrap>
+    <BetsTableWrap>
       <TableContainer>
         <Table size="small" sx={tableSx}>
           <colgroup>
@@ -138,7 +135,6 @@ const EventBetsTable = ({ bets }: EventBetsTableProps) => {
         </Table>
       </TableContainer>
     </BetsTableWrap>
-    </>
   );
 };
 

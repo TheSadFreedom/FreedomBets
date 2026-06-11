@@ -9,8 +9,6 @@ import {
   Select,
   TextField,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -70,7 +68,7 @@ import {
   dialogBackdropSx,
   fieldSx,
 } from "./MatchFormDialog.styled";
-import { resolveDialogPaperSx } from "@/shared/styles/dialogSx";
+import { dialogPaperSx } from "@/shared/styles/dialogSx";
 
 const emptyMatch = (): MatchCreateInput => ({
   date: todayIsoDateLocal(),
@@ -128,8 +126,6 @@ const MatchFormDialog = ({
   onClose,
   onSubmit,
 }: MatchFormDialogProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [form, setForm] = useState<MatchCreateInput>(emptyMatch);
   const [saving, setSaving] = useState(false);
   const [mapsOpen, setMapsOpen] = useState(false);
@@ -268,11 +264,10 @@ const MatchFormDialog = ({
       open={open}
       onClose={onClose}
       fullWidth
-      fullScreen={isMobile}
       maxWidth="xs"
       slotProps={{
         backdrop: { sx: dialogBackdropSx },
-        paper: { sx: resolveDialogPaperSx(isMobile) },
+        paper: { sx: dialogPaperSx },
       }}
     >
       <DialogShell>

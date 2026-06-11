@@ -1,6 +1,5 @@
 import styled, { css } from "styled-components";
 import type { Bet } from "@/entities/bet";
-import { media } from "@/shared/styles/breakpoints";
 import { mobileCardSurface } from "@/shared/styles/mobileTokens";
 
 export const BetsHistoryStyled = styled.section`
@@ -15,13 +14,6 @@ export const HistoryCard = styled.div`
   border-radius: 14px;
   overflow: hidden;
 
-  ${media.down("md")} {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    overflow: visible;
-  }
 `;
 
 export const FiltersPanel = styled.div`
@@ -29,14 +21,6 @@ export const FiltersPanel = styled.div`
   background: rgba(0, 0, 0, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
-  ${media.down("md")} {
-    padding: 12px;
-    margin-bottom: 4px;
-    border-radius: 14px;
-    ${mobileCardSurface};
-    border-bottom: none;
-    background: linear-gradient(145deg, rgba(36, 36, 36, 0.98) 0%, rgba(22, 22, 22, 0.99) 100%);
-  }
 `;
 
 export const FiltersWrapper = styled.div`
@@ -51,9 +35,6 @@ export const BetList = styled.div`
   gap: 12px;
   padding: 10px 12px 12px;
 
-  ${media.down("md")} {
-    padding: 2px 0 6px;
-  }
 `;
 
 const statusAccent: Record<Bet["status"], string> = {
@@ -148,11 +129,6 @@ export const BetCardHeaderRight = styled.div`
   gap: 6px;
   flex-shrink: 0;
 
-  ${media.down("sm")} {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    max-width: 48%;
-  }
 `;
 
 export const BetCardDate = styled.span`
@@ -163,9 +139,6 @@ export const BetCardDate = styled.span`
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 
-  ${media.down("sm")} {
-    font-size: 11px;
-  }
 `;
 
 export const BetCardBody = styled.div`
@@ -175,11 +148,6 @@ export const BetCardBody = styled.div`
   align-items: center;
   padding: 8px 10px;
 
-  ${media.down("sm")} {
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-    gap: 8px 10px;
-  }
 `;
 
 export const BetCardLeft = styled.div`
@@ -188,15 +156,32 @@ export const BetCardLeft = styled.div`
   gap: 5px;
   min-width: 0;
 
-  ${media.down("sm")} {
-    grid-column: 1 / -1;
-  }
 `;
 
 export const BetCardTeamRow = styled.div`
   display: flex;
   align-items: center;
+  gap: 8px;
   min-width: 0;
+`;
+
+export const BetCardTeamInfo = styled.div`
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+`;
+
+export const BetCardTeamScore = styled.span<{ $tone?: "win" | "lose" | "neutral" }>`
+  flex-shrink: 0;
+  width: 1.25rem;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: ${({ $tone = "neutral" }) =>
+    $tone === "win" ? "#66bb6a" : $tone === "lose" ? "rgba(255, 255, 255, 0.38)" : "rgba(255, 255, 255, 0.72)"};
 `;
 
 export const BetCardCenter = styled.div`
@@ -206,12 +191,6 @@ export const BetCardCenter = styled.div`
   align-items: flex-start;
   justify-content: center;
 
-  ${media.down("sm")} {
-    grid-column: 1;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px 14px;
-  }
 `;
 
 export const BetCardCenterRow = styled.div`
@@ -254,11 +233,6 @@ export const BetCardResult = styled.div`
   justify-content: center;
   gap: 5px;
 
-  ${media.down("sm")} {
-    grid-column: 2;
-    grid-row: 2;
-    align-self: center;
-  }
 `;
 
 export const BetCardResultPayout = styled.span<{ $status: Bet["status"] }>`

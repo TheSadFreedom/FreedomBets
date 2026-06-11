@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState, type MouseEvent } from "react";
-import { useIsMobile } from "@/shared/hooks/useIsMobile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { AccordionDetails, AccordionSummary } from "@mui/material";
@@ -57,7 +56,6 @@ const PickemMajorCard = ({
   onDelete,
   onUploadStageImage,
 }: PickemMajorCardProps) => {
-  const isMobile = useIsMobile();
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
@@ -148,7 +146,7 @@ const PickemMajorCard = ({
             return (
               <StageCard key={stageData.stage} $hasImage={hasImage} $accent={accent}>
                 <StageCardHeader>
-                  <MajorStageBadge stage={stageData.stage} compact={isMobile} />
+                  <MajorStageBadge stage={stageData.stage} />
                   <StageCardStatus $uploaded={hasImage}>
                     {hasImage ? "Готово" : "Пусто"}
                   </StageCardStatus>

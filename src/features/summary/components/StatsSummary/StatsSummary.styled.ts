@@ -1,15 +1,10 @@
 import styled, { css } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const StatsRoot = styled.section`
   display: flex;
   flex-direction: column;
   gap: 10px;
   min-width: 0;
 
-  ${media.down("sm")} {
-    gap: 12px;
-  }
 `;
 
 export const StatsHero = styled.div`
@@ -26,12 +21,6 @@ export const StatsHero = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
 
-  ${media.down("sm")} {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 14px;
-    gap: 10px;
-  }
 `;
 
 export const StatsHeroText = styled.div`
@@ -59,9 +48,6 @@ export const StatsHeroProfit = styled.div<{ $positive: boolean; $muted?: boolean
   color: ${({ $muted, $positive }) =>
     $muted ? "rgba(255, 255, 255, 0.35)" : $positive ? "#81c784" : "#e57373"};
 
-  ${media.down("sm")} {
-    font-size: 24px;
-  }
 `;
 
 export const StatsHeroHint = styled.p`
@@ -77,9 +63,6 @@ export const StatsHeroPills = styled.div`
   gap: 6px;
   justify-content: flex-end;
 
-  ${media.down("sm")} {
-    justify-content: flex-start;
-  }
 `;
 
 export const StatsHeroPill = styled.span`
@@ -108,9 +91,6 @@ export const StatsPanel = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
 
-  ${media.down("sm")} {
-    padding: 12px;
-  }
 `;
 
 export const StatsSectionHead = styled.div`
@@ -160,9 +140,6 @@ export const StatsMetricsGrid = styled.div`
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 
-  ${media.up("sm")} {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 `;
 
 export const StatsMetricTile = styled.div<{
@@ -204,9 +181,6 @@ export const StatsMetricValue = styled.div<{ $color?: string }>`
   font-variant-numeric: tabular-nums;
   color: ${({ $color }) => $color ?? "#fff"};
 
-  ${media.down("sm")} {
-    font-size: 18px;
-  }
 `;
 
 export const StatsMetricSub = styled.div<{ $color?: string }>`
@@ -267,17 +241,8 @@ export const OddsGrid = styled.div`
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 
-  ${media.down("xs")} {
-    grid-template-columns: 1fr;
-  }
 
-  ${media.up("sm")} {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 
-  ${media.up("lg")} {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
 `;
 
 export const FormatGrid = styled.div`
@@ -285,7 +250,95 @@ export const FormatGrid = styled.div`
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 
-  ${media.down("xs")} {
-    grid-template-columns: 1fr;
-  }
+`;
+
+export const TournamentExtremesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+
+`;
+
+export const TournamentExtremeCard = styled.div<{
+  $kind: "best" | "worst";
+  $empty?: boolean;
+}>`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 148px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  min-width: 0;
+
+  ${({ $kind, $empty }) => {
+    const accent = $kind === "best" ? "#66bb6a" : "#ef5350";
+    if ($empty) {
+      return css`
+        border-color: rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.025);
+      `;
+    }
+    return css`
+      border-color: ${accent}30;
+      background: ${accent}0d;
+    `;
+  }}
+`;
+
+export const TournamentExtremeKind = styled.div<{ $kind: "best" | "worst" }>`
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: ${({ $kind }) => ($kind === "best" ? "#a5d6a7" : "#ef9a9a")};
+`;
+
+export const TournamentExtremeHead = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+`;
+
+export const TournamentExtremeName = styled.div`
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+`;
+
+export const TournamentExtremeMetrics = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+`;
+
+export const TournamentExtremeProfit = styled.div<{ $positive: boolean }>`
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: ${({ $positive }) => ($positive ? "#81c784" : "#e57373")};
+`;
+
+export const TournamentExtremeWinRate = styled.div<{ $positive: boolean }>`
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: ${({ $positive }) => ($positive ? "#a5d6a7" : "#ef9a9a")};
+`;
+
+export const TournamentExtremeEmpty = styled.div`
+  margin: auto 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
 `;

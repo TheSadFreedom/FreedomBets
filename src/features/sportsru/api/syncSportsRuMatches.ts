@@ -4,6 +4,7 @@ export interface SportsRuSyncResult {
   created: number;
   updated: number;
   total: number;
+  betsRecalculated?: number;
   error?: string;
   meta?: {
     fetchedAt?: string;

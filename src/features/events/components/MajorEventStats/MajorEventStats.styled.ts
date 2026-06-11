@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
 import {
   WldBadge,
   WldBadges,
@@ -15,26 +14,10 @@ export const MajorStageBlock = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
 
-  ${media.up("md")} {
-    padding: 8px 0 0;
-    border-radius: 0;
-    background: transparent;
-    border: none;
-  }
 
   &:not(:first-child) {
-    ${media.up("md")} {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
   }
 
-  ${media.down("md")} {
-    &:not(:first-child) {
-      margin-top: 4px;
-    }
-  }
 `;
 
 export const MajorStageHeader = styled.div`
@@ -44,10 +27,6 @@ export const MajorStageHeader = styled.div`
   gap: 8px;
   min-width: 0;
 
-  ${media.up("md")} {
-    grid-template-columns: auto 1fr;
-    gap: 8px 10px;
-  }
 `;
 
 export const MajorStageLabel = styled.div`
@@ -79,13 +58,6 @@ export const StageMeta = styled.div`
   grid-column: 1 / -1;
   grid-row: 2;
 
-  ${media.up("md")} {
-    grid-column: 2;
-    grid-row: 1;
-    justify-content: flex-end;
-    flex-wrap: nowrap;
-    gap: 8px;
-  }
 `;
 
 export const StageMetaItem = styled.span`
@@ -103,16 +75,6 @@ export const StageMetaItem = styled.span`
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
 
-  ${media.up("md")} {
-    min-height: 26px;
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    border: none;
-    font-size: 11px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.5);
-  }
 `;
 
 export const StageMetaValue = styled.span<{ $color?: string }>`
@@ -130,15 +92,6 @@ export const StageMetaValue = styled.span<{ $color?: string }>`
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
 
-  ${media.up("md")} {
-    min-height: 26px;
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    border: none;
-    font-size: 11px;
-    font-weight: 600;
-  }
 `;
 
 export const StageWldBadges = styled(WldBadges)`
@@ -163,23 +116,6 @@ export const StageWldBadges = styled(WldBadges)`
     text-align: center;
   }
 
-  ${media.up("md")} {
-    min-height: 26px;
-    padding: 0;
-    border-radius: 0;
-    background: transparent;
-    border: none;
-
-    ${WldBadge} {
-      display: inline-grid;
-      place-items: center;
-      box-sizing: border-box;
-      height: 20px;
-      min-width: 20px;
-      padding: 0 5px;
-      text-align: center;
-    }
-  }
 `;
 
 export const StageEmptyNote = styled.p`
@@ -189,10 +125,6 @@ export const StageEmptyNote = styled.p`
   color: rgba(255, 255, 255, 0.38);
   text-align: center;
 
-  ${media.up("md")} {
-    padding: 4px 0;
-    text-align: left;
-  }
 `;
 
 export const StageBetsWrap = styled.div`

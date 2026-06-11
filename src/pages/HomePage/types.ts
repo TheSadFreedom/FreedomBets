@@ -23,7 +23,7 @@ export interface ProfileBetsState {
   createProfile: (name: string) => Promise<void>;
   exitProfile: () => void;
   addBet: (data: Omit<Bet, "id">) => Promise<void>;
-  updateBet: (updated: Bet, previous: Bet) => Promise<void>;
+  updateBet: (updated: Bet) => Promise<void>;
   deleteBet: (bet: Bet) => Promise<void>;
   settleWin: (id: string) => Promise<void>;
   settleLose: (id: string) => Promise<void>;

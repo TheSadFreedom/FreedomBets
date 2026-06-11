@@ -7,9 +7,6 @@
     "prestart": "node scripts/generateEventsManifest.mjs && node scripts/generateTeamsManifest.mjs",
     "prebuild": "node scripts/generateEventsManifest.mjs && node scripts/generateTeamsManifest.mjs",
     "start": "concurrently -n api,web -c green,cyan \"npm run server\" \"npm run dev\"",
-    "preview:app": "vite preview --host",
-    "serve": "npm run build && concurrently -k -n api,web -c green,cyan \"npm run server\" \"npm run preview:app\"",
-    "cloudpub": "concurrently -k -n app,tunnel -c green,magenta \"npm run serve\" \"wait-on -t 120000 http-get://127.0.0.1:8080 && clo publish http 8080 --name freedombets\"",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -17,6 +14,7 @@
     "server": "node server/index.mjs db.json",
     "migrate:pickems": "node scripts/migratePickemImages.mjs",
     "migrate:link-bets": "node scripts/linkBetsToMatches.mjs",
+    "migrate:recalculate-bets": "node scripts/recalculateBets.mjs",
     "events:manifest": "node scripts/generateEventsManifest.mjs",
     "teams:manifest": "node scripts/generateTeamsManifest.mjs"
   },
@@ -47,7 +45,6 @@
     "multer": "^2.1.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4",
-    "wait-on": "^9.0.10"
+    "vite": "^7.2.4"
   }
 }

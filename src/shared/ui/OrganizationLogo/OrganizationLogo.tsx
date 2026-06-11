@@ -1,7 +1,7 @@
-import { Avatar, Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { orgLogoSrc } from "@/shared/lib/logos/orgLogo";
 import { useLogoWithFallback } from "@/shared/ui/logo/useLogoWithFallback";
-import { logoAvatarSx } from "./OrganizationLogo.styled";
+import LogoAvatar from "@/shared/ui/logo/LogoAvatar";
 
 interface OrganizationLogoProps {
   name: string;
@@ -19,14 +19,9 @@ const OrganizationLogo = ({ name, size = 28, showName = false }: OrganizationLog
 
   return (
     <Box display="inline-flex" alignItems="center" gap={0.75} minWidth={0}>
-      <Avatar
-        src={src}
-        alt={name}
-        onError={handleError}
-        sx={logoAvatarSx(size, failed)}
-      >
+      <LogoAvatar size={size} src={src} alt={name} failed={failed} onError={handleError}>
         {failed ? initials : null}
-      </Avatar>
+      </LogoAvatar>
       {showName && (
         <Typography variant="body2" noWrap title={name} fontWeight={600}>
           {name}

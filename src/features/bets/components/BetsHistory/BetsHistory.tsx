@@ -3,6 +3,7 @@ import { InputAdornment, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import type { Bet } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
+import type { Match } from "@/entities/match";
 import { sortBetsByDateTime } from "@/features/bets/lib/sortBets";
 import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
 import BetHistoryCard from "./BetHistoryCard";
@@ -17,6 +18,7 @@ import {
 
 interface BetsHistoryProps {
   bets: Bet[];
+  matches?: Match[];
   events?: EventRecord[];
   onEdit: (bet: Bet) => void;
   onDelete: (bet: Bet) => void;
@@ -52,6 +54,7 @@ const matchesBetSearch = (bet: Bet, query: string) => {
 
 const BetsHistory = ({
   bets,
+  matches = [],
   events = [],
   onEdit,
   onDelete,
@@ -113,6 +116,7 @@ const BetsHistory = ({
               <BetHistoryCard
                 key={bet.id}
                 bet={bet}
+                matches={matches}
                 events={events}
                 onEdit={onEdit}
                 onDelete={onDelete}

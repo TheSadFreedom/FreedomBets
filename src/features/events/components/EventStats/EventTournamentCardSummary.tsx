@@ -20,7 +20,6 @@ import {
   EventEditButton,
   EventLogoWrap,
   MetricTile,
-  MetricTileLabel,
   MetricTileWinner,
   EventTierBadge,
 } from "./EventStats.styled";
@@ -80,9 +79,8 @@ const EventTournamentCardSummary = ({
       <EventCardStats $withWinner={Boolean(winnerOrganization)}>
         {winnerOrganization ? (
           <MetricTile $variant="winner" $accent="#ffd54f">
-            <MetricTileLabel>Победитель</MetricTileLabel>
             <MetricTileWinner title={`Победитель: ${winnerOrganization}`}>
-              <TeamLogo name={winnerOrganization} logoSlug={winnerLogoSlug} size={14} />
+              <TeamLogo name={winnerOrganization} logoSlug={winnerLogoSlug} size={18} />
               <span>{winnerOrganization}</span>
             </MetricTileWinner>
           </MetricTile>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Dialog, IconButton, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Dialog, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -21,7 +21,7 @@ import { useTeamLogosManifest } from "@/shared/hooks/useTeamLogosManifest";
 import { teamLogoSlug } from "@/shared/lib/logos/teamLogo";
 import DateInput, { type DateInputHandle } from "@/shared/ui/DateInput/DateInput";
 import SuggestTextField from "@/shared/ui/SuggestTextField/SuggestTextField";
-import { resolveDialogPaperSx } from "@/shared/styles/dialogSx";
+import { dialogPaperSx } from "@/shared/styles/dialogSx";
 import {
   DialogBody,
   DialogFooter,
@@ -92,8 +92,6 @@ const EventFormDialog = ({
   onClose,
   onSubmit,
 }: EventFormDialogProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [form, setForm] = useState<EventEditInput>(() =>
     initial
       ? eventToFormInput(initial)
@@ -212,11 +210,10 @@ const EventFormDialog = ({
       open={open}
       onClose={onClose}
       fullWidth
-      fullScreen={isMobile}
       maxWidth="xs"
       slotProps={{
         backdrop: { sx: dialogBackdropSx },
-        paper: { sx: resolveDialogPaperSx(isMobile) },
+        paper: { sx: dialogPaperSx },
       }}
     >
       <DialogShell>

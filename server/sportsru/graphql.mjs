@@ -20,8 +20,8 @@ const SERIES_QUERY = `query SportsRuSeries($id: ID!) {
             map { name }
             status
             winner
-            team1 { score }
-            team2 { score }
+            team1 { score team { name } }
+            team2 { score team { name } }
           }
         }
       }

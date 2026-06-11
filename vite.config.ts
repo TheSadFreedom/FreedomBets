@@ -14,21 +14,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: process.env.API_PROXY_TARGET ?? 'http://127.0.0.1:3001',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
-  },
-  preview: {
-    host: true,
-    port: Number(process.env.CLOUDPUB_PORT ?? 8080),
-    strictPort: true,
-    // CloudPub assigns a new *.cloudpub.ru subdomain each session
-    allowedHosts: true,
-    proxy: {
-      '/api': {
-        target: process.env.API_PROXY_TARGET ?? 'http://127.0.0.1:3001',
+        target: 'http://127.0.0.1:3001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

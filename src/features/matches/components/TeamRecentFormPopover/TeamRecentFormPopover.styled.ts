@@ -1,6 +1,4 @@
 import styled, { css } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const PopoverRoot = styled.div`
   min-width: 272px;
   max-width: min(340px, 92vw);
@@ -208,8 +206,4 @@ export const LogoRing = styled.div`
     border-radius: 0;
   }
 
-  ${media.down("md")} {
-    width: 24px;
-    height: 24px;
-  }
 `;

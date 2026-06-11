@@ -1,6 +1,4 @@
 import styled, { css } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export { dialogBackdropSx, dialogPaperSx } from "@/shared/styles/dialogSx";
 
 export const fieldSx = {
@@ -55,10 +53,6 @@ export const DialogHeader = styled.div`
   );
   flex-shrink: 0;
 
-  ${media.down("sm")} {
-    padding: 14px 12px 12px;
-    gap: 10px;
-  }
 `;
 
 export const HeaderIcon = styled.div`
@@ -112,10 +106,6 @@ export const DialogBody = styled.div`
   flex: 1;
   min-height: 0;
 
-  ${media.down("sm")} {
-    padding: 12px;
-    gap: 8px;
-  }
 `;
 
 export const Section = styled.section`
@@ -146,9 +136,6 @@ export const FieldsGrid = styled.div<{ $cols?: 2 | 3 }>`
     $cols === 3 ? "1fr 1fr 1fr" : $cols === 2 ? "1fr 1fr" : "1fr"};
   gap: 10px;
 
-  ${media.down("sm")} {
-    grid-template-columns: 1fr;
-  }
 `;
 
 export const FormatRow = styled.div`
@@ -197,10 +184,6 @@ export const TeamsRow = styled.div`
   gap: 8px;
   align-items: center;
 
-  ${media.down("sm")} {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
 `;
 
 export const VsBadge = styled.span`
@@ -217,9 +200,6 @@ export const VsBadge = styled.span`
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
 
-  ${media.down("sm")} {
-    display: none;
-  }
 `;
 
 export const MapsToggle = styled.button`
@@ -262,19 +242,6 @@ export const MapRow = styled.div`
   gap: 6px;
   align-items: center;
 
-  ${media.down("sm")} {
-    grid-template-columns: 22px 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 6px;
-
-    .map-scores {
-      grid-column: 2 / -1;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 6px;
-      align-items: center;
-    }
-  }
 `;
 
 export const MapIndex = styled.span`
@@ -302,13 +269,6 @@ export const ScoreColon = styled.span`
 export const ScoreFields = styled.div`
   display: contents;
 
-  ${media.down("sm")} {
-    display: grid;
-    grid-column: 2 / -1;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 6px;
-    align-items: center;
-  }
 `;
 
 export const HintText = styled.p`
@@ -326,14 +286,6 @@ export const DialogFooter = styled.div`
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 
-  ${media.down("sm")} {
-    flex-direction: column-reverse;
-    padding: 10px 12px max(12px, env(safe-area-inset-bottom));
-
-    button {
-      width: 100%;
-    }
-  }
 `;
 
 export const FooterButton = styled.button<{ $primary?: boolean }>`

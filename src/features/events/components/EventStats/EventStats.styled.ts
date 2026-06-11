@@ -2,7 +2,6 @@ import { Accordion } from "@mui/material";
 import styled, { css } from "styled-components";
 import type { EventTier } from "@/entities/event";
 import { eventTierStyles } from "@/features/events/lib/eventTier";
-import { media } from "@/shared/styles/breakpoints";
 import { mobileCardSurface, mobileEmptyState } from "@/shared/styles/mobileTokens";
 
 export const EventStatsRoot = styled.section`
@@ -11,9 +10,6 @@ export const EventStatsRoot = styled.section`
   gap: 10px;
   min-width: 0;
 
-  ${media.down("md")} {
-    gap: 14px;
-  }
 `;
 
 export const EventStatsCard = styled.div`
@@ -21,13 +17,6 @@ export const EventStatsCard = styled.div`
   border-radius: 14px;
   overflow: hidden;
 
-  ${media.down("md")} {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    overflow: visible;
-  }
 `;
 
 export const FiltersPanel = styled.div`
@@ -35,19 +24,6 @@ export const FiltersPanel = styled.div`
   background: rgba(0, 0, 0, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
-  ${media.down("md")} {
-    position: sticky;
-    top: 0;
-    z-index: 8;
-    padding: 12px;
-    margin-bottom: 4px;
-    border-radius: 14px;
-    ${mobileCardSurface};
-    border-bottom: none;
-    backdrop-filter: blur(10px);
-    background:
-      linear-gradient(145deg, rgba(36, 36, 36, 0.98) 0%, rgba(22, 22, 22, 0.99) 100%);
-  }
 `;
 
 export const FiltersHeader = styled.div`
@@ -71,10 +47,6 @@ export const FiltersWrapper = styled.div`
   grid-template-columns: 1fr;
   gap: 8px;
 
-  ${media.up("md")} {
-    display: flex;
-    flex-wrap: wrap;
-  }
 `;
 
 export const FiltersActions = styled.div`
@@ -85,9 +57,9 @@ export const FiltersActions = styled.div`
 `;
 
 export const filterControlSx = {
-  width: { xs: "100%", sm: "auto" },
-  minWidth: { xs: 0, sm: 148 },
-  flex: { xs: "1 1 100%", sm: "1 1 148px" },
+  width: "auto",
+  minWidth: 148,
+  flex: "1 1 148px",
   "& .MuiOutlinedInput-root": {
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderRadius: "10px",
@@ -115,9 +87,6 @@ export const EventScrollArea = styled.div`
   min-width: 0;
   padding: 6px 8px 8px;
 
-  ${media.down("md")} {
-    padding: 0 0 10px;
-  }
 `;
 
 export const EventGrid = styled.div`
@@ -126,17 +95,11 @@ export const EventGrid = styled.div`
   gap: 6px;
   min-width: 0;
 
-  ${media.down("md")} {
-    gap: 10px;
-  }
 `;
 
 export const EmptySearch = styled.p`
   ${mobileEmptyState};
 
-  ${media.down("md")} {
-    margin: 0;
-  }
 `;
 
 export const EventAccordion = styled(Accordion)`
@@ -176,9 +139,6 @@ export const EventAccordion = styled(Accordion)`
     min-height: 0 !important;
     padding: 6px 10px 6px 12px;
 
-    ${media.down("md")} {
-      padding: 8px 10px 8px 12px;
-    }
   }
 
   .MuiAccordionSummary-content {
@@ -188,9 +148,6 @@ export const EventAccordion = styled(Accordion)`
   .MuiAccordionDetails-root {
     padding: 0 10px 10px;
 
-    ${media.down("md")} {
-      padding: 0 10px 12px;
-    }
   }
 `;
 
@@ -200,15 +157,6 @@ export const EventSummaryContent = styled.div`
 `;
 
 const eventMetricsTileGap = 8;
-const eventMetricsActionsWidth = 36;
-const eventMetricsTilesWidth = "372px";
-const eventMetricsColumnWidth = "408px";
-const eventWinnerTileWidth = 120;
-
-const resolveEventMetricsColumnWidth = (withWinner: boolean) =>
-  withWinner
-    ? 372 + eventWinnerTileWidth + eventMetricsTileGap + eventMetricsActionsWidth
-    : 408;
 
 export const EventCardLayout = styled.div`
   display: grid;
@@ -221,30 +169,8 @@ export const EventCardLayout = styled.div`
     "head stats"
     "tags stats";
 
-  ${media.down("md")} {
-    gap: 8px;
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "head"
-      "tags"
-      "stats";
-  }
 
-  ${media.up("md")} {
-    ${media.down("lg")} {
-      gap: 8px;
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "head"
-        "tags"
-        "stats";
-    }
-  }
 
-  ${media.up("lg")} {
-    align-items: stretch;
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
 `;
 
 export const EventCardHead = styled.div`
@@ -282,9 +208,6 @@ export const EventCardName = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${media.down("md")} {
-    font-size: 15px;
-  }
 `;
 
 export const EventCardTags = styled.div`
@@ -295,18 +218,6 @@ export const EventCardTags = styled.div`
   gap: 6px;
   min-width: 0;
 
-  ${media.down("md")} {
-    flex-wrap: nowrap;
-    gap: 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 1px;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
 `;
 
 export const EventWinnerChip = styled.span`
@@ -353,20 +264,6 @@ export const EventDateChip = styled.span`
     flex-shrink: 0;
   }
 
-  ${media.up("md")} {
-    min-height: 20px;
-    padding: 0 7px;
-    font-size: 10px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.48);
-    background: transparent;
-    border: none;
-    padding: 0;
-
-    svg {
-      font-size: 12px;
-    }
-  }
 `;
 
 export const EventCardStats = styled.div<{ $withWinner?: boolean }>`
@@ -377,16 +274,7 @@ export const EventCardStats = styled.div<{ $withWinner?: boolean }>`
   gap: ${eventMetricsTileGap}px;
   min-width: 0;
 
-  ${media.up("lg")} {
-    width: ${({ $withWinner }) => `${resolveEventMetricsColumnWidth(Boolean($withWinner))}px`};
-    flex-shrink: 0;
-    align-self: stretch;
-  }
 
-  ${media.down("md")} {
-    justify-content: stretch;
-    width: 100%;
-  }
 `;
 
 export const EventCardActions = styled.div`
@@ -421,9 +309,6 @@ export const EventEditButton = styled.button<{ $danger?: boolean }>`
     opacity: 1;
   }
 
-  ${media.down("md")} {
-    opacity: 1;
-  }
 
   @media (hover: none) {
     opacity: 1;
@@ -444,10 +329,6 @@ export const EventLogoWrap = styled.div`
   width: 36px;
   height: 36px;
 
-  ${media.down("md")} {
-    width: 34px;
-    height: 34px;
-  }
 
   .MuiAvatar-root {
     border-radius: 0;
@@ -471,10 +352,6 @@ export const EventTierBadge = styled.span<{ $tier: EventTier }>`
   background: ${({ $tier }) => eventTierStyles[$tier].bg};
   border: 1px solid ${({ $tier }) => eventTierStyles[$tier].border};
 
-  ${media.up("md")} {
-    min-height: 20px;
-    padding: 2px 6px;
-  }
 `;
 
 export const EventMetricsGrid = styled.div`
@@ -485,19 +362,7 @@ export const EventMetricsGrid = styled.div`
   gap: 8px;
   width: auto;
 
-  ${media.up("lg")} {
-    width: ${eventMetricsTilesWidth};
-    flex: 1 1 ${eventMetricsTilesWidth};
-  }
 
-  ${media.down("md")} {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-    width: auto;
-  }
 `;
 
 const metricHighlight = css`
@@ -543,22 +408,8 @@ export const MetricTile = styled.div<{
   ${({ $variant }) =>
     $variant &&
     css`
-      ${media.up("lg")} {
-        width: ${metricTileWidths[$variant]};
-        flex: 0 0 ${metricTileWidths[$variant]};
-        align-items: center;
-        text-align: center;
-      }
     `}
 
-  ${media.down("md")} {
-    align-items: center;
-    text-align: center;
-    min-height: 54px;
-    min-width: 0;
-    padding: 8px 6px;
-    border-radius: 10px;
-  }
 `;
 
 export const MetricTileLabel = styled.div`
@@ -570,35 +421,32 @@ export const MetricTileLabel = styled.div`
   margin-bottom: 4px;
   line-height: 1;
 
-  ${media.down("md")} {
-    font-size: 10px;
-    margin-bottom: 5px;
-  }
 `;
 
 export const MetricTileWinner = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
   width: 100%;
   min-width: 0;
-  min-height: 18px;
+  min-height: 32px;
   color: #ffe082;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
+  text-align: center;
 
   span {
+    display: block;
+    width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
   }
 
-  ${media.down("md")} {
-    font-size: 10px;
-  }
 `;
 
 export const MetricTileValue = styled.div<{ $color?: string; $compact?: boolean }>`
@@ -616,15 +464,7 @@ export const MetricTileValue = styled.div<{ $color?: string; $compact?: boolean 
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${media.up("lg")} {
-    justify-content: center;
-  }
 
-  ${media.down("md")} {
-    justify-content: center;
-    font-size: ${({ $compact }) => ($compact ? "14px" : "16px")};
-    min-height: 18px;
-  }
 `;
 
 export const WldBadges = styled.div`
@@ -636,13 +476,7 @@ export const WldBadges = styled.div`
   width: 100%;
   min-height: 20px;
 
-  ${media.up("lg")} {
-    justify-content: center;
-  }
 
-  ${media.down("md")} {
-    justify-content: center;
-  }
 `;
 
 export const WldBadge = styled.span<{
@@ -695,9 +529,4 @@ export const EventDetailsPanel = styled.div`
   flex-direction: column;
   gap: 8px;
 
-  ${media.down("md")} {
-    padding: 10px;
-    border-radius: 12px;
-    gap: 10px;
-  }
 `;

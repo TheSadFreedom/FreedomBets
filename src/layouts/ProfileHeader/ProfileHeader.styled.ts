@@ -1,19 +1,10 @@
 import styled from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const ProfileHeaderRoot = styled.div`
   display: flex;
   justify-content: flex-end;
   max-width: 100%;
 
-  ${media.down("md")} {
-    display: none;
-  }
 
-  ${media.down("md")} {
-    justify-content: center;
-    width: 100%;
-  }
 `;
 
 export const ProfileCard = styled.div`
@@ -31,12 +22,6 @@ export const ProfileCard = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
 
-  ${media.down("xs")} {
-    gap: 8px;
-    padding: 5px 6px 5px 5px;
-    width: 100%;
-    max-width: 360px;
-  }
 `;
 
 export const ProfileAvatar = styled.div`
@@ -56,12 +41,6 @@ export const ProfileAvatar = styled.div`
   box-shadow: 0 2px 10px rgba(76, 175, 80, 0.28);
   border: 1px solid rgba(255, 255, 255, 0.14);
 
-  ${media.down("xs")} {
-    width: 32px;
-    height: 32px;
-    font-size: 13px;
-    border-radius: 8px;
-  }
 `;
 
 export const ProfileIdentity = styled.div`
@@ -102,9 +81,6 @@ export const ProfileNameButton = styled.button`
     border-radius: 4px;
   }
 
-  ${media.down("xs")} {
-    font-size: 13px;
-  }
 `;
 
 export const ProfileHint = styled.span`

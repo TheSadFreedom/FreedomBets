@@ -1,6 +1,4 @@
 import styled, { css } from "styled-components";
-import { media } from "@/shared/styles/breakpoints";
-
 export const ChartCard = styled.div<{ $embedded?: boolean }>`
   ${({ $embedded }) =>
     $embedded
@@ -16,9 +14,6 @@ export const ChartCard = styled.div<{ $embedded?: boolean }>`
           background: rgba(0, 0, 0, 0.22);
           border: 1px solid rgba(255, 255, 255, 0.07);
 
-          ${media.down("sm")} {
-            padding: 12px 10px 8px;
-          }
         `}
 `;
 
@@ -58,9 +53,6 @@ export const ChartSvgWrap = styled.div`
   width: 100%;
   height: 200px;
 
-  ${media.down("sm")} {
-    height: 160px;
-  }
 
   svg {
     display: block;

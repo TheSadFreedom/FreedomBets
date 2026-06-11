@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Bet } from "@/entities/bet";
 import type { EventEditInput, EventIdentity } from "@/entities/event";
 import type { EventRecord } from "@/entities/eventRecord";
@@ -29,7 +29,7 @@ import {
 } from "@/features/matches/lib/syncBetsMajorStage";
 import {
   getMatchSeriesWinner,
-  planMatchBetSettlements,
+  planMatchBetRecalculations,
   countSkippedWaitBets,
   type MatchSettlementResult,
 } from "@/features/matches/lib/settleBetsForMatch";
@@ -47,6 +47,17 @@ import { normalizePickemMajor } from "../lib/normalizePickem";
 import { getNextProfileId } from "../lib/profileId";
 import { normalizeProfile } from "../lib/normalizeProfile";
 import { clampBalance, clampBetAmount } from "@/shared/lib/limits";
+import {
+  patchBetMajorStage,
+  patchBetStatus,
+  replaceBetInLists,
+} from "./lib/betStatusApi";
+import {
+  executeBetSettlementPlan,
+  mergeSavedBets,
+} from "./lib/executeBetSettlement";
+import { normalizeProfileList } from "./lib/normalizeProfileList";
+import { profilePatchPayload } from "./lib/profilePatchPayload";
 
 export function useProfileBets() {
   const [activeProfileId, setActiveProfileId] = useState<number | null>(() =>
@@ -62,9 +73,6 @@ export function useProfileBets() {
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const settleAllPendingBetsRef = useRef<
-    (matchList: Match[], betsSource: Bet[]) => Promise<MatchSettlementResult>
-  >(async () => ({ settled: 0, skipped: 0 }));
 
   const loadProfiles = useCallback(async () => {
     const [profilesRes, allBetsRes] = await Promise.all([
@@ -73,17 +81,8 @@ export function useProfileBets() {
     ]);
     const loadedAllBets = (allBetsRes.data || []).map(normalizeBet);
     const items = enrichProfilesWithBets(
-      (profilesRes.data || [])
-        .map((item) => {
-          try {
-            return normalizeProfile(item);
-          } catch (err) {
-            console.error(err);
-            return null;
-          }
-        })
-        .filter((item): item is Profile => item != null),
-      loadedAllBets
+      normalizeProfileList(profilesRes.data || []),
+      loadedAllBets,
     );
     setAllBets(loadedAllBets);
     setProfiles(items);
@@ -119,29 +118,17 @@ export function useProfileBets() {
         ]);
       const loadedBets = (betsRes.data || []).map(normalizeBet);
       const loadedAllBets = (allBetsRes.data || []).map(normalizeBet);
-      const loadedProfiles = (profilesRes.data || [])
-        .map((item) => {
-          try {
-            return normalizeProfile(item);
-          } catch (err) {
-            console.error(err);
-            return null;
-          }
-        })
-        .filter((item): item is Profile => item != null);
+      const loadedProfiles = normalizeProfileList(profilesRes.data || []);
 
       const rawProfile = normalizeProfile(profileRes.data);
       const enrichedProfile = enrichProfileWithBets(rawProfile, loadedAllBets);
       const enrichedProfiles = enrichProfilesWithBets(loadedProfiles, loadedAllBets);
 
       if (profileNeedsBalanceSync(rawProfile, loadedAllBets)) {
-        const res = await httpClient.patch<Profile>(`/profiles/${rawProfile.id}`, {
-          name: enrichedProfile.name,
-          balance: enrichedProfile.balance,
-          balanceBase: enrichedProfile.balanceBase,
-          totalBets: enrichedProfile.totalBets,
-          winRate: enrichedProfile.winRate,
-        });
+        const res = await httpClient.patch<Profile>(
+          `/profiles/${rawProfile.id}`,
+          profilePatchPayload(enrichedProfile),
+        );
         setProfile(normalizeProfile(res.data));
       } else {
         setProfile(enrichedProfile);
@@ -167,28 +154,6 @@ export function useProfileBets() {
       setAllBets(nextAllBets);
       setProfiles(enrichedProfiles);
       setMatches(loadedMatches);
-      void syncSportsRuMatches(false)
-        .then(async () => {
-          const refreshed = await httpClient.get<Match[]>("/matches");
-          const normalized = (refreshed.data || []).map(normalizeMatch);
-          setMatches(normalized);
-          const healedAfterSync = await healBetsStagesFromMatches(normalized, nextAllBets);
-          if (healedAfterSync.updated > 0) {
-            setAllBets(healedAfterSync.betsList);
-            if (activeProfileId != null) {
-              setBets(
-                healedAfterSync.betsList.filter((item) => item.profileId === activeProfileId)
-              );
-            }
-          }
-          await settleAllPendingBetsRef.current(
-            normalized,
-            healedAfterSync.updated > 0 ? healedAfterSync.betsList : nextAllBets
-          );
-        })
-        .catch((cause) => {
-          console.error(cause);
-        });
       setPickems((pickemsRes.data || []).map(normalizePickemMajor));
       setMedals(
         (medalsRes.data || [])
@@ -224,15 +189,7 @@ export function useProfileBets() {
   const patchBetsMajorStage = async (betsToUpdate: Bet[], majorStage: string | null) => {
     if (betsToUpdate.length === 0) return [];
 
-    return Promise.all(
-      betsToUpdate.map(async (bet) => {
-        const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, {
-          ...bet,
-          majorStage,
-        });
-        return normalizeBet(res.data);
-      })
-    );
+    return Promise.all(betsToUpdate.map((bet) => patchBetMajorStage(bet, majorStage)));
   };
 
   const healBetsStagesFromMatches = async (matchList: Match[], betsList: Bet[]) => {
@@ -246,12 +203,8 @@ export function useProfileBets() {
       toUpdate.map(async (bet) => {
         const matchId = bet.matchId?.trim();
         if (!matchId) return null;
-        const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, {
-          ...bet,
-          majorStage: stageByMatchId.get(matchId) ?? null,
-        });
-        return normalizeBet(res.data);
-      })
+        return patchBetMajorStage(bet, stageByMatchId.get(matchId) ?? null);
+      }),
     );
 
     const nextAllBets = applyBetStageUpdates(
@@ -271,13 +224,10 @@ export function useProfileBets() {
       { ...currentProfile, balanceBase },
       allBetsList
     );
-    const updated = await httpClient.patch<Profile>(`/profiles/${currentProfile.id}`, {
-      name: enriched.name,
-      balance: enriched.balance,
-      balanceBase: enriched.balanceBase,
-      totalBets: enriched.totalBets,
-      winRate: enriched.winRate,
-    });
+    const updated = await httpClient.patch<Profile>(
+      `/profiles/${currentProfile.id}`,
+      profilePatchPayload(enriched),
+    );
     const saved = normalizeProfile(updated.data);
     setProfile(saved);
     setProfiles((prev) => prev.map((item) => (item.id === saved.id ? saved : item)));
@@ -295,13 +245,10 @@ export function useProfileBets() {
       const current = profilesList.find((item) => item.id === profileId);
       if (!current) continue;
       const enriched = enrichProfileWithBets(current, allBetsList);
-      const res = await httpClient.patch<Profile>(`/profiles/${profileId}`, {
-        name: enriched.name,
-        balance: enriched.balance,
-        balanceBase: enriched.balanceBase,
-        totalBets: enriched.totalBets,
-        winRate: enriched.winRate,
-      });
+      const res = await httpClient.patch<Profile>(
+        `/profiles/${profileId}`,
+        profilePatchPayload(enriched),
+      );
       updatedProfiles.set(profileId, normalizeProfile(res.data));
     }
 
@@ -356,7 +303,7 @@ export function useProfileBets() {
     await syncProfile(profile, nextAllBets);
   };
 
-  const updateBet = async (updated: Bet, _previous: Bet) => {
+  const updateBet = async (updated: Bet) => {
     if (!profile) return;
     const savedPayload = { ...updated, amount: clampBetAmount(updated.amount) };
     if (savedPayload.amount <= 0) return;
@@ -380,59 +327,41 @@ export function useProfileBets() {
     await syncProfile(profile, nextAllBets);
   };
 
-  const settleWin = async (id: string) => {
+  const applyBetStatusChange = async (id: string, status: Bet["status"]) => {
     if (!profile) return;
-    const bet = bets.find((b) => b.id === id);
-    if (!bet || bet.status !== "WAIT") return;
-
-    const res = await httpClient.patch<Bet>(`/bets/${id}`, { status: "WIN" });
-    const saved = normalizeBet(res.data);
-    const nextBets = bets.map((b) => (b.id === id ? saved : b));
-    const nextAllBets = allBets.map((item) => (item.id === id ? saved : item));
+    const saved = await patchBetStatus(id, status);
+    const { nextBets, nextAllBets } = replaceBetInLists(bets, allBets, saved);
     setBets(nextBets);
     setAllBets(nextAllBets);
     await syncProfile(profile, nextAllBets);
+  };
+
+  const settleWin = async (id: string) => {
+    const bet = bets.find((item) => item.id === id);
+    if (!bet || bet.status !== "WAIT") return;
+    await applyBetStatusChange(id, "WIN");
   };
 
   const settleLose = async (id: string) => {
-    if (!profile) return;
-    const bet = bets.find((b) => b.id === id);
+    const bet = bets.find((item) => item.id === id);
     if (!bet || bet.status !== "WAIT") return;
-
-    const res = await httpClient.patch<Bet>(`/bets/${id}`, { status: "LOSE" });
-    const saved = normalizeBet(res.data);
-    const nextBets = bets.map((b) => (b.id === id ? saved : b));
-    const nextAllBets = allBets.map((item) => (item.id === id ? saved : item));
-    setBets(nextBets);
-    setAllBets(nextAllBets);
-    await syncProfile(profile, nextAllBets);
+    await applyBetStatusChange(id, "LOSE");
   };
 
   const revertToPending = async (id: string) => {
-    if (!profile) return;
-    const bet = bets.find((b) => b.id === id);
+    const bet = bets.find((item) => item.id === id);
     if (!bet || bet.status === "WAIT") return;
-
-    const res = await httpClient.patch<Bet>(`/bets/${id}`, { status: "WAIT" });
-    const saved = normalizeBet(res.data);
-    const nextBets = bets.map((b) => (b.id === id ? saved : b));
-    const nextAllBets = allBets.map((item) => (item.id === id ? saved : item));
-    setBets(nextBets);
-    setAllBets(nextAllBets);
-    await syncProfile(profile, nextAllBets);
+    await applyBetStatusChange(id, "WAIT");
   };
 
   const setBalance = async (balance: number) => {
     if (!profile) return;
     const balanceBase = balanceBaseForTarget(clampBalance(balance), bets);
     const enriched = enrichProfileWithBets({ ...profile, balanceBase }, allBets);
-    const res = await httpClient.patch<Profile>(`/profiles/${profile.id}`, {
-      name: enriched.name,
-      balance: enriched.balance,
-      balanceBase: enriched.balanceBase,
-      totalBets: enriched.totalBets,
-      winRate: enriched.winRate,
-    });
+    const res = await httpClient.patch<Profile>(
+      `/profiles/${profile.id}`,
+      profilePatchPayload(enriched),
+    );
     setProfile(normalizeProfile(res.data));
     setProfiles((prev) =>
       prev.map((item) => (item.id === profile.id ? normalizeProfile(res.data) : item))
@@ -445,11 +374,8 @@ export function useProfileBets() {
     if (!trimmed) return;
     const enriched = enrichProfileWithBets(profile, allBets);
     const res = await httpClient.patch<Profile>(`/profiles/${profile.id}`, {
+      ...profilePatchPayload(enriched),
       name: trimmed,
-      balance: enriched.balance,
-      balanceBase: enriched.balanceBase,
-      totalBets: enriched.totalBets,
-      winRate: enriched.winRate,
     });
     const saved = normalizeProfile(res.data);
     setProfile(saved);
@@ -703,7 +629,7 @@ export function useProfileBets() {
     matchList: Match[],
     betsSource: Bet[],
   ): Promise<MatchSettlementResult> => {
-    const plan = matchList.flatMap((item) => planMatchBetSettlements(item, betsSource));
+    const plan = matchList.flatMap((item) => planMatchBetRecalculations(item, betsSource));
     const skipped = matchList.reduce(
       (sum, item) => sum + countSkippedWaitBets(item, betsSource),
       0,
@@ -712,15 +638,8 @@ export function useProfileBets() {
       return { settled: 0, skipped };
     }
 
-    const savedBets = await Promise.all(
-      plan.map(async ({ bet, nextStatus }) => {
-        const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { ...bet, status: nextStatus });
-        return normalizeBet(res.data);
-      }),
-    );
-
-    const savedById = new Map(savedBets.map((item) => [item.id, item]));
-    const nextAllBets = betsSource.map((item) => savedById.get(item.id) ?? item);
+    const savedBets = await executeBetSettlementPlan(plan);
+    const nextAllBets = mergeSavedBets(betsSource, savedBets);
     setAllBets(nextAllBets);
 
     const affectedProfileIds = new Set(plan.map(({ bet }) => bet.profileId));
@@ -736,19 +655,32 @@ export function useProfileBets() {
   const settleMatchBets = async (match: Match): Promise<MatchSettlementResult> =>
     applyBetSettlements([match], allBets);
 
-  const settleAllPendingBets = async (
-    matchList: Match[],
-    betsSource: Bet[] = allBets,
-  ): Promise<MatchSettlementResult> => applyBetSettlements(matchList, betsSource);
+  const reloadMatchesAndBets = async () => {
+    const [matchesRes, betsRes, profilesRes] = await Promise.all([
+      httpClient.get<Match[]>("/matches"),
+      httpClient.get<Bet[]>("/bets"),
+      httpClient.get<Profile[]>("/profiles"),
+    ]);
+    const normalizedMatches = (matchesRes.data || []).map(normalizeMatch);
+    const reloadedAllBets = (betsRes.data || []).map(normalizeBet);
+    const reloadedProfiles = normalizeProfileList(profilesRes.data || []);
+    const enrichedProfiles = enrichProfilesWithBets(reloadedProfiles, reloadedAllBets);
 
-  settleAllPendingBetsRef.current = settleAllPendingBets;
+    setMatches(normalizedMatches);
+    setAllBets(reloadedAllBets);
+    setProfiles(enrichedProfiles);
+    if (profile) {
+      setBets(reloadedAllBets.filter((item) => item.profileId === profile.id));
+      const current = enrichedProfiles.find((item) => item.id === profile.id);
+      if (current) setProfile(current);
+    }
+
+    return { normalizedMatches, reloadedAllBets };
+  };
 
   const syncSportsRuMatchesFromServer = async (force = false) => {
     await syncSportsRuMatches(force);
-    const refreshed = await httpClient.get<Match[]>("/matches");
-    const normalized = (refreshed.data || []).map(normalizeMatch);
-    setMatches(normalized);
-    await settleAllPendingBets(normalized);
+    await reloadMatchesAndBets();
   };
 
   const updateMatch = async (match: Match, data: MatchCreateInput) => {
