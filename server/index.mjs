@@ -46,6 +46,8 @@ import { reloadTeamSynonyms } from "./sportsru/teamNames.mjs";
 
 import { migrateTeamFieldsInDb } from "./teams/teamsStore.mjs";
 
+import { cleanupInvalidBets, registerBetsRoutes } from "./bets/betsApi.mjs";
+
 
 
 const upload = multer({
@@ -152,6 +154,8 @@ await db.read();
 
 
 
+const removedInvalidBets = cleanupInvalidBets(db);
+
 if (!Array.isArray(db.data.teams)) {
 
   db.data.teams = [];
@@ -169,6 +173,7 @@ const deduped = dedupeTeamsInDb(db);
 const migrated = migrateTeamFieldsInDb(db);
 
 if (
+  removedInvalidBets > 0 ||
   teamsSeeded ||
   deduped.teamsChanged ||
   deduped.matchesUpdated > 0 ||
@@ -219,9 +224,7 @@ app
 
   })
 
-  .options("*", cors())
-
-  .use(json());
+  .options("*", cors());
 
 
 
@@ -418,7 +421,7 @@ app.post("/sportsru/sync", async (req, res) => {
 
 
 
-app.patch("/teams/:id", async (req, res) => {
+app.patch("/teams/:id", json(), async (req, res) => {
 
   try {
 
@@ -504,7 +507,7 @@ app.get("/export/db", async (_req, res) => {
 
 
 
-app.post("/import/db", async (req, res) => {
+app.post("/import/db", json(), async (req, res) => {
 
   try {
 
@@ -529,6 +532,10 @@ app.post("/import/db", async (req, res) => {
   }
 
 });
+
+
+
+registerBetsRoutes(app, db, json);
 
 
 

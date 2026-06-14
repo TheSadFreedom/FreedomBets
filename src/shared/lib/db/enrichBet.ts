@@ -2,7 +2,9 @@ import type { Bet, StoredBet } from "@/entities/bet";
 import {
   formatBetDescription,
   inferExactScoreFromLegacy,
+  inferMapNumberFromLegacy,
   inferMarketFromLegacy,
+  inferPistolRoundFromLegacy,
   inferYesNoFromLegacy,
   isBetMarket,
   isBetTeamSide,
@@ -42,6 +44,7 @@ export function enrichBet(
 ): Bet {
   const betType = stored.betType ?? "";
   const betMarket = inferMarketFromLegacy(betType);
+  const matchFormat = match?.format ?? "BO3";
 
   const team1Id = match?.team1Id ?? "";
   const team2Id = match?.team2Id ?? "";
@@ -75,8 +78,11 @@ export function enrichBet(
     betMarket: isBetMarket(betMarket) ? betMarket : "match",
     betTeam: isBetTeamSide(betTeam) ? betTeam : 1,
     betTeamId: null,
-    mapNumber: betMarket === "map" || betMarket === "pistol" ? 1 : null,
-    pistolRound: betMarket === "pistol" ? 1 : null,
+    mapNumber:
+      betMarket === "map" || betMarket === "pistol"
+        ? inferMapNumberFromLegacy(betType, matchFormat)
+        : null,
+    pistolRound: betMarket === "pistol" ? inferPistolRoundFromLegacy(betType) : null,
     yesNo: betMarket === "atLeastOneMap" ? inferYesNoFromLegacy(betType) : null,
     exactScore1:
       betMarket === "exactScore" ? inferExactScoreFromLegacy(betType).score1 : null,

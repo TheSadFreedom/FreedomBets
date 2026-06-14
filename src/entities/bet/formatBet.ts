@@ -105,6 +105,20 @@ export function inferExactScoreFromLegacy(
   return normalizeBo3ExactScore(Number(match[1]), Number(match[2]));
 }
 
+export function inferMapNumberFromLegacy(
+  betType: string,
+  format: MatchFormat = "BO3"
+): number {
+  const match = betType.match(/карта\s*(\d+)/i);
+  if (!match) return 1;
+  return clampMapNumber(format, Number(match[1]));
+}
+
+export function inferPistolRoundFromLegacy(betType: string): 1 | 2 {
+  const match = betType.match(/пист(?:олет)?\.?\s*(\d+)/i);
+  return match && Number(match[1]) === 2 ? 2 : 1;
+}
+
 export function exactScoreWinnerSide(score1: number, score2: number): BetTeamSide {
   return score1 > score2 ? 1 : 2;
 }
@@ -193,7 +207,7 @@ export function normalizeBetTargets(
   bet: Pick<
     Bet,
     "betMarket" | "mapNumber" | "pistolRound" | "yesNo" | "exactScore1" | "exactScore2" | "format"
-  >
+  > & { betType?: string }
 ): Pick<Bet, "mapNumber" | "pistolRound" | "yesNo" | "exactScore1" | "exactScore2"> {
   if (bet.betMarket === "exactScore") {
     const score = normalizeBo3ExactScore(bet.exactScore1, bet.exactScore2);
@@ -220,7 +234,15 @@ export function normalizeBetTargets(
       exactScore2: null,
     };
   }
-  const mapNumber = clampMapNumber(bet.format, bet.mapNumber);
-  const pistolRound = bet.betMarket === "pistol" ? (bet.pistolRound === 2 ? 2 : 1) : null;
+  const parsedMapNumber =
+    bet.mapNumber ??
+    (bet.betType?.trim() ? inferMapNumberFromLegacy(bet.betType, bet.format) : null);
+  const mapNumber = clampMapNumber(bet.format, parsedMapNumber);
+  const pistolRound =
+    bet.betMarket === "pistol"
+      ? bet.pistolRound === 2
+        ? 2
+        : inferPistolRoundFromLegacy(bet.betType ?? "")
+      : null;
   return { mapNumber, pistolRound, yesNo: null, exactScore1: null, exactScore2: null };
 }

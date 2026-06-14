@@ -38,6 +38,8 @@ import {
   formatBetDescription,
   formatExactScoreLabel,
   getMapCount,
+  inferMapNumberFromLegacy,
+  inferPistolRoundFromLegacy,
   isCustomBetType,
   normalizeBetTargets,
 } from "@/entities/bet";
@@ -233,6 +235,7 @@ const BetFormDialog = ({
   const [amountInput, setAmountInput] = useState("");
   const [oddsInput, setOddsInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const dateRef = useRef<DateInputHandle>(null);
   const timeRef = useRef<TimeInputHandle>(null);
   const formInitialized = useRef(false);
@@ -329,6 +332,7 @@ const BetFormDialog = ({
   useEffect(() => {
     if (!open) {
       formInitialized.current = false;
+      setSubmitError(null);
       return;
     }
     if (formInitialized.current) return;
@@ -354,8 +358,14 @@ const BetFormDialog = ({
         betTeamId: initial.betTeamId,
         betMarket: isCustom ? "custom" : initial.betMarket,
         betTeam: initial.betTeam,
-        mapNumber: initial.mapNumber,
-        pistolRound: initial.pistolRound,
+        mapNumber:
+          !isCustom && (initial.betMarket === "map" || initial.betMarket === "pistol")
+            ? inferMapNumberFromLegacy(initial.betType, format)
+            : initial.mapNumber,
+        pistolRound:
+          !isCustom && initial.betMarket === "pistol"
+            ? inferPistolRoundFromLegacy(initial.betType)
+            : initial.pistolRound,
         yesNo: initial.yesNo,
         exactScore1: initial.exactScore1,
         exactScore2: initial.exactScore2,
@@ -533,9 +543,14 @@ const BetFormDialog = ({
       return;
     }
     setSubmitting(true);
+    setSubmitError(null);
     try {
       await onSubmit(payload);
       onClose();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Не удалось сохранить ставку";
+      setSubmitError(message);
     } finally {
       setSubmitting(false);
     }
@@ -1128,6 +1143,14 @@ const BetFormDialog = ({
             </FieldsStack>
           </Section>
         </DialogBody>
+
+        {submitError ? (
+          <Box sx={{ px: 3, pb: 1 }}>
+            <Typography variant="body2" color="error">
+              {submitError}
+            </Typography>
+          </Box>
+        ) : null}
 
         <DialogFooter>
           <FooterButtonSecondary type="button" onClick={onClose} disabled={submitting}>

@@ -27,6 +27,8 @@ export {
   isBo3ExactScore,
   normalizeBo3ExactScore,
   inferExactScoreFromLegacy,
+  inferMapNumberFromLegacy,
+  inferPistolRoundFromLegacy,
   exactScoreWinnerSide,
   inferYesNoFromLegacy,
   inferTeamFromLegacy,

@@ -287,33 +287,6 @@ export const PrizeBadge = styled.span`
   }
 `;
 
-export const ProfitBadge = styled.span<{ $positive: boolean; $muted?: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-  flex-shrink: 0;
-  color: ${({ $muted, $positive }) =>
-    $muted ? "rgba(255, 255, 255, 0.35)" : $positive ? "#81c784" : "#e57373"};
-  background: ${({ $muted, $positive }) =>
-    $muted
-      ? "rgba(255, 255, 255, 0.04)"
-      : $positive
-        ? "rgba(76, 175, 80, 0.12)"
-        : "rgba(239, 83, 80, 0.12)"};
-  border: 1px solid
-    ${({ $muted, $positive }) =>
-      $muted
-        ? "rgba(255, 255, 255, 0.1)"
-        : $positive
-          ? "rgba(102, 187, 106, 0.35)"
-          : "rgba(239, 83, 80, 0.35)"};
-`;
-
 export const CardIconButton = styled.button<{ $danger?: boolean }>`
   display: flex;
   align-items: center;

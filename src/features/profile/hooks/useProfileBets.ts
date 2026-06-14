@@ -279,7 +279,16 @@ export function useProfileBets() {
     if (!profile) return;
     const amount = clampBetAmount(data.amount);
     if (amount <= 0) return;
-    await httpClient.post<Bet>("/bets", prepareBetPayload({ ...data, amount, profileId: profile.id }));
+    const res = await httpClient.post<Bet>(
+      "/bets",
+      prepareBetPayload({ ...data, amount, profileId: profile.id }),
+    );
+    const saved = res.data;
+    if (!saved?.id || !saved.matchId?.trim() || !saved.betType?.trim() || !saved.amount) {
+      throw new Error(
+        "Сервер вернул неполную ставку. Закройте приложение и запустите npm start из папки проекта или переустановите FreedomBets.",
+      );
+    }
     await reloadMatchesAndBets();
   };
 

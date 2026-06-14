@@ -5,7 +5,6 @@ import type { EventStats, EventTier } from "@/entities/event";
 import EventStatsMetrics from "@/features/events/components/EventStats/EventStatsMetrics";
 import { formatIsoDateRange } from "@/shared/lib/date/isoDate";
 import { formatUsdPrizePool } from "@/shared/lib/format/prizePool";
-import { formatMoneySigned } from "@/shared/lib/format/money";
 import EventLogo from "@/shared/ui/EventLogo/EventLogo";
 import {
   CardIconButton,
@@ -21,7 +20,6 @@ import {
   EventTopActions,
   EventTopBar,
   PrizeBadge,
-  ProfitBadge,
   TierBadge,
 } from "./EventStats.styled";
 
@@ -55,8 +53,6 @@ const EventTournamentCardSummary = ({
   onDelete,
 }: EventTournamentCardSummaryProps) => {
   const displayName = eventName || eventOrganization;
-  const hasSettled = metrics.wins + metrics.losses > 0;
-  const profitPositive = metrics.profit >= 0;
 
   return (
     <>
@@ -78,15 +74,6 @@ const EventTournamentCardSummary = ({
               {formatUsdPrizePool(prizePool)}
             </PrizeBadge>
           ) : null}
-          {hasSettled ? (
-            <ProfitBadge $positive={profitPositive}>
-              {formatMoneySigned(metrics.profit)}
-            </ProfitBadge>
-          ) : (
-            <ProfitBadge $positive={false} $muted>
-              —
-            </ProfitBadge>
-          )}
           <CardIconButton
             type="button"
             aria-label="Редактировать турнир"
