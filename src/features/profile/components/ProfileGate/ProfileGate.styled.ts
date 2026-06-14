@@ -204,3 +204,49 @@ export const EmptyHint = styled.p`
   background: rgba(0, 0, 0, 0.18);
   border: 1px dashed rgba(255, 255, 255, 0.08);
 `;
+
+export const GateUpdateRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const GateUpdateHint = styled.p`
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.42);
+`;
+
+export const GateUpdateButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: rgba(129, 199, 132, 0.35);
+    background: rgba(76, 175, 80, 0.1);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;

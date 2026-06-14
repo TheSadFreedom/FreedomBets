@@ -31,7 +31,41 @@ async function promptInstall(version) {
   }
 }
 
+let ipcRegistered = false;
+
+function registerDesktopIpc() {
+  if (ipcRegistered) return;
+  ipcRegistered = true;
+
+  ipcMain.handle("desktop:get-version", () => app.getVersion());
+
+  ipcMain.handle("desktop:check-updates", async () => {
+    if (!app.isPackaged) {
+      return {
+        ok: false,
+        message: "Автообновление работает в установленной версии приложения",
+      };
+    }
+
+    try {
+      await autoUpdater.checkForUpdates();
+      return { ok: true };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Не удалось проверить обновления";
+      sendStatus({ state: "error", message });
+      return { ok: false, message };
+    }
+  });
+
+  ipcMain.handle("desktop:install-update", () => {
+    if (!app.isPackaged) return;
+    autoUpdater.quitAndInstall(false, true);
+  });
+}
+
 export function setupAutoUpdater() {
+  registerDesktopIpc();
+
   if (!app.isPackaged) {
     return;
   }
@@ -68,23 +102,6 @@ export function setupAutoUpdater() {
     const message = error instanceof Error ? error.message : String(error);
     sendStatus({ state: "error", message });
     console.error("Auto-update error:", message);
-  });
-
-  ipcMain.handle("desktop:get-version", () => app.getVersion());
-
-  ipcMain.handle("desktop:check-updates", async () => {
-    try {
-      await autoUpdater.checkForUpdates();
-      return { ok: true };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Не удалось проверить обновления";
-      sendStatus({ state: "error", message });
-      return { ok: false, message };
-    }
-  });
-
-  ipcMain.handle("desktop:install-update", () => {
-    autoUpdater.quitAndInstall(false, true);
   });
 
   setTimeout(() => {

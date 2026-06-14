@@ -1,7 +1,7 @@
 {
   "name": "freedombets",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.0",
   "type": "module",
   "main": "electron/main.mjs",
   "scripts": {
@@ -67,6 +67,9 @@
       "dist/**/*",
       "electron/**/*",
       "package.json"
+    ],
+    "asarUnpack": [
+      "electron/preload.cjs"
     ],
     "extraResources": [
       {

@@ -1,11 +1,7 @@
-import { useEffect, useState } from "react";
 import SystemUpdateAltOutlinedIcon from "@mui/icons-material/SystemUpdateAltOutlined";
+import { useDesktopUpdates } from "@/shared/lib/desktop/useDesktopUpdates";
+import { formatDesktopUpdateStatus } from "@/shared/lib/desktop/formatUpdateStatus";
 import {
-  getDesktopApp,
-  type DesktopUpdateStatus,
-} from "@/shared/lib/desktop/desktopApp";
-import {
-  ActionTile,
   ActionTileHint,
   ActionTileIcon,
   ActionTileLabel,
@@ -19,73 +15,25 @@ import {
   SectionTitle,
 } from "./ProfileSettingsDialog.styled";
 
-function formatStatus(status: DesktopUpdateStatus | null, currentVersion: string): string {
-  if (!status) {
-    return `Текущая версия ${currentVersion}`;
-  }
-
-  switch (status.state) {
-    case "checking":
-      return "Проверка обновлений…";
-    case "available":
-      return `Доступна версия ${status.version ?? "новее"}`;
-    case "downloading":
-      return `Загрузка ${Math.round(status.percent ?? 0)}%`;
-    case "downloaded":
-      return `Версия ${status.version ?? ""} готова к установке`;
-    case "not-available":
-      return "Установлена последняя версия";
-    case "error":
-      return status.message ?? "Ошибка проверки обновлений";
-    default:
-      return `Текущая версия ${currentVersion}`;
-  }
-}
-
 const DesktopUpdateSection = () => {
-  const desktopApp = getDesktopApp();
-  const [currentVersion, setCurrentVersion] = useState("…");
-  const [status, setStatus] = useState<DesktopUpdateStatus | null>(null);
-  const [checking, setChecking] = useState(false);
+  const {
+    bridgeState,
+    currentVersion,
+    status,
+    checking,
+    canInstall,
+    checkForUpdates,
+    installUpdate,
+  } = useDesktopUpdates();
 
-  useEffect(() => {
-    if (!desktopApp) return;
+  const hint =
+    bridgeState === "ready"
+      ? formatDesktopUpdateStatus(status, currentVersion)
+      : bridgeState === "broken"
+        ? "Не удалось подключить desktop API. Переустановите приложение."
+        : "Доступно в установленном приложении FreedomBets";
 
-    void desktopApp.getVersion().then(setCurrentVersion);
-
-    return desktopApp.onUpdateStatus((next) => {
-      setStatus(next);
-      if (next.state === "checking") {
-        setChecking(true);
-      } else if (
-        next.state === "not-available" ||
-        next.state === "error" ||
-        next.state === "downloaded" ||
-        next.state === "available"
-      ) {
-        setChecking(false);
-      }
-    });
-  }, [desktopApp]);
-
-  if (!desktopApp) {
-    return null;
-  }
-
-  const handleCheck = async () => {
-    setChecking(true);
-    setStatus({ state: "checking" });
-    const result = await desktopApp.checkForUpdates();
-    if (!result.ok) {
-      setChecking(false);
-    }
-  };
-
-  const handleInstall = () => {
-    void desktopApp.installUpdate();
-  };
-
-  const canInstall = status?.state === "downloaded";
+  const isDisabled = bridgeState !== "ready" || checking;
 
   return (
     <SectionCard>
@@ -95,12 +43,12 @@ const DesktopUpdateSection = () => {
         </SectionIcon>
         <SectionHeadText>
           <SectionTitle>Обновления</SectionTitle>
-          <SectionHint>{formatStatus(status, currentVersion)}</SectionHint>
+          <SectionHint>{hint}</SectionHint>
         </SectionHeadText>
       </SectionHead>
 
-      {canInstall ? (
-        <ActionTileWide type="button" $tone="primary" onClick={handleInstall}>
+      {bridgeState === "ready" && canInstall ? (
+        <ActionTileWide type="button" $tone="primary" onClick={installUpdate}>
           <ActionTileIcon $tone="primary">
             <SystemUpdateAltOutlinedIcon />
           </ActionTileIcon>
@@ -110,13 +58,24 @@ const DesktopUpdateSection = () => {
           </ActionTileWideText>
         </ActionTileWide>
       ) : (
-        <ActionTile type="button" $tone="primary" onClick={() => void handleCheck()} disabled={checking}>
-          <ActionTileIcon $tone="primary">
+        <ActionTileWide
+          type="button"
+          $tone={bridgeState === "ready" ? "primary" : undefined}
+          onClick={() => void checkForUpdates()}
+          disabled={isDisabled}
+        >
+          <ActionTileIcon $tone={bridgeState === "ready" ? "primary" : undefined}>
             <SystemUpdateAltOutlinedIcon />
           </ActionTileIcon>
-          <ActionTileLabel>{checking ? "Проверка…" : "Проверить обновления"}</ActionTileLabel>
-          <ActionTileHint>GitHub Releases</ActionTileHint>
-        </ActionTile>
+          <ActionTileWideText>
+            <ActionTileLabel>
+              {checking ? "Проверка…" : "Проверить обновления"}
+            </ActionTileLabel>
+            <ActionTileHint>
+              {bridgeState === "ready" ? "GitHub Releases" : "Только desktop-версия"}
+            </ActionTileHint>
+          </ActionTileWideText>
+        </ActionTileWide>
       )}
     </SectionCard>
   );

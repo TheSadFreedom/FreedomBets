@@ -1,15 +1,25 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { app, BrowserWindow, shell } from "electron";
 import { ensureUserData } from "./firstRun.mjs";
 import { startDesktopServer } from "./desktopServer.mjs";
 import { waitForUrl } from "./waitForUrl.mjs";
 import { getAppPaths } from "./paths.mjs";
 import { setUpdateMainWindow, setupAutoUpdater } from "./autoUpdater.mjs";
+import { setupDesktopPathHandlers } from "./desktopPaths.mjs";
+import { APP_FOLDER_NAME } from "./constants.mjs";
 
-const electronDir = path.dirname(fileURLToPath(import.meta.url));
-const preloadPath = path.join(electronDir, "preload.mjs");
+app.setName(APP_FOLDER_NAME);
+
+function resolvePreloadPath() {
+  const unpacked = path.join(process.resourcesPath, "app.asar.unpacked", "electron", "preload.cjs");
+  if (existsSync(unpacked)) {
+    return unpacked;
+  }
+
+  return path.join(app.getAppPath(), "electron", "preload.cjs");
+}
 
 const API_PORT = 3001;
 const UI_PORT = 4173;
@@ -91,8 +101,13 @@ async function createMainWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: preloadPath,
+      sandbox: false,
+      preload: resolvePreloadPath(),
     },
+  });
+
+  window.webContents.on("preload-error", (_event, preloadFile, error) => {
+    console.error(`Preload failed (${preloadFile}):`, error);
   });
 
   window.once("ready-to-show", () => window.show());
@@ -120,6 +135,7 @@ if (!gotLock) {
 
   app.whenReady().then(async () => {
     try {
+      setupDesktopPathHandlers();
       setupAutoUpdater();
       await createMainWindow();
     } catch (error) {

@@ -1,7 +1,10 @@
 import { useState } from "react";
+import SystemUpdateAltOutlinedIcon from "@mui/icons-material/SystemUpdateAltOutlined";
 import { TextField } from "@mui/material";
 import type { Profile } from "@/entities/profile";
 import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
+import { useDesktopUpdates } from "@/shared/lib/desktop/useDesktopUpdates";
+import { formatDesktopUpdateStatus } from "@/shared/lib/desktop/formatUpdateStatus";
 import {
   CreateButton,
   CreateRow,
@@ -14,6 +17,9 @@ import {
   GateSectionTitle,
   GateSubtitle,
   GateTitle,
+  GateUpdateButton,
+  GateUpdateHint,
+  GateUpdateRow,
   ProfileAvatar,
   ProfileList,
   ProfileListBalance,
@@ -48,9 +54,17 @@ const profileInitial = (name: string) => {
 };
 
 const ProfileGate = ({ profiles, onSelect, onCreate }: ProfileGateProps) => {
+  const {
+    bridgeState,
+    currentVersion,
+    status: updateStatus,
+    checking: checkingUpdates,
+    canInstall: canInstallUpdate,
+    checkForUpdates,
+    installUpdate,
+  } = useDesktopUpdates();
   const [nameInput, setNameInput] = useState("");
   const [creating, setCreating] = useState(false);
-
   const trimmed = nameInput.trim();
   const canCreate = trimmed.length > 0 && !creating;
 
@@ -123,6 +137,36 @@ const ProfileGate = ({ profiles, onSelect, onCreate }: ProfileGateProps) => {
                 {creating ? "Создание…" : "Создать профиль"}
               </CreateButton>
             </CreateRow>
+          </section>
+
+          <GateDivider />
+
+          <section>
+            <GateSectionTitle>Обновления</GateSectionTitle>
+            <GateUpdateRow>
+              <GateUpdateHint>
+                {bridgeState === "ready"
+                  ? formatDesktopUpdateStatus(updateStatus, currentVersion)
+                  : bridgeState === "broken"
+                    ? "Не удалось подключить desktop API. Переустановите приложение."
+                    : "Доступно в установленном приложении FreedomBets"}
+              </GateUpdateHint>
+              {bridgeState === "ready" && canInstallUpdate ? (
+                <GateUpdateButton type="button" onClick={installUpdate}>
+                  <SystemUpdateAltOutlinedIcon sx={{ fontSize: 18 }} />
+                  Перезапустить и обновить
+                </GateUpdateButton>
+              ) : (
+                <GateUpdateButton
+                  type="button"
+                  onClick={() => void checkForUpdates()}
+                  disabled={bridgeState !== "ready" || checkingUpdates}
+                >
+                  <SystemUpdateAltOutlinedIcon sx={{ fontSize: 18 }} />
+                  {checkingUpdates ? "Проверка…" : "Проверить обновления"}
+                </GateUpdateButton>
+              )}
+            </GateUpdateRow>
           </section>
         </GateBody>
       </GateCard>
