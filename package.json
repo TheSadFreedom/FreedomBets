@@ -22,7 +22,8 @@
     "electron:install": "node scripts/installElectron.mjs",
     "desktop:dev": "node scripts/installElectron.mjs && concurrently -k -n web,desktop \"npm run dev\" \"node scripts/waitForDevServer.mjs && electron .\"",
     "desktop": "npm run build && node scripts/installElectron.mjs && electron .",
-    "desktop:dist": "npm run build && node scripts/installElectron.mjs && electron-builder --win"
+    "desktop:dist": "npm run build && node scripts/installElectron.mjs && electron-builder --win",
+    "desktop:publish": "npm run build && node scripts/installElectron.mjs && electron-builder --win --publish always"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -31,6 +32,7 @@
     "@mui/material": "^7.3.6",
     "axios": "^1.13.2",
     "cheerio": "^1.2.0",
+    "electron-updater": "^6.8.9",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "styled-components": "^6.1.19"
@@ -98,6 +100,13 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "FreedomBets"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "TheSadFreedom",
+        "repo": "FreedomBets"
+      }
+    ]
   }
 }

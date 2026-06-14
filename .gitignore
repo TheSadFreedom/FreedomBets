@@ -29,3 +29,6 @@ release
 # User-uploaded pick'em screenshots
 public/uploads/pickems/*
 !public/uploads/pickems/.gitkeep
+
+# Daily DB backups (server + desktop userData)
+backups/

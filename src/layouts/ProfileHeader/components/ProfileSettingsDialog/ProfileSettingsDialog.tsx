@@ -50,6 +50,7 @@ import {
   fieldSx,
 } from "./ProfileSettingsDialog.styled";
 import { dialogPaperSx } from "@/shared/styles/dialogSx";
+import DesktopUpdateSection from "./DesktopUpdateSection";
 
 interface ProfileSettingsDialogProps {
   open: boolean;
@@ -239,6 +240,8 @@ const ProfileSettingsDialog = ({
                 </ActionTile>
               </ActionGrid>
             </SectionCard>
+
+            <DesktopUpdateSection />
 
             <SectionCard>
               <ActionTileWide

@@ -18,7 +18,7 @@ import { syncSportsRuMatchesToDb } from "./sportsru/syncMatches.mjs";
 import { normalizeSportsRuDateInput } from "./sportsru/matchDates.mjs";
 import { importValveRankingBaseline } from "./valve/importBaseline.mjs";
 import { getRankingBaseline } from "./valve/rankingsStore.mjs";
-import { backupDbFile } from "./lib/dbBackup.mjs";
+import { backupDbFile, startDailyBackupScheduler } from "./lib/dbBackup.mjs";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -267,6 +267,7 @@ app.listen(port, () => {
     ].join("\n")
   );
   logRoutes(db.data);
+  startDailyBackupScheduler(file);
 });
 
 if (process.env.NODE_ENV !== "production") {

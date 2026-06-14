@@ -6,6 +6,7 @@ import { ensureUserData } from "./firstRun.mjs";
 import { startDesktopServer } from "./desktopServer.mjs";
 import { waitForUrl } from "./waitForUrl.mjs";
 import { getAppPaths } from "./paths.mjs";
+import { setUpdateMainWindow, setupAutoUpdater } from "./autoUpdater.mjs";
 
 const electronDir = path.dirname(fileURLToPath(import.meta.url));
 const preloadPath = path.join(electronDir, "preload.mjs");
@@ -101,6 +102,8 @@ async function createMainWindow() {
   });
 
   await window.loadURL(uiUrl);
+  setUpdateMainWindow(window);
+  return window;
 }
 
 const gotLock = app.requestSingleInstanceLock();
@@ -117,6 +120,7 @@ if (!gotLock) {
 
   app.whenReady().then(async () => {
     try {
+      setupAutoUpdater();
       await createMainWindow();
     } catch (error) {
       console.error(error);
