@@ -12,8 +12,8 @@ export function useHomeTabBets(
   events: EventRecord[],
   mountedTabs: ReadonlySet<number>,
 ) {
-  const eventsTabMounted = mountedTabs.has(5);
-  const majorsTabMounted = mountedTabs.has(6);
+  const eventsTabMounted = mountedTabs.has(4);
+  const majorsTabMounted = mountedTabs.has(5);
 
   const majorBets = useMemo(
     () => (majorsTabMounted ? filterMajorBets(bets, events) : []),

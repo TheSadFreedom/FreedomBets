@@ -40,8 +40,38 @@ API: **http://localhost:3001**, интерфейс: **http://localhost:5173**.
 | `npm start` | API + dev-сервер (локальная разработка) |
 | `npm run build` | Проверка TypeScript + production-сборка в `dist/` |
 | `npm run preview` | Просмотр собранной версии |
+| `npm run desktop:dev` | Десктоп-приложение (Electron) в режиме разработки |
+| `npm run desktop` | Собранное десктоп-приложение без установщика |
+| `npm run desktop:dist` | Сборка установщика Windows (`.exe` в папке `release/`) |
 | `npm run lint` | Проверка кода ESLint |
 | `npm run migrate:pickems` | Миграция старых изображений Pick'em (если нужно) |
+
+### Десктоп-приложение (Windows)
+
+**Разработка** (окно Electron + Vite):
+
+```bash
+npm run desktop:dev
+```
+
+**Установщик `.exe`** (первая сборка может занять 5–15 минут):
+
+```bash
+npm run desktop:dist
+```
+
+Или двойной клик по `build desktop.bat`.
+
+Готовый файл появится в папке `release/`:
+
+- `FreedomBets Setup 1.0.0.exe` — установщик (можно выбрать папку, создаст ярлыки)
+- `win-unpacked/FreedomBets.exe` — portable-версия без установки
+
+Данные приложения хранятся отдельно от установки:
+
+`C:\Users\<имя>\AppData\Roaming\freedombets\`
+
+Там лежат `db.json` и загруженные картинки Pick'em.
 
 ---
 

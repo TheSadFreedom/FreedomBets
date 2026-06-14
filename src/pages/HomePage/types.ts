@@ -5,7 +5,9 @@ import type { MatchSettlementResult } from "@/features/matches/lib/settleBetsFor
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
 import type { PickemMajor, PickemStageName } from "@/entities/pickem";
+import type { RankingBaseline } from "@/entities/ranking";
 import type { Profile } from "@/entities/profile";
+import type { Team } from "@/entities/team";
 
 export interface ProfileBetsState {
   profile: Profile | null;
@@ -16,6 +18,9 @@ export interface ProfileBetsState {
   pickems: PickemMajor[];
   medals: ProfileMedal[];
   events: EventRecord[];
+  rankingBaseline: RankingBaseline | null;
+  teams: Team[];
+  refreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
   loading: boolean;
   error: string | null;
   reload: () => Promise<void>;

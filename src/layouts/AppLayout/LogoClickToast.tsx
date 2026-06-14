@@ -15,30 +15,22 @@ import {
 const TOAST_DURATION_MS = 3200;
 const CLOSE_ANIMATION_MS = 280;
 
-interface LogoClickToastProps {
-  toast: { key: number; message: string } | null;
+interface LogoClickToastItemProps {
+  toast: { key: number; message: string };
   onClose: () => void;
 }
 
-const LogoClickToast = ({ toast, onClose }: LogoClickToastProps) => {
+const LogoClickToastItem = ({ toast, onClose }: LogoClickToastItemProps) => {
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
-    if (!toast) {
-      setClosing(false);
-      return;
-    }
-
-    setClosing(false);
     const hideTimer = window.setTimeout(() => {
       setClosing(true);
       window.setTimeout(onClose, CLOSE_ANIMATION_MS);
     }, TOAST_DURATION_MS);
 
     return () => window.clearTimeout(hideTimer);
-  }, [toast, onClose]);
-
-  if (!toast) return null;
+  }, [onClose]);
 
   const dismiss = () => {
     setClosing(true);
@@ -47,7 +39,7 @@ const LogoClickToast = ({ toast, onClose }: LogoClickToastProps) => {
 
   return (
     <LogoToastLayer>
-      <LogoToastCard key={toast.key} role="alert" aria-live="assertive" $closing={closing}>
+      <LogoToastCard role="alert" aria-live="assertive" $closing={closing}>
         <LogoToastIconWrap aria-hidden>
           <ReportGmailerrorredOutlinedIcon />
         </LogoToastIconWrap>
@@ -61,10 +53,20 @@ const LogoClickToast = ({ toast, onClose }: LogoClickToastProps) => {
           <CloseIcon />
         </LogoToastClose>
 
-        <LogoToastProgress key={toast.key} $durationMs={TOAST_DURATION_MS} aria-hidden />
+        <LogoToastProgress $durationMs={TOAST_DURATION_MS} aria-hidden />
       </LogoToastCard>
     </LogoToastLayer>
   );
+};
+
+interface LogoClickToastProps {
+  toast: { key: number; message: string } | null;
+  onClose: () => void;
+}
+
+const LogoClickToast = ({ toast, onClose }: LogoClickToastProps) => {
+  if (!toast) return null;
+  return <LogoClickToastItem key={toast.key} toast={toast} onClose={onClose} />;
 };
 
 export default LogoClickToast;

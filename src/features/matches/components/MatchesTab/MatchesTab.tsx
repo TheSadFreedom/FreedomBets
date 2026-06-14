@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { Bet, BetTeamSide } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match, MatchCreateInput } from "@/entities/match";
+import type { RankingBaseline } from "@/entities/ranking";
 import type { Profile } from "@/entities/profile";
 import { findBetsForMatch } from "@/features/matches/lib/findBetsForMatch";
 import { countPendingMatchBets } from "@/features/matches/lib/settleBetsForMatch";
@@ -23,6 +24,7 @@ interface MatchesTabProps {
   activeProfileId: number;
   events: EventRecord[];
   matches: Match[];
+  rankingBaseline?: RankingBaseline | null;
   onUpdateMatch: (match: Match, values: MatchCreateInput) => Promise<void>;
   onSettleMatchBets: (match: Match) => Promise<{ settled: number; skipped: number }>;
   onDeleteMatch: (match: Match) => Promise<void>;
@@ -37,6 +39,7 @@ const MatchesTab = ({
   activeProfileId,
   events,
   matches,
+  rankingBaseline = null,
   onUpdateMatch,
   onSettleMatchBets,
   onDeleteMatch,
@@ -57,7 +60,7 @@ const MatchesTab = ({
   const relatedBetsByMatchId = useMemo(() => {
     const map = new Map<string, Bet[]>();
     for (const match of matches) {
-      map.set(match.id, findBetsForMatch(match, allBets));
+      map.set(match.id, findBetsForMatch(match, allBets, matches));
     }
     return map;
   }, [matches, allBets]);
@@ -65,7 +68,7 @@ const MatchesTab = ({
   const pendingSettlementsByMatchId = useMemo(() => {
     const map = new Map<string, number>();
     for (const match of matches) {
-      map.set(match.id, countPendingMatchBets(match, allBets));
+      map.set(match.id, countPendingMatchBets(match, allBets, matches));
     }
     return map;
   }, [matches, allBets]);
@@ -89,6 +92,7 @@ const MatchesTab = ({
       onSettleBets={() => onSettleMatchBets(match)}
       onEditBet={onEditBet}
       events={events}
+      rankingBaseline={rankingBaseline}
       externalUrl={match.sportsRuUrl ?? undefined}
     />
   );

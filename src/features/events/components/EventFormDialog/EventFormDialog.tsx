@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Dialog, IconButton } from "@mui/material";
+import { Box, Dialog, IconButton, TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -56,6 +56,7 @@ const eventToFormInput = (event: EventStats): EventEditInput => ({
   stages: event.stages ?? [],
   winnerOrganization: event.winnerOrganization,
   winnerLogoSlug: event.winnerLogoSlug,
+  prizePool: event.prizePool,
 });
 
 const resolveWinnerLogoSlug = (
@@ -106,6 +107,7 @@ const EventFormDialog = ({
           stages: [],
           winnerOrganization: null,
           winnerLogoSlug: null,
+          prizePool: null,
         }
   );
   const [saving, setSaving] = useState(false);
@@ -144,6 +146,7 @@ const EventFormDialog = ({
           stages: [],
           winnerOrganization: null,
           winnerLogoSlug: null,
+          prizePool: null,
         };
 
     setForm(next);
@@ -196,6 +199,7 @@ const EventFormDialog = ({
             ? form.winnerLogoSlug?.trim() || null
             : null
           : (initial?.winnerLogoSlug ?? null),
+        prizePool: editEventDates ? form.prizePool : (initial?.prizePool ?? null),
       });
       onClose();
     } finally {
@@ -291,6 +295,33 @@ const EventFormDialog = ({
               <HintText>Выберите логотип из public/events</HintText>
             ) : null}
           </Section>
+
+          {editEventDates ? (
+            <Section>
+              <SectionTitle>Призовой фонд</SectionTitle>
+              <TextField
+                label="Сумма ($)"
+                value={form.prizePool ?? ""}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\s/g, "");
+                  if (!raw) {
+                    update("prizePool", null);
+                    return;
+                  }
+                  const digits = raw.replace(/[^\d]/g, "");
+                  update("prizePool", digits ? Number(digits) : null);
+                }}
+                placeholder="Необязательно"
+                fullWidth
+                size="small"
+                sx={compactFieldSx}
+                slotProps={{
+                  htmlInput: { inputMode: "numeric", pattern: "[0-9]*" },
+                }}
+              />
+              <HintText>Указывается в долларах США</HintText>
+            </Section>
+          ) : null}
 
           {editEventDates ? (
             <Section>

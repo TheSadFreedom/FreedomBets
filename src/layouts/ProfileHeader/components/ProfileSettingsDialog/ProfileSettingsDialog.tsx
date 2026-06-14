@@ -9,6 +9,7 @@ import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import WalletOutlinedIcon from "@mui/icons-material/WalletOutlined";
 import type { Profile } from "@/entities/profile";
 import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
+import { clampBalance } from "@/shared/lib/limits";
 import BalanceDialog from "../BalanceDialog/BalanceDialog";
 import WithdrawConfirmDialog from "../WithdrawConfirmDialog/WithdrawConfirmDialog";
 import {
@@ -106,8 +107,8 @@ const ProfileSettingsDialog = ({
     await onSetBalance(profile.balance + amount);
   };
 
-  const handleWithdrawAll = async () => {
-    await onSetBalance(0);
+  const handleWithdraw = async (amount: number) => {
+    await onSetBalance(clampBalance(profile.balance - amount));
   };
 
   const handleDelete = async () => {
@@ -233,8 +234,8 @@ const ProfileSettingsDialog = ({
                   <ActionTileIcon>
                     <PaymentsOutlinedIcon />
                   </ActionTileIcon>
-                  <ActionTileLabel>Вывести все</ActionTileLabel>
-                  <ActionTileHint>Обнулить баланс</ActionTileHint>
+                  <ActionTileLabel>Вывести</ActionTileLabel>
+                  <ActionTileHint>Указать сумму</ActionTileHint>
                 </ActionTile>
               </ActionGrid>
             </SectionCard>
@@ -257,31 +258,27 @@ const ProfileSettingsDialog = ({
               </ActionTileWide>
             </SectionCard>
 
-            <SectionCard $tone="danger">
-              <SectionHead>
-                <SectionIcon $tone="danger">
-                  <DeleteOutlineIcon />
-                </SectionIcon>
-                <SectionHeadText>
-                  <SectionTitle>Удаление профиля</SectionTitle>
-                  <SectionHint>Без возможности восстановления</SectionHint>
-                </SectionHeadText>
-              </SectionHead>
-
+            <SectionCard $tone="danger" $compact>
               {!deleteConfirm ? (
-                <ActionTile type="button" $tone="danger" onClick={() => setDeleteConfirm(true)}>
+                <ActionTileWide
+                  type="button"
+                  $tone="danger"
+                  onClick={() => setDeleteConfirm(true)}
+                >
                   <ActionTileIcon $tone="danger">
                     <DeleteOutlineIcon />
                   </ActionTileIcon>
-                  <ActionTileLabel>Удалить профиль</ActionTileLabel>
-                  <ActionTileHint>
-                    Профиль и {profile.totalBets} ставок будут удалены
-                  </ActionTileHint>
-                </ActionTile>
+                  <ActionTileWideText>
+                    <ActionTileLabel>Удалить профиль</ActionTileLabel>
+                    <ActionTileHint>
+                      {profile.totalBets} ставок · без восстановления
+                    </ActionTileHint>
+                  </ActionTileWideText>
+                </ActionTileWide>
               ) : (
                 <DeleteConfirmBox>
                   <DeleteConfirmText>
-                    Удалить «{profile.name}» и все ставки ({profile.totalBets})?
+                    Удалить «{profile.name}» и {profile.totalBets} ставок?
                   </DeleteConfirmText>
                   <ConfirmActionRow>
                     <ConfirmButton
@@ -290,7 +287,7 @@ const ProfileSettingsDialog = ({
                       onClick={() => void handleDelete()}
                       disabled={deleting}
                     >
-                      {deleting ? "Удаление…" : "Да, удалить"}
+                      {deleting ? "Удаление…" : "Удалить"}
                     </ConfirmButton>
                     <ConfirmButton
                       type="button"
@@ -318,7 +315,7 @@ const ProfileSettingsDialog = ({
         open={withdrawDialogOpen}
         balance={profile.balance}
         onClose={() => setWithdrawDialogOpen(false)}
-        onConfirm={handleWithdrawAll}
+        onConfirm={handleWithdraw}
       />
     </>
   );

@@ -38,6 +38,7 @@ export interface MajorEventGroup {
   stages: EventStats[];
   winnerOrganization: string | null;
   winnerLogoSlug: string | null;
+  prizePool: number | null;
 }
 
 export function majorEventGroupKey(eventOrganization: string, eventName: string): string {
@@ -56,6 +57,7 @@ export function majorGroupToEventStats(group: MajorEventGroup): EventStats {
     stages: group.stagesConfig,
     winnerOrganization: group.winnerOrganization,
     winnerLogoSlug: group.winnerLogoSlug,
+    prizePool: group.prizePool,
     totalBets: group.totalBets,
     wins: group.wins,
     losses: group.losses,
@@ -76,7 +78,14 @@ function stageOrder(stage: EventStats, config: string[]): number {
 function emptyStageStats(
   base: Pick<
     EventStats,
-    "eventOrganization" | "eventName" | "logoSlug" | "eventTier" | "date" | "endDate" | "stages"
+    | "eventOrganization"
+    | "eventName"
+    | "logoSlug"
+    | "eventTier"
+    | "date"
+    | "endDate"
+    | "stages"
+    | "prizePool"
   >,
   stageName: string
 ): EventStats {
@@ -85,6 +94,7 @@ function emptyStageStats(
     majorStage: stageName,
     winnerOrganization: null,
     winnerLogoSlug: null,
+    prizePool: base.prizePool ?? null,
     totalBets: 0,
     wins: 0,
     losses: 0,
@@ -124,6 +134,7 @@ function mergeConfiguredStageStats(
           date: stored.date,
           endDate: stored.endDate,
           stages: stagesConfig,
+          prizePool: stored.prizePool,
         }
       : null);
 
@@ -177,6 +188,7 @@ function buildEventGroup(
     stages: sortedStages,
     winnerOrganization: stored?.winnerOrganization ?? null,
     winnerLogoSlug: stored?.winnerLogoSlug ?? null,
+    prizePool: stored?.prizePool ?? null,
   };
 }
 

@@ -3,7 +3,7 @@ import type { EventTier } from "@/entities/event";
 import { isEventTier } from "@/entities/event";
 import { calcSummaryStats } from "@/features/bets/lib/calculations";
 import { formatMoney, formatMoneySigned } from "@/shared/lib/format/money";
-import { EventTierBadge } from "./EventStats.styled";
+import { TierBadge } from "./EventStats.styled";
 import type { EventStatsSummarySection } from "./EventStats";
 import {
   EventStatsSummaryCard,
@@ -47,7 +47,7 @@ const EventStatsSummaryRowBlock = ({ title, bets, tier }: EventStatsSummarySecti
     <EventStatsSummaryRow $tier={sectionTier}>
       <EventStatsSummaryTop>
         <EventStatsSummaryTierCell>
-          <EventTierBadge $tier={sectionTier}>{title}</EventTierBadge>
+          <TierBadge $tier={sectionTier}>{title}</TierBadge>
         </EventStatsSummaryTierCell>
         <EventStatsSummaryProfitBlock>
           <EventStatsSummaryProfitValue $positive={profitPositive} $muted={!hasSettled}>

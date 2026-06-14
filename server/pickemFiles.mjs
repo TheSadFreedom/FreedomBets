@@ -3,9 +3,10 @@ import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT_DIR = process.env.FREEDOMBETS_ROOT ?? path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+const PUBLIC_ROOT = process.env.FREEDOMBETS_USER_PUBLIC ?? path.join(ROOT_DIR, "public");
 
-export const PICKEM_UPLOAD_DIR = path.join(ROOT_DIR, "public", "uploads", "pickems");
+export const PICKEM_UPLOAD_DIR = path.join(PUBLIC_ROOT, "uploads", "pickems");
 export const PICKEM_UPLOAD_URL_PREFIX = "/uploads/pickems";
 
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);

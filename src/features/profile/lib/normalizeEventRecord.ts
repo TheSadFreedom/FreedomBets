@@ -2,6 +2,7 @@ import type { EventRecord } from "@/entities/eventRecord";
 import { isEventTier } from "@/entities/event";
 import { normalizeEventStagesList } from "@/features/events/lib/eventStages";
 import { limitInputLength } from "@/shared/lib/limits";
+import { parsePrizePool } from "@/shared/lib/format/prizePool";
 
 export function normalizeEventRecord(data: EventRecord & { profileId?: unknown }): EventRecord {
   return {
@@ -25,5 +26,6 @@ export function normalizeEventRecord(data: EventRecord & { profileId?: unknown }
       data.winnerLogoSlug.trim()
         ? data.winnerLogoSlug.trim()
         : null,
+    prizePool: parsePrizePool(data.prizePool),
   };
 }

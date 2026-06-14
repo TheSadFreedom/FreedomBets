@@ -5,6 +5,29 @@ import {
   calcWinRate,
   resolveBalanceBase,
 } from "@/features/bets/lib/calculations";
+import { roundMoney } from "@/shared/lib/limits";
+
+export function resolveBalanceTotals(profile: Profile): {
+  totalDeposited: number;
+  totalWithdrawn: number;
+} {
+  const balanceBase =
+    typeof profile.balanceBase === "number" && Number.isFinite(profile.balanceBase)
+      ? roundMoney(profile.balanceBase)
+      : 0;
+
+  const totalDeposited =
+    typeof profile.totalDeposited === "number" && Number.isFinite(profile.totalDeposited)
+      ? roundMoney(profile.totalDeposited)
+      : roundMoney(Math.max(0, balanceBase));
+
+  const totalWithdrawn =
+    typeof profile.totalWithdrawn === "number" && Number.isFinite(profile.totalWithdrawn)
+      ? roundMoney(profile.totalWithdrawn)
+      : 0;
+
+  return { totalDeposited, totalWithdrawn };
+}
 
 export function betsForProfile(bets: Bet[], profileId: number): Bet[] {
   return bets.filter((bet) => bet.profileId === profileId);

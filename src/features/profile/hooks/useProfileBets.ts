@@ -20,6 +20,7 @@ import {
   enrichProfileWithBets,
   enrichProfilesWithBets,
   profileNeedsBalanceSync,
+  resolveBalanceTotals,
 } from "@/features/profile/lib/profileBalance";
 import { normalizeMatch } from "@/features/matches/lib/normalizeMatch";
 import {
@@ -33,6 +34,12 @@ import {
   countSkippedWaitBets,
   type MatchSettlementResult,
 } from "@/features/matches/lib/settleBetsForMatch";
+import type { RankingBaseline } from "@/entities/ranking";
+import type { Team } from "@/entities/team";
+import {
+  fetchRankingBaseline,
+  importRankingBaseline,
+} from "@/features/rankings/api/rankingsApi";
 import { syncSportsRuMatches } from "@/features/sportsru/api/syncSportsRuMatches";
 import { httpClient } from "@/shared/api/httpClient";
 import {
@@ -40,13 +47,15 @@ import {
   readActiveProfileId,
   writeActiveProfileId,
 } from "../lib/activeProfileStorage";
+import { prepareBetPayload } from "@/features/bets/lib/prepareBetPayload";
+import { prepareMatchPayload } from "@/features/matches/lib/prepareMatchPayload";
 import { normalizeBet } from "../lib/normalizeBet";
 import { normalizeEventRecord } from "../lib/normalizeEventRecord";
 import { normalizeMedal } from "../lib/normalizeMedal";
 import { normalizePickemMajor } from "../lib/normalizePickem";
 import { getNextProfileId } from "../lib/profileId";
 import { normalizeProfile } from "../lib/normalizeProfile";
-import { clampBalance, clampBetAmount } from "@/shared/lib/limits";
+import { clampBalance, clampBetAmount, roundMoney } from "@/shared/lib/limits";
 import {
   patchBetMajorStage,
   patchBetStatus,
@@ -56,8 +65,18 @@ import {
   executeBetSettlementPlan,
   mergeSavedBets,
 } from "./lib/executeBetSettlement";
+import { normalizeTeam } from "@/features/teams/lib/normalizeTeam";
 import { normalizeProfileList } from "./lib/normalizeProfileList";
 import { profilePatchPayload } from "./lib/profilePatchPayload";
+
+async function fetchTeams(): Promise<Team[]> {
+  try {
+    const res = await httpClient.get<Team[]>("/teams");
+    return (res.data || []).map(normalizeTeam);
+  } catch {
+    return [];
+  }
+}
 
 export function useProfileBets() {
   const [activeProfileId, setActiveProfileId] = useState<number | null>(() =>
@@ -71,15 +90,27 @@ export function useProfileBets() {
   const [pickems, setPickems] = useState<PickemMajor[]>([]);
   const [medals, setMedals] = useState<ProfileMedal[]>([]);
   const [events, setEvents] = useState<EventRecord[]>([]);
+  const [rankingBaseline, setRankingBaseline] = useState<RankingBaseline | null>(null);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const ensureRankingBaseline = useCallback(async () => {
+    let baseline = await fetchRankingBaseline();
+    if (!baseline) {
+      const result = await importRankingBaseline();
+      baseline = result.baseline;
+    }
+    setRankingBaseline(baseline);
+    return baseline;
+  }, []);
 
   const loadProfiles = useCallback(async () => {
     const [profilesRes, allBetsRes] = await Promise.all([
       httpClient.get<Profile[]>("/profiles"),
       httpClient.get<Bet[]>("/bets"),
     ]);
-    const loadedAllBets = (allBetsRes.data || []).map(normalizeBet);
+    const loadedAllBets = (allBetsRes.data || []).map((bet) => normalizeBet(bet));
     const items = enrichProfilesWithBets(
       normalizeProfileList(profilesRes.data || []),
       loadedAllBets,
@@ -102,10 +133,11 @@ export function useProfileBets() {
         setPickems([]);
         setMedals([]);
         setEvents([]);
+        setTeams([]);
         return;
       }
 
-      const [profileRes, betsRes, allBetsRes, profilesRes, matchesRes, pickemsRes, medalsRes, eventsRes] =
+      const [profileRes, betsRes, allBetsRes, profilesRes, matchesRes, pickemsRes, medalsRes, eventsRes, baseline, loadedTeams] =
         await Promise.all([
           httpClient.get<Profile>(`/profiles/${activeProfileId}`),
           httpClient.get<Bet[]>(`/bets?profileId=${activeProfileId}`),
@@ -115,9 +147,11 @@ export function useProfileBets() {
           httpClient.get<PickemMajor[]>(`/pickems?profileId=${activeProfileId}`),
           httpClient.get<ProfileMedal[]>(`/medals?profileId=${activeProfileId}`),
           httpClient.get<EventRecord[]>("/events"),
+          ensureRankingBaseline(),
+          fetchTeams(),
         ]);
-      const loadedBets = (betsRes.data || []).map(normalizeBet);
-      const loadedAllBets = (allBetsRes.data || []).map(normalizeBet);
+      const loadedBets = (betsRes.data || []).map((bet) => normalizeBet(bet));
+      const loadedAllBets = (allBetsRes.data || []).map((bet) => normalizeBet(bet));
       const loadedProfiles = normalizeProfileList(profilesRes.data || []);
 
       const rawProfile = normalizeProfile(profileRes.data);
@@ -163,6 +197,8 @@ export function useProfileBets() {
       setEvents(
         dedupeEventRecords((eventsRes.data || []).map(normalizeEventRecord))
       );
+      setRankingBaseline(baseline);
+      setTeams(loadedTeams);
     } catch (err) {
       console.error(err);
       if (activeProfileId != null) {
@@ -180,7 +216,7 @@ export function useProfileBets() {
     } finally {
       setLoading(false);
     }
-  }, [activeProfileId, loadProfiles]);
+  }, [activeProfileId, ensureRankingBaseline, loadProfiles]);
 
   useEffect(() => {
     void load();
@@ -276,6 +312,8 @@ export function useProfileBets() {
       name: trimmed,
       balance: 0,
       balanceBase: 0,
+      totalDeposited: 0,
+      totalWithdrawn: 0,
       totalBets: 0,
       winRate: 0,
     });
@@ -294,7 +332,10 @@ export function useProfileBets() {
     if (!profile) return;
     const amount = clampBetAmount(data.amount);
     if (amount <= 0) return;
-    const res = await httpClient.post<Bet>("/bets", { ...data, amount, profileId: profile.id });
+    const res = await httpClient.post<Bet>(
+      "/bets",
+      prepareBetPayload({ ...data, amount, profileId: profile.id }),
+    );
     const created = normalizeBet(res.data);
     const nextBets = [...bets, created];
     const nextAllBets = [...allBets, created];
@@ -307,8 +348,11 @@ export function useProfileBets() {
     if (!profile) return;
     const savedPayload = { ...updated, amount: clampBetAmount(updated.amount) };
     if (savedPayload.amount <= 0) return;
-    const res = await httpClient.patch<Bet>(`/bets/${updated.id}`, savedPayload);
-    const saved = normalizeBet(res.data);
+    const res = await httpClient.patch<Bet>(
+      `/bets/${updated.id}`,
+      prepareBetPayload(savedPayload),
+    );
+    const saved = normalizeBet(res.data, updated);
     const nextBets = bets.map((b) => (b.id === saved.id ? saved : b));
     const nextAllBets = allBets.map((item) => (item.id === saved.id ? saved : item));
 
@@ -329,7 +373,8 @@ export function useProfileBets() {
 
   const applyBetStatusChange = async (id: string, status: Bet["status"]) => {
     if (!profile) return;
-    const saved = await patchBetStatus(id, status);
+    const previous = allBets.find((item) => item.id === id) ?? bets.find((item) => item.id === id);
+    const saved = await patchBetStatus(id, status, previous);
     const { nextBets, nextAllBets } = replaceBetInLists(bets, allBets, saved);
     setBets(nextBets);
     setAllBets(nextAllBets);
@@ -356,8 +401,20 @@ export function useProfileBets() {
 
   const setBalance = async (balance: number) => {
     if (!profile) return;
-    const balanceBase = balanceBaseForTarget(clampBalance(balance), bets);
-    const enriched = enrichProfileWithBets({ ...profile, balanceBase }, allBets);
+    const newBalance = clampBalance(balance);
+    const delta = roundMoney(newBalance - profile.balance);
+    const { totalDeposited, totalWithdrawn } = resolveBalanceTotals(profile);
+    const nextTotals =
+      delta > 0
+        ? { totalDeposited: roundMoney(totalDeposited + delta), totalWithdrawn }
+        : delta < 0
+          ? { totalDeposited, totalWithdrawn: roundMoney(totalWithdrawn + Math.abs(delta)) }
+          : { totalDeposited, totalWithdrawn };
+    const balanceBase = balanceBaseForTarget(newBalance, bets);
+    const enriched = enrichProfileWithBets(
+      { ...profile, balanceBase, ...nextTotals },
+      allBets,
+    );
     const res = await httpClient.patch<Profile>(
       `/profiles/${profile.id}`,
       profilePatchPayload(enriched),
@@ -398,12 +455,12 @@ export function useProfileBets() {
   };
 
   const addMatch = async (data: MatchCreateInput) => {
-    const payload: MatchFormValues = {
+    const payload: MatchFormValues = prepareMatchPayload({
       ...data,
       status: "scheduled",
       score1: null,
       score2: null,
-    };
+    });
     const res = await httpClient.post<Match>("/matches", payload);
     const created = normalizeMatch(res.data);
     setMatches((prev) => [...prev, created]);
@@ -430,6 +487,7 @@ export function useProfileBets() {
       stages: data.stages,
       winnerOrganization: data.winnerOrganization?.trim() || null,
       winnerLogoSlug: data.winnerLogoSlug?.trim() || null,
+      prizePool: data.prizePool,
     });
     const created = normalizeEventRecord(res.data);
     setEvents((prev) => dedupeEventRecords([...prev, created]));
@@ -464,6 +522,7 @@ export function useProfileBets() {
         winnerLogoSlug: updateEventDates
           ? data.winnerLogoSlug?.trim() || null
           : record.winnerLogoSlug,
+        prizePool: updateEventDates ? data.prizePool : record.prizePool,
       });
       const saved = normalizeEventRecord(res.data);
       setEvents((prev) =>
@@ -480,6 +539,7 @@ export function useProfileBets() {
         stages: data.stages,
         winnerOrganization: data.winnerOrganization?.trim() || null,
         winnerLogoSlug: data.winnerLogoSlug?.trim() || null,
+        prizePool: data.prizePool,
       });
       const created = normalizeEventRecord(res.data);
       setEvents((prev) => dedupeEventRecords([...prev, created]));
@@ -629,9 +689,11 @@ export function useProfileBets() {
     matchList: Match[],
     betsSource: Bet[],
   ): Promise<MatchSettlementResult> => {
-    const plan = matchList.flatMap((item) => planMatchBetRecalculations(item, betsSource));
+    const plan = matchList.flatMap((item) =>
+      planMatchBetRecalculations(item, betsSource, matchList),
+    );
     const skipped = matchList.reduce(
-      (sum, item) => sum + countSkippedWaitBets(item, betsSource),
+      (sum, item) => sum + countSkippedWaitBets(item, betsSource, matchList),
       0,
     );
     if (plan.length === 0) {
@@ -656,19 +718,21 @@ export function useProfileBets() {
     applyBetSettlements([match], allBets);
 
   const reloadMatchesAndBets = async () => {
-    const [matchesRes, betsRes, profilesRes] = await Promise.all([
+    const [matchesRes, betsRes, profilesRes, reloadedTeams] = await Promise.all([
       httpClient.get<Match[]>("/matches"),
       httpClient.get<Bet[]>("/bets"),
       httpClient.get<Profile[]>("/profiles"),
+      fetchTeams(),
     ]);
     const normalizedMatches = (matchesRes.data || []).map(normalizeMatch);
-    const reloadedAllBets = (betsRes.data || []).map(normalizeBet);
+    const reloadedAllBets = (betsRes.data || []).map((bet) => normalizeBet(bet));
     const reloadedProfiles = normalizeProfileList(profilesRes.data || []);
     const enrichedProfiles = enrichProfilesWithBets(reloadedProfiles, reloadedAllBets);
 
     setMatches(normalizedMatches);
     setAllBets(reloadedAllBets);
     setProfiles(enrichedProfiles);
+    setTeams(reloadedTeams);
     if (profile) {
       setBets(reloadedAllBets.filter((item) => item.profileId === profile.id));
       const current = enrichedProfiles.find((item) => item.id === profile.id);
@@ -683,6 +747,12 @@ export function useProfileBets() {
     await reloadMatchesAndBets();
   };
 
+  const refreshRankingBaseline = async (force = false) => {
+    const result = await importRankingBaseline(force);
+    setRankingBaseline(result.baseline);
+    return result.baseline;
+  };
+
   const updateMatch = async (match: Match, data: MatchCreateInput) => {
     const draft: Match = {
       ...match,
@@ -691,13 +761,13 @@ export function useProfileBets() {
       score2: null,
     };
     const hasWinner = getMatchSeriesWinner(draft);
-    const payload: MatchFormValues = {
+    const payload: MatchFormValues = prepareMatchPayload({
       ...data,
       maps: data.maps,
       score1: null,
       score2: null,
       status: hasWinner ? "finished" : match.status,
-    };
+    });
     const res = await httpClient.patch<Match>(`/matches/${match.id}`, payload);
     const saved = normalizeMatch(res.data);
     setMatches((prev) => prev.map((m) => (m.id === saved.id ? saved : m)));
@@ -731,6 +801,9 @@ export function useProfileBets() {
     pickems,
     medals,
     events,
+    rankingBaseline,
+    teams,
+    refreshRankingBaseline,
     loading,
     error,
     reload: load,

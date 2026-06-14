@@ -125,7 +125,50 @@ export const Toolbar = styled.div`
 
 export const FiltersRow = styled.div`
   display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
+  min-width: 0;
+`;
+
+export const SearchFieldWrap = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const RefreshButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #2e2e2e;
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover:not(:disabled) {
+    color: rgba(255, 255, 255, 0.92);
+    border-color: rgba(129, 199, 132, 0.32);
+    background: rgba(76, 175, 80, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  svg {
+    font-size: 20px;
+  }
 `;
 
 export const ListSection = styled.div`
@@ -222,32 +265,13 @@ export const RankNumber = styled.span<{ $tone?: RankTone }>`
   ${({ $tone }) => ($tone ? rankToneStyles[$tone] : "")}
 `;
 
-export const LogoRing = styled.div<{ $tone?: RankTone }>`
+export const LogoRing = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 12px;
   flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
-  ${({ $tone }) =>
-    $tone === "gold"
-      ? css`
-          border-color: rgba(255, 213, 79, 0.35);
-          box-shadow: 0 0 12px rgba(255, 213, 79, 0.1);
-        `
-      : $tone === "silver"
-        ? css`
-            border-color: rgba(176, 190, 197, 0.3);
-          `
-        : $tone === "bronze"
-          ? css`
-              border-color: rgba(255, 171, 64, 0.3);
-            `
-          : ""}
 
   .MuiAvatar-root {
     border-radius: 0;
@@ -268,6 +292,13 @@ export const TeamName = styled.span`
   color: rgba(255, 255, 255, 0.92);
   word-break: break-word;
   line-height: 1.25;
+`;
+
+export const RowStats = styled.span`
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.42);
+  line-height: 1.2;
 `;
 
 export const ShareTrack = styled.div`

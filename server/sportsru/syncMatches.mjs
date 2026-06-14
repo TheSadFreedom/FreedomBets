@@ -7,6 +7,10 @@ import {
   reloadTeamSynonyms,
   teamsMatch,
 } from "./teamNames.mjs";
+import {
+  attachTeamFieldsToMatch,
+  migrateTeamFieldsInDb,
+} from "../teams/teamsStore.mjs";
 
 const TRACKED_FIELDS = [
   "date",
@@ -52,21 +56,23 @@ function isSameMatchIdentity(left, right) {
 }
 
 function dtoToRecord(dto) {
-  return applyCanonicalTeamNames({
-    date: dto.date,
-    time: dto.time,
-    format: dto.format,
-    organization1: dto.organization1,
-    organization2: dto.organization2,
-    eventOrganization: dto.eventOrganization,
-    eventName: dto.eventName,
-    maps: dto.maps ?? [],
-    status: dto.status,
-    score1: dto.score1 ?? null,
-    score2: dto.score2 ?? null,
-    sportsRuSeriesId: dto.sportsRuSeriesId,
-    sportsRuUrl: dto.sportsRuUrl,
-  });
+  return attachTeamFieldsToMatch(
+    applyCanonicalTeamNames({
+      date: dto.date,
+      time: dto.time,
+      format: dto.format,
+      organization1: dto.organization1,
+      organization2: dto.organization2,
+      eventOrganization: dto.eventOrganization,
+      eventName: dto.eventName,
+      maps: dto.maps ?? [],
+      status: dto.status,
+      score1: dto.score1 ?? null,
+      score2: dto.score2 ?? null,
+      sportsRuSeriesId: dto.sportsRuSeriesId,
+      sportsRuUrl: dto.sportsRuUrl,
+    }),
+  );
 }
 
 function preserveManualFields(next, manual) {
@@ -123,13 +129,17 @@ function removeDuplicateMatches(existing, keeper, bets) {
   return { matches: next, removed };
 }
 
-export async function syncSportsRuMatchesToDb(db, { force = false } = {}) {
+export async function syncSportsRuMatchesToDb(db, { force = false, dates } = {}) {
   reloadTeamSynonyms();
 
   await db.read();
   const events = Array.isArray(db.data.events) ? db.data.events : [];
+  const { matches: parsed, meta } = await fetchSportsRuMatches({ force, events, dates });
+
+  // Парсинг Sports.ru занимает время — перечитываем базу, чтобы не затереть ставки,
+  // добавленные пользователем во время синхронизации.
+  await db.read();
   const bets = Array.isArray(db.data.bets) ? db.data.bets : [];
-  const { matches: parsed, meta } = await fetchSportsRuMatches({ force, events });
   let existing = Array.isArray(db.data.matches) ? [...db.data.matches] : [];
   const existingIds = new Set(existing.map((match) => match.id));
 
@@ -170,6 +180,7 @@ export async function syncSportsRuMatchesToDb(db, { force = false } = {}) {
   }
 
   db.data.matches = existing;
+  migrateTeamFieldsInDb(db);
   await db.write();
 
   const recalculated =

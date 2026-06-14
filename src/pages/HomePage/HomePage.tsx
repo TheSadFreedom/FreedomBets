@@ -51,6 +51,8 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     medals,
     uploadMedal,
     deleteMedal,
+    rankingBaseline,
+    refreshRankingBaseline,
   } = profileBets;
 
   const [createBetOpen, setCreateBetOpen] = useState(false);
@@ -79,12 +81,6 @@ const HomePage = ({ profileBets }: HomePageProps) => {
 
   return (
     <Container>
-      <HomeQuickActions
-        onNewMatch={() => setCreateMatchOpen(true)}
-        onSyncSportsRu={syncSportsRuMatches}
-        onNewEvent={() => setCreateEventOpen(true)}
-      />
-
       <HomeTabs
         profile={profile}
         profiles={profiles}
@@ -114,6 +110,8 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         medals={medals}
         onUploadMedal={uploadMedal}
         onDeleteMedal={deleteMedal}
+        rankingBaseline={rankingBaseline}
+        onRefreshRankingBaseline={refreshRankingBaseline}
       />
 
       <MatchFormDialog
@@ -171,6 +169,12 @@ const HomePage = ({ profileBets }: HomePageProps) => {
           await updateBet({ ...values, id: editingBet.id });
           setEditingBet(null);
         }}
+      />
+
+      <HomeQuickActions
+        onNewMatch={() => setCreateMatchOpen(true)}
+        onSyncSportsRu={syncSportsRuMatches}
+        onNewEvent={() => setCreateEventOpen(true)}
       />
     </Container>
   );

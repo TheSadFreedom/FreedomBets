@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
-import { InputAdornment, TextField } from "@mui/material";
+import { InputAdornment, TextField, Tooltip } from "@mui/material";
 import type { Bet } from "@/entities/bet";
+import type { RankingBaseline } from "@/entities/ranking";
 import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
+import { getTeamMatchKey } from "@/shared/lib/teams/teamNames";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
-import { calcTeamStatsList } from "@/features/teams/lib/calcTeamStatsList";
 import type { RankTone } from "./TeamsTab.styled";
 import {
   BetsCount,
@@ -24,9 +26,12 @@ import {
   ListSection,
   LogoRing,
   RankNumber,
+  RefreshButton,
   RowInfo,
   RowLeft,
   RowRight,
+  RowStats,
+  SearchFieldWrap,
   ShareFill,
   ShareTrack,
   TabRoot,
@@ -38,6 +43,8 @@ import {
 
 interface TeamsTabProps {
   allBets: Bet[];
+  rankingBaseline: RankingBaseline | null;
+  onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
 }
 
 const rankTone = (rank: number): RankTone | undefined => {
@@ -55,30 +62,66 @@ const formatTeamsCount = (count: number) => {
   return `${count} команд`;
 };
 
-const TeamsTab = ({ allBets }: TeamsTabProps) => {
+const TeamsTab = ({
+  allBets,
+  rankingBaseline,
+  onRefreshRankingBaseline,
+}: TeamsTabProps) => {
   const [search, setSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
-  const stats = useMemo(() => calcTeamStatsList(allBets), [allBets]);
-  const topBets = stats[0]?.totalBets ?? 1;
-  const rankByName = useMemo(() => {
+  const rankings = useMemo(() => {
+    const teams = rankingBaseline?.teams ?? [];
+    return [...teams].sort((a, b) => a.globalRank - b.globalRank);
+  }, [rankingBaseline]);
+
+  const betsByTeamKey = useMemo(() => {
     const map = new Map<string, number>();
-    stats.forEach((item, index) => map.set(item.name, index + 1));
+    for (const bet of allBets) {
+      for (const side of [
+        { id: bet.team1Id, name: bet.organization1 },
+        { id: bet.team2Id, name: bet.organization2 },
+      ]) {
+        const key = side.id?.trim() || getTeamMatchKey(side.name);
+        if (!key) continue;
+        map.set(key, (map.get(key) ?? 0) + 1);
+      }
+    }
     return map;
-  }, [stats]);
+  }, [allBets]);
+
+  const topPoints = rankings[0]?.points ?? 1;
 
   const displayed = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return stats;
-    return stats.filter((item) => item.name.toLowerCase().includes(q));
-  }, [stats, search]);
+    if (!q) return rankings;
+    return rankings.filter((item) => item.teamName.toLowerCase().includes(q));
+  }, [rankings, search]);
 
-  if (stats.length === 0) {
+  const handleRefreshBaseline = async () => {
+    setRefreshing(true);
+    try {
+      await onRefreshRankingBaseline(true);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  if (rankings.length === 0) {
     return (
       <TabRoot>
-        <EmptyState>Нет команд — добавьте ставки с указанием команд</EmptyState>
+        <EmptyState>
+          {rankingBaseline
+            ? "Нет команд в рейтинге Valve"
+            : "Загрузка рейтинга Valve…"}
+        </EmptyState>
       </TabRoot>
     );
   }
+
+  const snapshotLabel = rankingBaseline?.snapshotDate
+    ? `снимок от ${rankingBaseline.snapshotDate}`
+    : "без даты снимка";
 
   return (
     <TabRoot>
@@ -90,40 +133,52 @@ const TeamsTab = ({ allBets }: TeamsTabProps) => {
               <GroupsOutlinedIcon sx={{ fontSize: 22 }} />
             </HeroIcon>
             <HeroText>
-              <HeroTitle>Топ команд</HeroTitle>
-              <HeroHint>по количеству ставок</HeroHint>
+              <HeroTitle>Рейтинг команд</HeroTitle>
+              <HeroHint>Valve VRS · {snapshotLabel}</HeroHint>
             </HeroText>
           </HeroLeft>
-          <HeroBadge>{formatTeamsCount(stats.length)}</HeroBadge>
+          <HeroBadge>{formatTeamsCount(rankings.length)}</HeroBadge>
         </HeroContent>
       </HeroCard>
 
       <TeamsCard>
         <Toolbar>
           <FiltersRow>
-            <TextField
-              size="small"
-              fullWidth
-              placeholder="Поиск команды"
-              value={search}
-              onChange={(e) => setSearch(limitInputLength(e.target.value))}
-              slotProps={{
-                htmlInput: { maxLength: MAX_INPUT_LENGTH },
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon fontSize="small" color="action" />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "#2e2e2e",
-                  borderRadius: "10px",
-                },
-              }}
-            />
+            <SearchFieldWrap>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Поиск команды"
+                value={search}
+                onChange={(e) => setSearch(limitInputLength(e.target.value))}
+                slotProps={{
+                  htmlInput: { maxLength: MAX_INPUT_LENGTH },
+                  input: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#2e2e2e",
+                    borderRadius: "10px",
+                  },
+                }}
+              />
+            </SearchFieldWrap>
+            <Tooltip title="Обновить рейтинг Valve с GitHub">
+              <RefreshButton
+                type="button"
+                onClick={() => void handleRefreshBaseline()}
+                disabled={refreshing}
+                aria-label="Обновить рейтинг Valve"
+              >
+                <RefreshIcon />
+              </RefreshButton>
+            </Tooltip>
           </FiltersRow>
         </Toolbar>
 
@@ -132,27 +187,30 @@ const TeamsTab = ({ allBets }: TeamsTabProps) => {
         ) : (
           <ListSection>
             {displayed.map((item) => {
-              const rank = rankByName.get(item.name) ?? 0;
-              const tone = rankTone(rank);
-              const share = item.totalBets / topBets;
+              const tone = rankTone(item.globalRank);
+              const share = item.points / topPoints;
+              const betCount = betsByTeamKey.get(item.teamKey) ?? 0;
 
               return (
-                <TeamRow key={item.name} $tone={tone}>
+                <TeamRow key={item.teamKey} $tone={tone}>
                   <RowLeft>
-                    <RankNumber $tone={tone}>{rank}</RankNumber>
-                    <LogoRing $tone={tone}>
-                      <TeamLogo name={item.name} size={36} />
+                    <RankNumber $tone={tone}>{item.globalRank}</RankNumber>
+                    <LogoRing>
+                      <TeamLogo name={item.teamName} size={36} />
                     </LogoRing>
                     <RowInfo>
-                      <TeamName>{item.name}</TeamName>
+                      <TeamName>{item.teamName}</TeamName>
+                      {betCount > 0 ? (
+                        <RowStats>{betCount} ставок</RowStats>
+                      ) : null}
                       <ShareTrack>
                         <ShareFill $share={share} $tone={tone} />
                       </ShareTrack>
                     </RowInfo>
                   </RowLeft>
                   <RowRight>
-                    <BetsLabel>Ставок</BetsLabel>
-                    <BetsCount>{item.totalBets}</BetsCount>
+                    <BetsLabel>Очки</BetsLabel>
+                    <BetsCount>{item.points}</BetsCount>
                   </RowRight>
                 </TeamRow>
               );

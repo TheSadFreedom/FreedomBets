@@ -41,8 +41,8 @@ async function enrichMatch(stub) {
   }
 }
 
-async function parseAllMatchStubs() {
-  const pages = await Promise.all(getSportsRuMatchPageUrls().map((url) => fetchSportsRuPage(url)));
+async function parseAllMatchStubs(dates) {
+  const pages = await Promise.all(getSportsRuMatchPageUrls(dates).map((url) => fetchSportsRuPage(url)));
   const stubs = [];
   const seen = new Set();
 
@@ -57,13 +57,13 @@ async function parseAllMatchStubs() {
   return stubs;
 }
 
-async function loadAllMatches({ force = false } = {}) {
+async function loadAllMatches({ force = false, dates } = {}) {
   if (!force) {
     const cached = getCached(CACHE_KEY);
-    if (cached) return cached;
+    if (cached && !dates?.length) return cached;
   }
 
-  const stubs = await parseAllMatchStubs();
+  const stubs = await parseAllMatchStubs(dates);
   const matches = await mapWithConcurrency(stubs, ENRICH_CONCURRENCY, enrichMatch);
 
   const payload = {
@@ -85,7 +85,7 @@ function filterByKnownEvents(matches, knownEvents) {
     .map((match) => applyMatchedEvent(match, findMatchingEvent(match, knownEvents)));
 }
 
-export async function fetchSportsRuMatches({ force = false, events = [] } = {}) {
+export async function fetchSportsRuMatches({ force = false, events = [], dates } = {}) {
   const knownEvents = dedupeEvents(events);
   const fetchedAt = new Date().toISOString();
 
@@ -103,7 +103,7 @@ export async function fetchSportsRuMatches({ force = false, events = [] } = {}) 
   }
 
   try {
-    const { matches: allMatches, meta } = await loadAllMatches({ force });
+    const { matches: allMatches, meta } = await loadAllMatches({ force, dates });
 
     return {
       matches: filterByKnownEvents(allMatches, knownEvents),

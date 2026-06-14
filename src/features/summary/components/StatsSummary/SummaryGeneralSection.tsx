@@ -13,9 +13,15 @@ import WinRateMetricTile from "./WinRateMetricTile";
 
 interface SummaryGeneralSectionProps {
   bets: Bet[];
+  totalDeposited?: number;
+  totalWithdrawn?: number;
 }
 
-const SummaryGeneralSection = ({ bets }: SummaryGeneralSectionProps) => {
+const SummaryGeneralSection = ({
+  bets,
+  totalDeposited = 0,
+  totalWithdrawn = 0,
+}: SummaryGeneralSectionProps) => {
   const stats = useMemo(() => calcSummaryStats(bets), [bets]);
   const hasSettled = stats.settledCount > 0;
   const profitPositive = stats.profit >= 0;
@@ -53,6 +59,22 @@ const SummaryGeneralSection = ({ bets }: SummaryGeneralSectionProps) => {
         losses={stats.losses}
         pending={stats.pendingCount}
       />
+
+      <StatsMetricTile $accent="#66bb6a" $highlight={totalDeposited > 0}>
+        <StatsMetricLabel>Пополнено</StatsMetricLabel>
+        <StatsMetricValue $color={totalDeposited > 0 ? "#81c784" : undefined}>
+          {formatMoney(totalDeposited)}
+        </StatsMetricValue>
+        <StatsMetricSub>всего внесено</StatsMetricSub>
+      </StatsMetricTile>
+
+      <StatsMetricTile $accent="#ef5350" $highlight={totalWithdrawn > 0}>
+        <StatsMetricLabel>Выведено</StatsMetricLabel>
+        <StatsMetricValue $color={totalWithdrawn > 0 ? "#e57373" : undefined}>
+          {formatMoney(totalWithdrawn)}
+        </StatsMetricValue>
+        <StatsMetricSub>всего снято</StatsMetricSub>
+      </StatsMetricTile>
     </StatsMetricsGrid>
   );
 };

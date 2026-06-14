@@ -43,6 +43,7 @@ export function calcEventStatsList(bets: Bet[], events: EventRecord[] = []): Eve
       stages: [],
       winnerOrganization: stored?.winnerOrganization ?? null,
       winnerLogoSlug: stored?.winnerLogoSlug ?? null,
+      prizePool: stored?.prizePool ?? null,
       date: stored?.date?.trim() || earliest?.date || "",
       endDate: stored?.endDate?.trim() || "",
       eventTier: stored?.eventTier ?? resolveEventTierForEvent(events, eventOrganization, eventName),

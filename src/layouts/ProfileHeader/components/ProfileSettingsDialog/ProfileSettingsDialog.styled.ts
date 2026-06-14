@@ -160,8 +160,8 @@ export const DialogBody = styled.div`
 
 `;
 
-export const SectionCard = styled.section<{ $tone?: "default" | "danger" }>`
-  padding: 12px 14px;
+export const SectionCard = styled.section<{ $tone?: "default" | "danger"; $compact?: boolean }>`
+  padding: ${({ $compact }) => ($compact ? "8px" : "12px 14px")};
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -395,6 +395,7 @@ export const ActionTileWide = styled(ActionTile)`
   flex-direction: row;
   align-items: center;
   gap: 12px;
+  padding: 10px 12px;
 `;
 
 export const ActionTileWideText = styled.div`
@@ -407,8 +408,8 @@ export const ActionTileWideText = styled.div`
 export const DeleteConfirmBox = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px;
   border-radius: 10px;
   background: rgba(239, 83, 80, 0.1);
   border: 1px solid rgba(239, 83, 80, 0.28);
@@ -416,14 +417,13 @@ export const DeleteConfirmBox = styled.div`
 
 export const DeleteConfirmText = styled.p`
   margin: 0;
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 11px;
+  line-height: 1.35;
   color: rgba(255, 205, 210, 0.92);
 `;
 
 export const ConfirmActionRow = styled.div`
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 `;
 
@@ -431,9 +431,10 @@ export const ConfirmButton = styled.button<{ $variant?: "danger" | "ghost" }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 9px 14px;
+  flex: 1;
+  padding: 8px 12px;
   border-radius: 9px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;

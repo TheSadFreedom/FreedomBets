@@ -67,6 +67,7 @@ export const MatchAccordion = styled(Accordion)<{ $status: MatchStatus }>`
     align-items: stretch;
     min-height: 0;
     padding: 0;
+    cursor: pointer;
   }
 
   .MuiAccordionSummary-content {
@@ -408,6 +409,22 @@ const statusStyles: Record<MatchStatus, ReturnType<typeof css>> = {
     border: 1px solid rgba(255, 255, 255, 0.12);
   `,
 };
+
+export const BetsCountPill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #c8e6c9;
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(129, 199, 132, 0.35);
+  white-space: nowrap;
+  flex-shrink: 0;
+`;
 
 export const StatusBadge = styled.span<{ $status: MatchStatus }>`
   display: inline-flex;

@@ -9,7 +9,7 @@ export async function executeBetSettlementPlan(plan: BetSettlementPlan[]): Promi
   return Promise.all(
     plan.map(async ({ bet, nextStatus }) => {
       const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { status: nextStatus });
-      return normalizeBet(res.data);
+      return normalizeBet(res.data, bet);
     }),
   );
 }

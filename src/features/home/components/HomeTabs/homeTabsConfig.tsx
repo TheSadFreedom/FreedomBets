@@ -1,4 +1,3 @@
-import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
@@ -12,7 +11,6 @@ export type HomeTabId =
   | "matches"
   | "bets"
   | "summary"
-  | "ranking"
   | "teams"
   | "events"
   | "majors"
@@ -43,11 +41,6 @@ export const HOME_TABS: HomeTabConfig[] = [
     icon: <InsightsOutlinedIcon sx={tabIconSxDesktop} />,
   },
   {
-    label: "Топ",
-    id: "ranking",
-    icon: <EmojiEventsOutlinedIcon sx={tabIconSxDesktop} />,
-  },
-  {
     label: "Команды",
     id: "teams",
     icon: <GroupsOutlinedIcon sx={tabIconSxDesktop} />,
@@ -70,3 +63,8 @@ export const HOME_TABS: HomeTabConfig[] = [
 ];
 
 export const getHomeTabIndex = (id: HomeTabId) => HOME_TABS.findIndex((tab) => tab.id === id);
+
+const SCROLL_TO_TOP_HIDDEN_TAB_IDS: HomeTabId[] = ["summary", "pickem"];
+
+export const homeTabShowsScrollToTop = (tabIndex: number) =>
+  !SCROLL_TO_TOP_HIDDEN_TAB_IDS.some((id) => getHomeTabIndex(id) === tabIndex);

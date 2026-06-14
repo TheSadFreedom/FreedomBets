@@ -19,32 +19,31 @@ const LogoAvatar = ({
   onError,
   children,
 }: LogoAvatarProps) => {
-  const [loaded, setLoaded] = useState(false);
+  const [loadState, setLoadState] = useState<{ src: string; loaded: boolean } | null>(null);
   const onErrorRef = useRef(onError);
 
-  onErrorRef.current = onError;
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
 
   const showImage = Boolean(src && !failed);
-  const showLoading = showImage && !loaded;
+  const imageLoaded = Boolean(showImage && src && loadState?.src === src && loadState.loaded);
+  const showLoading = showImage && !imageLoaded;
   const showFallback = failed || !showImage;
 
   useEffect(() => {
-    if (!showImage || !src) {
-      setLoaded(false);
-      return;
-    }
+    if (!showImage || !src) return;
 
-    setLoaded(false);
     let cancelled = false;
     const img = new Image();
 
     const finish = () => {
-      if (!cancelled) setLoaded(true);
+      if (!cancelled) setLoadState({ src, loaded: true });
     };
 
     const fail = () => {
       if (cancelled) return;
-      setLoaded(false);
+      setLoadState({ src, loaded: false });
       onErrorRef.current?.();
     };
 
@@ -88,7 +87,7 @@ const LogoAvatar = ({
         </Box>
       ) : null}
       <Avatar
-        src={showImage && loaded ? src : undefined}
+        src={showImage && imageLoaded ? src : undefined}
         alt={alt}
         sx={logoAvatarSx(size, showFallback)}
       >

@@ -19,6 +19,8 @@ export interface EventEditInput {
   stages: string[];
   winnerOrganization: string | null;
   winnerLogoSlug: string | null;
+  /** Призовой фонд турнира, USD */
+  prizePool: number | null;
 }
 
 export interface EventStats extends EventIdentity {
@@ -32,6 +34,7 @@ export interface EventStats extends EventIdentity {
   stages: string[];
   winnerOrganization: string | null;
   winnerLogoSlug: string | null;
+  prizePool: number | null;
   totalBets: number;
   wins: number;
   losses: number;

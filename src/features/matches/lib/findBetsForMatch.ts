@@ -1,5 +1,6 @@
 import type { Bet } from "@/entities/bet";
 import type { Match } from "@/entities/match";
+import { teamPairsMatch } from "@/entities/team";
 
 const norm = (value: string) => value.trim().toLowerCase();
 
@@ -11,11 +12,7 @@ function stagesEqual(
 }
 
 function teamsMatch(bet: Bet, match: Match): boolean {
-  const a1 = norm(bet.organization1);
-  const a2 = norm(bet.organization2);
-  const b1 = norm(match.organization1);
-  const b2 = norm(match.organization2);
-  return (a1 === b1 && a2 === b2) || (a1 === b2 && a2 === b1);
+  return teamPairsMatch(bet, match);
 }
 
 function eventTeamsFormatMatch(
@@ -47,6 +44,19 @@ export function legacyBetMatchesMatch(
   return bet.time === match.time;
 }
 
+function matchIdsEqual(bet: Bet, match: Match): boolean {
+  const linked = bet.matchId?.trim();
+  const matchId = String(match.id ?? "").trim();
+  return Boolean(linked && matchId && linked === matchId);
+}
+
+function isOrphanMatchId(bet: Bet, knownMatchIds?: ReadonlySet<string>): boolean {
+  const linked = bet.matchId?.trim();
+  if (!linked) return false;
+  if (!knownMatchIds) return false;
+  return !knownMatchIds.has(linked);
+}
+
 function pickUniqueMatch(candidates: Match[], bet: Bet): Match | null {
   if (candidates.length === 1) {
     return candidates[0];
@@ -66,36 +76,61 @@ function pickUniqueMatch(candidates: Match[], bet: Bet): Match | null {
 export function findMatchForBet(bet: Bet, matches: Match[]): Match | null {
   const linkedMatchId = bet.matchId?.trim();
   if (linkedMatchId) {
-    return matches.find((match) => match.id === linkedMatchId) ?? null;
+    const direct = matches.find((match) => matchIdsEqual(bet, match));
+    if (direct) return direct;
+    if (!isOrphanMatchId(bet, new Set(matches.map((match) => String(match.id).trim())))) {
+      return null;
+    }
   }
   return pickUniqueMatch(matches.filter((match) => legacyBetMatchesMatch(bet, match)), bet);
 }
 
 /** Связь по matchId или по турниру, командам и формату (дата и/или время). */
-export function isBetForMatch(bet: Bet, match: Match): boolean {
-  const linkedMatchId = bet.matchId?.trim();
-  if (linkedMatchId) {
-    return linkedMatchId === match.id;
+export function isBetForMatch(
+  bet: Bet,
+  match: Match,
+  options?: { knownMatchIds?: ReadonlySet<string>; ignoreStage?: boolean }
+): boolean {
+  if (matchIdsEqual(bet, match)) {
+    return true;
   }
-  return legacyBetMatchesMatch(bet, match);
+
+  const linked = bet.matchId?.trim();
+  if (linked && options?.knownMatchIds?.has(linked)) {
+    return false;
+  }
+
+  return legacyBetMatchesMatch(bet, match, options);
 }
 
 /** Как isBetForMatch, но для старых ставок стадия не учитывается. */
-export function isBetLinkedToMatch(bet: Bet, match: Match): boolean {
-  const linkedMatchId = bet.matchId?.trim();
-  if (linkedMatchId) {
-    return linkedMatchId === match.id;
-  }
-  return legacyBetMatchesMatch(bet, match, { ignoreStage: true });
+export function isBetLinkedToMatch(
+  bet: Bet,
+  match: Match,
+  options?: { knownMatchIds?: ReadonlySet<string> }
+): boolean {
+  return isBetForMatch(bet, match, { ...options, ignoreStage: true });
 }
 
-export function findLinkedBetsForMatch(match: Match, bets: Bet[]): Bet[] {
-  return bets.filter((bet) => isBetLinkedToMatch(bet, match));
+export function findLinkedBetsForMatch(
+  match: Match,
+  bets: Bet[],
+  allMatches?: Match[]
+): Bet[] {
+  const knownMatchIds = allMatches
+    ? new Set(allMatches.map((item) => String(item.id).trim()))
+    : undefined;
+
+  return bets.filter((bet) => isBetLinkedToMatch(bet, match, { knownMatchIds }));
 }
 
-export function findBetsForMatch(match: Match, bets: Bet[]): Bet[] {
+export function findBetsForMatch(match: Match, bets: Bet[], allMatches?: Match[]): Bet[] {
+  const knownMatchIds = allMatches
+    ? new Set(allMatches.map((item) => String(item.id).trim()))
+    : undefined;
+
   return bets
-    .filter((bet) => isBetForMatch(bet, match))
+    .filter((bet) => isBetForMatch(bet, match, { knownMatchIds }))
     .sort((a, b) => {
       const statusOrder = { WAIT: 0, WIN: 1, LOSE: 2 };
       const statusCmp = statusOrder[a.status] - statusOrder[b.status];

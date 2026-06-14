@@ -49,7 +49,13 @@ const EventStatsFiltersBar = ({
             ),
           },
         }}
-        sx={{ flex: "1 1 100%" }}
+        sx={{
+          flex: "1 1 100%",
+          "& .MuiOutlinedInput-root": {
+            backgroundColor: "#2e2e2e",
+            borderRadius: "10px",
+          },
+        }}
       />
     </FiltersWrapper>
   </FiltersPanel>

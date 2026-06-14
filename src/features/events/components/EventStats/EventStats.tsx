@@ -52,12 +52,8 @@ interface EventStatsProps {
   notFoundMessage?: string;
   /** Сводная статистика над списком турниров */
   summarySections?: EventStatsSummarySection[];
-  /** Показывать фильтр по тиру турнира */
-  showTierFilter?: boolean;
   /** Какие тиры доступны в фильтре (по умолчанию — все) */
   tierFilterOptions?: readonly EventTier[];
-  /** Фильтр по стадии major */
-  showMajorStageFilter?: boolean;
   onUpdateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
   onDeleteEvent: (identity: EventIdentity) => Promise<void>;
 }
@@ -85,7 +81,7 @@ const EventStats = ({
   allBets = bets,
   matches = [],
   events = [],
-  emptyMessage = "Нет турниров — нажмите «Новый турнир» в шапке",
+  emptyMessage = "Нет турниров — нажмите «Новый турнир» внизу экрана",
   notFoundMessage = "Нет турниров по выбранным фильтрам",
   summarySections,
   tierFilterOptions = EVENT_TIERS,

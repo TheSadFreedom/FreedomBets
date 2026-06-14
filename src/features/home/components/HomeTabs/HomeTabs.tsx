@@ -5,9 +5,11 @@ import type { Match, MatchCreateInput } from "@/entities/match";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
 import type { PickemMajor, PickemStageName } from "@/entities/pickem";
+import type { RankingBaseline } from "@/entities/ranking";
 import type { Profile } from "@/entities/profile";
+import ScrollToTopButton from "@/features/home/components/ScrollToTopButton/ScrollToTopButton";
 import HomeTabPanels from "./HomeTabPanels";
-import { HOME_TABS } from "./homeTabsConfig";
+import { HOME_TABS, homeTabShowsScrollToTop } from "./homeTabsConfig";
 import { useHomeTabBets } from "./useHomeTabBets";
 import { useHomeTabMount } from "./useHomeTabMount";
 import { TabLabel, TabsBar, TabsRoot } from "./HomeTabs.styled";
@@ -43,6 +45,8 @@ interface HomeTabsProps {
   medals: ProfileMedal[];
   onUploadMedal: (imageData: string) => Promise<void>;
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
+  rankingBaseline: RankingBaseline | null;
+  onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
 }
 
 const HomeTabs = (props: HomeTabsProps) => {
@@ -58,6 +62,7 @@ const HomeTabs = (props: HomeTabsProps) => {
       <TabsBar>
         <Tabs
           value={tab}
+          variant="fullWidth"
           onChange={(_, value: number) => setTab(value)}
           aria-label="Разделы главной"
         >
@@ -85,6 +90,8 @@ const HomeTabs = (props: HomeTabsProps) => {
         smallBets={smallBets}
         {...props}
       />
+
+      <ScrollToTopButton enabled={homeTabShowsScrollToTop(tab)} />
     </TabsRoot>
   );
 };

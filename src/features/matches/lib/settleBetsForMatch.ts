@@ -137,13 +137,23 @@ export interface BetSettlementPlan {
   nextStatus: BetStatus;
 }
 
-export function planMatchBetSettlements(match: Match, bets: Bet[]): BetSettlementPlan[] {
-  return planMatchBetRecalculations(match, bets).filter(({ bet }) => bet.status === "WAIT");
+export function planMatchBetSettlements(
+  match: Match,
+  bets: Bet[],
+  allMatches?: Match[],
+): BetSettlementPlan[] {
+  return planMatchBetRecalculations(match, bets, allMatches).filter(
+    ({ bet }) => bet.status === "WAIT",
+  );
 }
 
 /** Пересчёт ставок: новые WAIT и исправление WIN/LOSE после смены счёта. */
-export function planMatchBetRecalculations(match: Match, bets: Bet[]): BetSettlementPlan[] {
-  return findBetsForMatch(match, bets).flatMap((bet) => {
+export function planMatchBetRecalculations(
+  match: Match,
+  bets: Bet[],
+  allMatches?: Match[],
+): BetSettlementPlan[] {
+  return findBetsForMatch(match, bets, allMatches).flatMap((bet) => {
     const nextStatus = resolveExpectedBetStatus(bet, match);
     if (!nextStatus || bet.status === nextStatus) return [];
     return [{ bet, nextStatus }];
@@ -151,14 +161,22 @@ export function planMatchBetRecalculations(match: Match, bets: Bet[]): BetSettle
 }
 
 /** WAIT-ставки на пистолетный раунд — только вручную */
-export function countSkippedWaitBets(match: Match, bets: Bet[]): number {
-  return findBetsForMatch(match, bets).filter(
+export function countSkippedWaitBets(
+  match: Match,
+  bets: Bet[],
+  allMatches?: Match[],
+): number {
+  return findBetsForMatch(match, bets, allMatches).filter(
     (bet) => bet.status === "WAIT" && bet.betMarket === "pistol",
   ).length;
 }
 
-export function countPendingMatchBets(match: Match, bets: Bet[]): number {
-  return planMatchBetRecalculations(match, bets).length;
+export function countPendingMatchBets(
+  match: Match,
+  bets: Bet[],
+  allMatches?: Match[],
+): number {
+  return planMatchBetRecalculations(match, bets, allMatches).length;
 }
 
 export interface MatchSettlementResult {

@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export function useHomeTabMount(initialTab = 0) {
-  const [tab, setTab] = useState(initialTab);
+  const [tab, setTabState] = useState(initialTab);
   const [mountedTabs, setMountedTabs] = useState<ReadonlySet<number>>(() => new Set([initialTab]));
 
-  useEffect(() => {
-    setMountedTabs((prev) => (prev.has(tab) ? prev : new Set([...prev, tab])));
-  }, [tab]);
+  const setTab = (nextTab: number) => {
+    setTabState(nextTab);
+    setMountedTabs((prev) => (prev.has(nextTab) ? prev : new Set([...prev, nextTab])));
+  };
 
   return { tab, setTab, mountedTabs };
 }
