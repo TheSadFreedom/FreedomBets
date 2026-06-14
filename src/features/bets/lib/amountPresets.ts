@@ -1,4 +1,4 @@
-export const BET_AMOUNT_PERCENT_PRESETS = [3, 5, 7, 10, 15, 20, 30] as const;
+export const BET_AMOUNT_PERCENT_PRESETS = [1, 3, 5, 7, 10, 15, 20, 30, 50, 100] as const;
 
 import { clampBetAmount } from "@/shared/lib/limits";
 

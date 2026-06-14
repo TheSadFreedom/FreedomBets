@@ -14,6 +14,9 @@ export interface Match {
   date: string;
   time: string;
   format: MatchFormat;
+  /** Стабильный id команды (teamKey) */
+  team1Id?: string | null;
+  team2Id?: string | null;
   organization1: string;
   organization2: string;
   eventOrganization: string;

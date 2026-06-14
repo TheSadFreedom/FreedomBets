@@ -1,25 +1,18 @@
 import type { Bet } from "@/entities/bet";
 import type { Match } from "@/entities/match";
+import {
+  betTeamOnMatchSide,
+  teamsSameOrder as teamsSameOrderResolved,
+} from "@/entities/team";
 
-const norm = (value: string) => value.trim().toLowerCase();
-
-type TeamPair = Pick<Bet, "organization1" | "organization2">;
-
-/** Совпадает ли порядок команд в ставке и матче. */
-export function teamsSameOrder(bet: TeamPair, match: TeamPair): boolean {
-  return (
-    norm(bet.organization1) === norm(match.organization1) &&
-    norm(bet.organization2) === norm(match.organization2)
-  );
+/** Совпадает ли порядок команд в ставке и матче (id или синонимы). */
+export function teamsSameOrder(bet: Bet, match: Match): boolean {
+  return teamsSameOrderResolved(bet, match);
 }
 
 /** Номер команды из ставки в координатах матча (organization1 / organization2). */
 export function betTeamOnMatch(bet: Bet, match: Match): 1 | 2 {
-  if (bet.betTeam !== 1 && bet.betTeam !== 2) {
-    return bet.betTeam as 1 | 2;
-  }
-  if (teamsSameOrder(bet, match)) return bet.betTeam;
-  return bet.betTeam === 1 ? 2 : 1;
+  return betTeamOnMatchSide(bet, match);
 }
 
 /** Счёт серии в координатах ставки (exactScore). */

@@ -1,14 +1,33 @@
-import { useEffect, useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import CloseIcon from "@mui/icons-material/Close";
+import { Dialog, IconButton, TextField } from "@mui/material";
 import { clampBalance, MAX_BALANCE } from "@/shared/lib/limits";
+import { dialogBackdropSx, dialogPaperSx } from "@/shared/styles/dialogSx";
+import {
+  BalanceCard,
+  BalanceCardLabel,
+  BalanceCardValue,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  DialogHeaderRow,
+  DialogShell,
+  DialogSubtitle,
+  DialogTitle,
+  fieldSx,
+  FooterButton,
+  HeaderIcon,
+  HeaderText,
+  HintText,
+  PresetChip,
+  PresetGrid,
+  PreviewCard,
+  PreviewLabel,
+  PreviewValue,
+} from "./BalanceDialog.styled";
+
+const DEPOSIT_PRESETS = [500, 1000, 3000, 5000, 10000, 25000] as const;
 
 interface BalanceDialogProps {
   open: boolean;
@@ -16,6 +35,12 @@ interface BalanceDialogProps {
   onClose: () => void;
   onAdd: (amount: number) => Promise<void>;
 }
+
+const formatMoney = (value: number) =>
+  value.toLocaleString("ru-RU", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
 
 const BalanceDialog = ({ open, currentBalance, onClose, onAdd }: BalanceDialogProps) => {
   const [amountInput, setAmountInput] = useState("");
@@ -25,10 +50,16 @@ const BalanceDialog = ({ open, currentBalance, onClose, onAdd }: BalanceDialogPr
     if (open) setAmountInput("");
   }, [open]);
 
-  const amount = Number(amountInput);
   const maxDeposit = Math.max(0, MAX_BALANCE - currentBalance);
+  const amount = Number(amountInput);
   const exceedsMaxBalance = Number.isFinite(amount) && amount > maxDeposit;
   const valid = amount > 0 && Number.isFinite(amount) && !exceedsMaxBalance;
+  const nextBalance = valid ? clampBalance(currentBalance + amount) : null;
+
+  const availablePresets = useMemo(
+    () => DEPOSIT_PRESETS.filter((preset) => preset <= maxDeposit),
+    [maxDeposit],
+  );
 
   const handleAdd = async () => {
     if (!valid) return;
@@ -42,57 +73,113 @@ const BalanceDialog = ({ open, currentBalance, onClose, onAdd }: BalanceDialogPr
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>Пополнение баланса</DialogTitle>
-      <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 1 }}>
-        <Typography variant="body2" color="text.secondary">
-          Текущий баланс:{" "}
-          <strong>
-            {currentBalance.toLocaleString("ru-RU", {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 2,
-            })}{" "}
-            ₽
-          </strong>
-        </Typography>
-        <TextField
-          label="Сумма пополнения, ₽"
-          type="number"
-          value={amountInput}
-          onChange={(e) => setAmountInput(e.target.value)}
-          fullWidth
-          autoFocus
-          error={exceedsMaxBalance}
-          helperText={
-            maxDeposit <= 0
-              ? `Достигнут максимальный баланс ${MAX_BALANCE.toLocaleString("ru-RU")} ₽`
-              : exceedsMaxBalance
-                ? `Максимум пополнения: ${maxDeposit.toLocaleString("ru-RU")} ₽`
-                : `Лимит баланса: ${MAX_BALANCE.toLocaleString("ru-RU")} ₽`
-          }
-          slotProps={{ htmlInput: { min: 1, max: maxDeposit, step: 1 } }}
-        />
-        {valid && (
-          <Typography variant="body2" color="text.secondary">
-            После пополнения:{" "}
-            <strong style={{ color: "#81c784" }}>
-              {clampBalance(currentBalance + amount).toLocaleString("ru-RU", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2,
-              })}{" "}
-              ₽
-            </strong>
-          </Typography>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>
-          Отмена
-        </Button>
-        <Button variant="contained" onClick={handleAdd} disabled={!valid || submitting}>
-          Добавить
-        </Button>
-      </DialogActions>
+    <Dialog
+      open={open}
+      onClose={submitting ? undefined : onClose}
+      maxWidth="xs"
+      fullWidth
+      slotProps={{
+        paper: { sx: dialogPaperSx },
+        backdrop: { sx: dialogBackdropSx },
+      }}
+    >
+      <DialogShell>
+        <DialogHeader>
+          <DialogHeaderRow>
+            <HeaderIcon aria-hidden>
+              <AddCircleOutlineIcon />
+            </HeaderIcon>
+            <HeaderText>
+              <DialogTitle>Пополнение баланса</DialogTitle>
+              <DialogSubtitle>Добавьте средства на счёт профиля</DialogSubtitle>
+            </HeaderText>
+            <IconButton
+              onClick={onClose}
+              disabled={submitting}
+              aria-label="Закрыть"
+              size="small"
+              sx={{
+                color: "rgba(255,255,255,0.5)",
+                mt: -0.5,
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "10px",
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </DialogHeaderRow>
+
+          <BalanceCard>
+            <BalanceCardLabel>Текущий баланс</BalanceCardLabel>
+            <BalanceCardValue>{formatMoney(currentBalance)} ₽</BalanceCardValue>
+          </BalanceCard>
+        </DialogHeader>
+
+        <DialogBody>
+          {maxDeposit <= 0 ? (
+            <HintText>
+              Достигнут максимальный баланс {formatMoney(MAX_BALANCE)} ₽
+            </HintText>
+          ) : (
+            <>
+              {availablePresets.length > 0 ? (
+                <PresetGrid>
+                  {availablePresets.map((preset) => (
+                    <PresetChip
+                      key={preset}
+                      type="button"
+                      $active={amountInput === String(preset)}
+                      onClick={() => setAmountInput(String(preset))}
+                    >
+                      +{formatMoney(preset)} ₽
+                    </PresetChip>
+                  ))}
+                </PresetGrid>
+              ) : null}
+
+              <TextField
+                label="Сумма пополнения, ₽"
+                type="number"
+                value={amountInput}
+                onChange={(e) => setAmountInput(e.target.value)}
+                fullWidth
+                autoFocus
+                error={exceedsMaxBalance}
+                helperText={
+                  exceedsMaxBalance
+                    ? `Максимум пополнения: ${formatMoney(maxDeposit)} ₽`
+                    : undefined
+                }
+                sx={fieldSx}
+                slotProps={{ htmlInput: { min: 1, max: maxDeposit, step: 1 } }}
+              />
+
+              {nextBalance != null ? (
+                <PreviewCard>
+                  <PreviewLabel>После пополнения</PreviewLabel>
+                  <PreviewValue>{formatMoney(nextBalance)} ₽</PreviewValue>
+                </PreviewCard>
+              ) : null}
+
+              <HintText>Лимит баланса: {formatMoney(MAX_BALANCE)} ₽</HintText>
+            </>
+          )}
+        </DialogBody>
+
+        <DialogFooter>
+          <FooterButton type="button" onClick={onClose} disabled={submitting}>
+            Отмена
+          </FooterButton>
+          <FooterButton
+            type="button"
+            $primary
+            onClick={() => void handleAdd()}
+            disabled={!valid || submitting || maxDeposit <= 0}
+          >
+            {submitting ? "Пополнение…" : "Пополнить"}
+          </FooterButton>
+        </DialogFooter>
+      </DialogShell>
     </Dialog>
   );
 };

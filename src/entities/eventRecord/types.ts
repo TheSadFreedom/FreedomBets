@@ -15,6 +15,8 @@ export interface EventRecord {
   winnerOrganization: string | null;
   /** Slug файла логотипа победителя из public/teams */
   winnerLogoSlug: string | null;
+  /** Призовой фонд турнира, USD */
+  prizePool: number | null;
 }
 
 export type EventRecordCreateInput = Pick<
@@ -28,4 +30,5 @@ export type EventRecordCreateInput = Pick<
   | "stages"
   | "winnerOrganization"
   | "winnerLogoSlug"
+  | "prizePool"
 >;

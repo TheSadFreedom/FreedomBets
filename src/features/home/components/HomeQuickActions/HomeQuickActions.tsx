@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   ActionButton,
   ActionButtonLabel,
+  ActionsInner,
   ActionsRoot,
   SyncActionButton,
 } from "./HomeQuickActions.styled";
@@ -30,9 +31,9 @@ const HomeQuickActions = ({ onNewMatch, onSyncSportsRu, onNewEvent }: HomeQuickA
 
   return (
     <ActionsRoot>
+      <ActionsInner>
       <ActionButton
         type="button"
-        $primary
         onClick={onNewMatch}
         aria-label="Добавить новый матч"
       >
@@ -57,6 +58,7 @@ const HomeQuickActions = ({ onNewMatch, onSyncSportsRu, onNewEvent }: HomeQuickA
         <EmojiEventsOutlinedIcon />
         <ActionButtonLabel>Новый турнир</ActionButtonLabel>
       </ActionButton>
+      </ActionsInner>
     </ActionsRoot>
   );
 };

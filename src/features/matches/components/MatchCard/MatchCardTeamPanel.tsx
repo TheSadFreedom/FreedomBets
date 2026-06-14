@@ -1,9 +1,10 @@
 import { Fade, Popper } from "@mui/material";
 import type { BetTeamSide } from "@/entities/bet";
+import type { RankingBaseline } from "@/entities/ranking";
 import TeamRecentFormPopover from "@/features/matches/components/TeamRecentFormPopover/TeamRecentFormPopover";
 import type { TeamRecentMatchItem } from "@/features/matches/lib/getTeamRecentMatches";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
-import type { MouseEvent, RefObject } from "react";
+import type { MouseEvent, Ref } from "react";
 import { stopAccordionToggle } from "./matchCardHelpers";
 import { LogoRing, TeamName, TeamPanel, TeamPanelWrap } from "./MatchCard.styled";
 
@@ -14,9 +15,11 @@ interface MatchCardTeamPanelProps {
   readOnly: boolean;
   placement: "bottom-end" | "bottom-start";
   align: "end" | "start";
-  anchorRef: RefObject<HTMLDivElement | null>;
+  anchorRef: Ref<HTMLDivElement>;
+  anchorEl: HTMLDivElement | null;
   hovered: boolean;
   recentMatches: TeamRecentMatchItem[];
+  rankingBaseline?: RankingBaseline | null;
   onShowHover: () => void;
   onScheduleHideHover: () => void;
   onBet: (team: BetTeamSide) => void;
@@ -30,8 +33,10 @@ const MatchCardTeamPanel = ({
   placement,
   align,
   anchorRef,
+  anchorEl,
   hovered,
   recentMatches,
+  rankingBaseline = null,
   onShowHover,
   onScheduleHideHover,
   onBet,
@@ -79,7 +84,7 @@ const MatchCardTeamPanel = ({
 
     <Popper
       open={hovered}
-      anchorEl={anchorRef.current}
+      anchorEl={anchorEl}
       placement={placement}
       transition
       modifiers={[{ name: "offset", options: { offset: [0, 6] } }]}
@@ -88,7 +93,11 @@ const MatchCardTeamPanel = ({
       {({ TransitionProps }) => (
         <Fade {...TransitionProps} timeout={160}>
           <div onMouseEnter={onShowHover} onMouseLeave={onScheduleHideHover}>
-            <TeamRecentFormPopover teamName={teamName} items={recentMatches} />
+            <TeamRecentFormPopover
+              teamName={teamName}
+              items={recentMatches}
+              rankingBaseline={rankingBaseline}
+            />
           </div>
         </Fade>
       )}

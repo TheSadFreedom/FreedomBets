@@ -6,42 +6,6 @@ export const TabRoot = styled.section`
   min-width: 0;
 `;
 
-export const Toolbar = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-`;
-
-export const ToolbarTitle = styled.h2`
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
-`;
-
-export const AddButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 16px;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: inherit;
-  cursor: pointer;
-  color: #1b2e1b;
-  background: linear-gradient(145deg, #81c784 0%, #66bb6a 100%);
-  box-shadow: 0 2px 12px rgba(76, 175, 80, 0.3);
-  transition: transform 0.18s ease;
-
-  &:hover {
-    transform: translateY(-1px);
-  }
-`;
-
 export const MatchSection = styled.section`
   display: flex;
   flex-direction: column;

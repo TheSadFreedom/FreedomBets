@@ -11,7 +11,9 @@ import {
   isBetTeamSide,
   normalizeBetTargets,
 } from "@/entities/bet";
+import { attachTeamIds, resolveBetTeamId } from "@/entities/team";
 import { clampBetAmount, limitInputLength } from "@/shared/lib/limits";
+import { resolveCanonicalTeamName } from "@/shared/lib/teams/teamNames";
 import { parseLegacyEvent } from "@/features/events/lib/eventDisplay";
 import { resolveEventTier } from "@/features/events/lib/eventTier";
 import { parseMajorFromEventName, resolveEventStage } from "@/features/events/lib/majorStage";
@@ -23,76 +25,79 @@ export type BetFromApi = Omit<Bet, "id"> & {
   eventTier?: unknown;
 };
 
-export function normalizeBet(data: BetFromApi): Bet {
-  let eventOrganization = data.eventOrganization ?? "";
-  let eventName = data.eventName ?? "";
+export function normalizeBet(data: BetFromApi, previous?: Bet): Bet {
+  const merged = previous ? { ...previous, ...data, id: previous.id } : data;
+  let eventOrganization = merged.eventOrganization ?? "";
+  let eventName = merged.eventName ?? "";
 
-  if (!eventOrganization && !eventName && data.event) {
-    const parsed = parseLegacyEvent(data.event);
+  if (!eventOrganization && !eventName && merged.event) {
+    const parsed = parseLegacyEvent(merged.event);
     eventOrganization = parsed.eventOrganization;
     eventName = parsed.eventName;
   }
 
-  const format: MatchFormat = MATCH_FORMATS.includes(data.format as MatchFormat)
-    ? (data.format as MatchFormat)
+  const format: MatchFormat = MATCH_FORMATS.includes(merged.format as MatchFormat)
+    ? (merged.format as MatchFormat)
     : "BO3";
 
-  const tierForStage = resolveEventTier(data.eventTier, eventOrganization, eventName);
+  const tierForStage = resolveEventTier(merged.eventTier, eventOrganization, eventName);
   if (tierForStage === "Major") {
     const parsed = parseMajorFromEventName(eventName);
-    if (!data.majorStage && parsed.stage) {
+    if (!merged.majorStage && parsed.stage) {
       eventName = parsed.baseName;
     }
   }
-  const majorStage = resolveEventStage(data.majorStage, tierForStage, eventName);
+  const majorStage = resolveEventStage(merged.majorStage, tierForStage, eventName);
 
-  const betType = data.betType ?? "";
-  const betMarket = isBetMarket(data.betMarket)
-    ? data.betMarket
+  const betType = merged.betType ?? "";
+  const betMarket = isBetMarket(merged.betMarket)
+    ? merged.betMarket
     : inferMarketFromLegacy(betType);
-  const betTeam = isBetTeamSide(data.betTeam) ? data.betTeam : inferTeamFromLegacy(betType);
+  const betTeam = isBetTeamSide(merged.betTeam) ? merged.betTeam : inferTeamFromLegacy(betType);
 
   const draft: Bet = {
-    id: String(data.id),
+    id: String(merged.id),
     matchId:
-      data.matchId != null && String(data.matchId).trim() !== ""
-        ? String(data.matchId).trim()
+      merged.matchId != null && String(merged.matchId).trim() !== ""
+        ? String(merged.matchId).trim()
         : null,
-    profileId: Number(data.profileId),
-    date: data.date,
-    time: data.time,
+    profileId: Number(merged.profileId),
+    date: merged.date,
+    time: merged.time,
     format,
-    organization1: limitInputLength((data.organization1 ?? "").trim()),
-    organization2: limitInputLength((data.organization2 ?? "").trim()),
+    organization1: limitInputLength(resolveCanonicalTeamName(merged.organization1 ?? "")),
+    organization2: limitInputLength(resolveCanonicalTeamName(merged.organization2 ?? "")),
     betMarket,
     betTeam,
     mapNumber:
-      data.mapNumber ??
+      merged.mapNumber ??
       (betMarket === "map" || betMarket === "pistol" ? 1 : null),
-    pistolRound: data.pistolRound ?? (betMarket === "pistol" ? 1 : null),
+    pistolRound: merged.pistolRound ?? (betMarket === "pistol" ? 1 : null),
     yesNo:
-      data.yesNo ??
+      merged.yesNo ??
       (betMarket === "atLeastOneMap" ? inferYesNoFromLegacy(betType) : null),
     exactScore1:
-      data.exactScore1 ??
+      merged.exactScore1 ??
       (betMarket === "exactScore" ? inferExactScoreFromLegacy(betType).score1 : null),
     exactScore2:
-      data.exactScore2 ??
+      merged.exactScore2 ??
       (betMarket === "exactScore" ? inferExactScoreFromLegacy(betType).score2 : null),
     betType,
-    amount: clampBetAmount(data.amount),
-    odds: data.odds,
+    amount: clampBetAmount(merged.amount),
+    odds: merged.odds,
     eventOrganization: limitInputLength(eventOrganization),
     eventName: limitInputLength(eventName),
     majorStage: majorStage ? limitInputLength(majorStage) : null,
-    status: normalizeBetStatus(String(data.status ?? "WAIT")),
+    status: normalizeBetStatus(String(merged.status ?? "WAIT")),
   };
 
   const targets = normalizeBetTargets(draft);
+  const withTargets = { ...draft, ...targets };
+  const withTeams = attachTeamIds(withTargets);
 
   return {
-    ...draft,
-    ...targets,
-    betType: formatBetDescription({ ...draft, ...targets }),
+    ...withTeams,
+    betTeamId: resolveBetTeamId(withTeams),
+    betType: formatBetDescription(withTargets),
   };
 }

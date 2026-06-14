@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { extname } from "node:path";
+import { dirname, extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { watch } from "chokidar";
 import chalk from "chalk";
@@ -14,6 +15,10 @@ import { Observer } from "json-server/lib/observer.js";
 import { extensionFromMime, removePickemDirectory, savePickemImage } from "./pickemFiles.mjs";
 import { recalculateMatchBetsInDb } from "./bets/recalculateMatchBets.mjs";
 import { syncSportsRuMatchesToDb } from "./sportsru/syncMatches.mjs";
+import { normalizeSportsRuDateInput } from "./sportsru/matchDates.mjs";
+import { importValveRankingBaseline } from "./valve/importBaseline.mjs";
+import { getRankingBaseline } from "./valve/rankingsStore.mjs";
+import { backupDbFile } from "./lib/dbBackup.mjs";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -71,7 +76,20 @@ const observer = new Observer(adapter);
 const db = new Low(observer, {});
 await db.read();
 
-const jsonApp = createApp(db, { logger: false, static: ["public"] });
+if (!Array.isArray(db.data.teams)) {
+  db.data.teams = [];
+  await db.write();
+}
+
+const serverDir = dirname(fileURLToPath(import.meta.url));
+const appRoot = process.env.FREEDOMBETS_ROOT ?? join(serverDir, "..");
+const userPublicDir = process.env.FREEDOMBETS_USER_PUBLIC;
+const staticDirs = [join(appRoot, "public")];
+if (userPublicDir) {
+  staticDirs.push(userPublicDir);
+}
+
+const jsonApp = createApp(db, { logger: false, static: staticDirs });
 const app = new App();
 
 app
@@ -157,10 +175,47 @@ app.post("/bets/recalculate", async (_req, res) => {
   }
 });
 
+app.get("/rankings/baseline", async (_req, res) => {
+  try {
+    await db.read();
+    res.status(200).json({ baseline: getRankingBaseline(db) });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      baseline: null,
+      error: error instanceof Error ? error.message : "Failed to load ranking baseline",
+    });
+  }
+});
+
+app.post("/rankings/import-baseline", async (req, res) => {
+  try {
+    const force = req.query?.force === "1";
+    const payload = await importValveRankingBaseline(db, { force });
+    res.status(200).json(payload);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      imported: false,
+      baseline: null,
+      error: error instanceof Error ? error.message : "Failed to import Valve rankings",
+    });
+  }
+});
+
 app.post("/sportsru/sync", async (req, res) => {
   try {
     const force = req.query?.refresh === "1" || req.query?.force === "1";
-    const payload = await syncSportsRuMatchesToDb(db, { force });
+    const rawDate = req.query?.date ?? req.query?.dates;
+    const dates = String(rawDate ?? "")
+      .split(",")
+      .map((item) => normalizeSportsRuDateInput(item))
+      .filter(Boolean);
+    backupDbFile(file);
+    const payload = await syncSportsRuMatchesToDb(db, {
+      force,
+      dates: dates.length > 0 ? dates : undefined,
+    });
     res.status(200).json(payload);
   } catch (error) {
     console.error(error);
@@ -195,6 +250,8 @@ function logRoutes(data) {
   console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("pickems/:id/stage-image"));
   console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("uploads/pickems/:pickemId"));
   console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("sportsru/sync"));
+  console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("rankings/baseline"));
+  console.log(chalk.gray(`http://${host}:${port}/`) + chalk.blue("rankings/import-baseline"));
 }
 
 app.listen(port, () => {

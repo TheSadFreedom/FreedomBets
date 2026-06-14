@@ -5,6 +5,8 @@ export function profilePatchPayload(profile: Profile) {
     name: profile.name,
     balance: profile.balance,
     balanceBase: profile.balanceBase,
+    totalDeposited: profile.totalDeposited,
+    totalWithdrawn: profile.totalWithdrawn,
     totalBets: profile.totalBets,
     winRate: profile.winRate,
   };

@@ -2,9 +2,13 @@ import type { Bet } from "@/entities/bet";
 import { normalizeBet } from "@/features/profile/lib/normalizeBet";
 import { httpClient } from "@/shared/api/httpClient";
 
-export async function patchBetStatus(id: string, status: Bet["status"]): Promise<Bet> {
+export async function patchBetStatus(
+  id: string,
+  status: Bet["status"],
+  previous?: Bet,
+): Promise<Bet> {
   const res = await httpClient.patch<Bet>(`/bets/${id}`, { status });
-  return normalizeBet(res.data);
+  return normalizeBet(res.data, previous);
 }
 
 export function replaceBetInLists(
@@ -23,5 +27,5 @@ export async function patchBetMajorStage(
   majorStage: string | null,
 ): Promise<Bet> {
   const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { majorStage });
-  return normalizeBet(res.data);
+  return normalizeBet(res.data, bet);
 }

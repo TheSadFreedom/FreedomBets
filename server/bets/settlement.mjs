@@ -1,3 +1,9 @@
+import {
+  betTeamOnMatchSide,
+  seriesScoreForBet,
+  teamPairsMatch,
+} from "../teams/resolveTeam.mjs";
+
 const MAP_COUNTS = { BO1: 1, BO3: 3, BO5: 5 };
 
 const LEGACY_STATUS = {
@@ -21,30 +27,8 @@ function stagesEqual(a, b) {
   return (a ?? null) === (b ?? null);
 }
 
-function teamsMatch(bet, match) {
-  const a1 = norm(bet.organization1);
-  const a2 = norm(bet.organization2);
-  const b1 = norm(match.organization1);
-  const b2 = norm(match.organization2);
-  return (a1 === b1 && a2 === b2) || (a1 === b2 && a2 === b1);
-}
-
-function teamsSameOrder(bet, match) {
-  return (
-    norm(bet.organization1) === norm(match.organization1) &&
-    norm(bet.organization2) === norm(match.organization2)
-  );
-}
-
 function betTeamOnMatch(bet, match) {
-  if (bet.betTeam !== 1 && bet.betTeam !== 2) return bet.betTeam;
-  if (teamsSameOrder(bet, match)) return bet.betTeam;
-  return bet.betTeam === 1 ? 2 : 1;
-}
-
-function seriesScoreForBet(bet, match, series) {
-  if (teamsSameOrder(bet, match)) return series;
-  return { score1: series.score2, score2: series.score1 };
+  return betTeamOnMatchSide(bet, match);
 }
 
 function legacyBetMatchesMatch(bet, match) {
@@ -53,7 +37,7 @@ function legacyBetMatchesMatch(bet, match) {
     norm(bet.eventOrganization) !== norm(match.eventOrganization) ||
     norm(bet.eventName) !== norm(match.eventName) ||
     !stagesEqual(bet.majorStage, match.majorStage) ||
-    !teamsMatch(bet, match)
+    !teamPairsMatch(bet, match)
   ) {
     return false;
   }

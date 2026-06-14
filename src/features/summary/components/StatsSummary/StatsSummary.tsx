@@ -35,10 +35,18 @@ import {
 interface StatsSummaryProps {
   bets: Bet[];
   balance: number;
+  totalDeposited?: number;
+  totalWithdrawn?: number;
   events?: EventRecord[];
 }
 
-const StatsSummary = ({ bets, balance, events = [] }: StatsSummaryProps) => {
+const StatsSummary = ({
+  bets,
+  balance,
+  totalDeposited = 0,
+  totalWithdrawn = 0,
+  events = [],
+}: StatsSummaryProps) => {
   const stats = useMemo(() => calcSummaryStats(bets), [bets]);
   const balanceHistory = useMemo(
     () => buildBalanceHistory(bets, balance),
@@ -80,7 +88,11 @@ const StatsSummary = ({ bets, balance, events = [] }: StatsSummaryProps) => {
             <StatsSectionHint>Сводка по всем ставкам профиля</StatsSectionHint>
           </div>
         </StatsSectionHead>
-        <SummaryGeneralSection bets={bets} />
+        <SummaryGeneralSection
+          bets={bets}
+          totalDeposited={totalDeposited}
+          totalWithdrawn={totalWithdrawn}
+        />
       </StatsPanel>
 
       <StatsPanel>

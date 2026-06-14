@@ -1,14 +1,36 @@
 import styled, { css, keyframes } from "styled-components";
 
+const CONTENT_MAX_WIDTH = "1720px";
+
 export const ActionsRoot = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
+  padding: 10px max(16px, env(safe-area-inset-right))
+    max(10px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(24, 24, 24, 0.82) 0%,
+    rgba(14, 14, 14, 0.96) 100%
+  );
+  backdrop-filter: blur(14px);
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.35);
+`;
+
+export const ActionsInner = styled.div`
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   width: 100%;
+  max-width: ${CONTENT_MAX_WIDTH};
+  margin: 0 auto;
 `;
 
-export const ActionButton = styled.button<{ $primary?: boolean }>`
+export const ActionButton = styled.button`
   position: relative;
   display: flex;
   align-items: center;

@@ -10,10 +10,14 @@ export interface Bet {
   date: string;
   time: string;
   format: MatchFormat;
+  team1Id?: string | null;
+  team2Id?: string | null;
   organization1: string;
   organization2: string;
   betMarket: BetMarket;
   betTeam: BetTeamSide;
+  /** Id команды, на которую ставка (teamKey) */
+  betTeamId?: string | null;
   /** Номер карты (1…N по формату); null для ставки на матч */
   mapNumber: number | null;
   /** Номер пистолетного раунда на карте (1 или 2); null вне рынка «пистолет» */

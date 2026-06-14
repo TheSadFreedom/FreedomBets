@@ -6,14 +6,15 @@ import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
 import type { PickemMajor, PickemStageName } from "@/entities/pickem";
 import { MAJOR_EVENT_TIERS, NON_MAJOR_EVENT_TIERS } from "@/entities/event";
+import type { RankingBaseline } from "@/entities/ranking";
 import type { Profile } from "@/entities/profile";
+import { resolveBalanceTotals } from "@/features/profile/lib/profileBalance";
 import HomeTabLoader from "./HomeTabLoader";
 import {
   LazyBetsHistory,
   LazyEventStats,
   LazyMatchesTab,
   LazyPickemTab,
-  LazyProfileRankingTab,
   LazyStatsSummary,
   LazyTeamsTab,
 } from "./lazyHomeTabs";
@@ -55,6 +56,8 @@ export interface HomeTabPanelsProps {
   onDeletePickemMajor: (major: PickemMajor) => Promise<void>;
   onUploadMedal: (imageData: string) => Promise<void>;
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
+  rankingBaseline: RankingBaseline | null;
+  onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
 }
 
 const HomeTabPanels = ({
@@ -89,7 +92,15 @@ const HomeTabPanels = ({
   onDeletePickemMajor,
   onUploadMedal,
   onDeleteMedal,
-}: HomeTabPanelsProps) => (
+  rankingBaseline,
+  onRefreshRankingBaseline,
+}: HomeTabPanelsProps) => {
+  const activeProfile = profiles.find((item) => item.id === activeProfileId);
+  const { totalDeposited, totalWithdrawn } = activeProfile
+    ? resolveBalanceTotals(activeProfile)
+    : { totalDeposited: 0, totalWithdrawn: 0 };
+
+  return (
   <>
     {mountedTabs.has(0) ? (
       <TabsPanel
@@ -106,6 +117,7 @@ const HomeTabPanels = ({
             activeProfileId={activeProfileId}
             events={events}
             matches={matches}
+            rankingBaseline={rankingBaseline}
             onUpdateMatch={onUpdateMatch}
             onSettleMatchBets={onSettleMatchBets}
             onDeleteMatch={onDeleteMatch}
@@ -141,7 +153,13 @@ const HomeTabPanels = ({
         hidden={tab !== 2}
       >
         <Suspense fallback={<HomeTabLoader />}>
-          <LazyStatsSummary bets={bets} balance={balance} events={events} />
+          <LazyStatsSummary
+            bets={bets}
+            balance={balance}
+            totalDeposited={totalDeposited}
+            totalWithdrawn={totalWithdrawn}
+            events={events}
+          />
         </Suspense>
       </TabsPanel>
     ) : null}
@@ -149,15 +167,15 @@ const HomeTabPanels = ({
     {mountedTabs.has(3) ? (
       <TabsPanel
         role="tabpanel"
-        id="home-tabpanel-ranking"
-        aria-labelledby="home-tab-ranking"
+        id="home-tabpanel-teams"
+        aria-labelledby="home-tab-teams"
         hidden={tab !== 3}
       >
         <Suspense fallback={<HomeTabLoader />}>
-          <LazyProfileRankingTab
-            profiles={profiles}
+          <LazyTeamsTab
             allBets={allBets}
-            activeProfileId={activeProfileId}
+            rankingBaseline={rankingBaseline}
+            onRefreshRankingBaseline={onRefreshRankingBaseline}
           />
         </Suspense>
       </TabsPanel>
@@ -166,22 +184,9 @@ const HomeTabPanels = ({
     {mountedTabs.has(4) ? (
       <TabsPanel
         role="tabpanel"
-        id="home-tabpanel-teams"
-        aria-labelledby="home-tab-teams"
-        hidden={tab !== 4}
-      >
-        <Suspense fallback={<HomeTabLoader />}>
-          <LazyTeamsTab allBets={allBets} />
-        </Suspense>
-      </TabsPanel>
-    ) : null}
-
-    {mountedTabs.has(5) ? (
-      <TabsPanel
-        role="tabpanel"
         id="home-tabpanel-events"
         aria-labelledby="home-tab-events"
-        hidden={tab !== 5}
+        hidden={tab !== 4}
       >
         <Suspense fallback={<HomeTabLoader />}>
           <LazyEventStats
@@ -201,12 +206,12 @@ const HomeTabPanels = ({
       </TabsPanel>
     ) : null}
 
-    {mountedTabs.has(6) ? (
+    {mountedTabs.has(5) ? (
       <TabsPanel
         role="tabpanel"
         id="home-tabpanel-majors"
         aria-labelledby="home-tab-majors"
-        hidden={tab !== 6}
+        hidden={tab !== 5}
       >
         <Suspense fallback={<HomeTabLoader />}>
           <LazyEventStats
@@ -215,9 +220,7 @@ const HomeTabPanels = ({
             matches={matches}
             events={events}
             summarySections={[{ title: "Major", bets: majorBets, tier: "Major" }]}
-            showTierFilter={false}
             tierFilterOptions={MAJOR_EVENT_TIERS}
-            showMajorStageFilter
             emptyMessage="Нет major турниров — назначьте статус Major при создании или редактировании турнира"
             notFoundMessage="Нет major турниров по выбранным фильтрам"
             onUpdateEvent={onUpdateEvent}
@@ -227,12 +230,12 @@ const HomeTabPanels = ({
       </TabsPanel>
     ) : null}
 
-    {mountedTabs.has(7) ? (
+    {mountedTabs.has(6) ? (
       <TabsPanel
         role="tabpanel"
         id="home-tabpanel-pickem"
         aria-labelledby="home-tab-pickem"
-        hidden={tab !== 7}
+        hidden={tab !== 6}
       >
         <Suspense fallback={<HomeTabLoader />}>
           <LazyPickemTab
@@ -250,6 +253,7 @@ const HomeTabPanels = ({
       </TabsPanel>
     ) : null}
   </>
-);
+  );
+};
 
 export default HomeTabPanels;

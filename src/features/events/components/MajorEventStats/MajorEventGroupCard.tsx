@@ -40,6 +40,8 @@ import {
 
   StageMeta,
 
+  StageMetaPanel,
+
   StageMetaItem,
 
   StageMetaValue,
@@ -73,25 +75,29 @@ const StageSummary = ({ stage }: { stage: EventStats }) => {
 
 
   return (
-
     <StageMeta>
-      <StageMetaItem>{stage.totalBets} став.</StageMetaItem>
+      <StageMetaPanel>
+        <StageMetaItem>{stage.totalBets} став.</StageMetaItem>
+      </StageMetaPanel>
 
       {stage.wins + stage.losses + stage.pending > 0 ? (
-        <StageWldBadges>
-          <WldBadge $variant="win">{stage.wins}</WldBadge>
-          <WldBadge $variant="loss">{stage.losses}</WldBadge>
-          <WldBadge $variant="pending">{stage.pending}</WldBadge>
-        </StageWldBadges>
+        <StageMetaPanel>
+          <StageWldBadges>
+            <WldBadge $variant="win">{stage.wins}</WldBadge>
+            <WldBadge $variant="loss">{stage.losses}</WldBadge>
+            <WldBadge $variant="pending">{stage.pending}</WldBadge>
+          </StageWldBadges>
+        </StageMetaPanel>
       ) : null}
 
       {hasSettled ? (
-        <StageMetaValue $color={profitPositive ? "#66bb6a" : "#ef5350"}>
-          {formatMoneySigned(stage.profit)}
-        </StageMetaValue>
+        <StageMetaPanel $leading={profitPositive}>
+          <StageMetaValue $color={profitPositive ? "#66bb6a" : "#ef5350"}>
+            {formatMoneySigned(stage.profit)}
+          </StageMetaValue>
+        </StageMetaPanel>
       ) : null}
     </StageMeta>
-
   );
 
 };
@@ -110,7 +116,7 @@ const MajorEventGroupCard = ({
 
 }: MajorEventGroupCardProps) => (
 
-  <EventAccordion disableGutters>
+  <EventAccordion disableGutters $tier={group.eventTier}>
 
     <AccordionSummary expandIcon={false}>
 
@@ -131,6 +137,7 @@ const MajorEventGroupCard = ({
           endDate={group.endDate}
           winnerOrganization={group.winnerOrganization}
           winnerLogoSlug={group.winnerLogoSlug}
+          prizePool={group.prizePool}
           metrics={group}
           onEdit={onEditGroup}
           onDelete={onDeleteGroup}

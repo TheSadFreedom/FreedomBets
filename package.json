@@ -1,8 +1,9 @@
 {
   "name": "freedombets",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "main": "electron/main.mjs",
   "scripts": {
     "prestart": "node scripts/generateEventsManifest.mjs && node scripts/generateTeamsManifest.mjs",
     "prebuild": "node scripts/generateEventsManifest.mjs && node scripts/generateTeamsManifest.mjs",
@@ -14,9 +15,14 @@
     "server": "node server/index.mjs db.json",
     "migrate:pickems": "node scripts/migratePickemImages.mjs",
     "migrate:link-bets": "node scripts/linkBetsToMatches.mjs",
+    "migrate:teams": "node scripts/migrateTeams.mjs",
     "migrate:recalculate-bets": "node scripts/recalculateBets.mjs",
     "events:manifest": "node scripts/generateEventsManifest.mjs",
-    "teams:manifest": "node scripts/generateTeamsManifest.mjs"
+    "teams:manifest": "node scripts/generateTeamsManifest.mjs",
+    "electron:install": "node scripts/installElectron.mjs",
+    "desktop:dev": "node scripts/installElectron.mjs && concurrently -k -n web,desktop \"npm run dev\" \"node scripts/waitForDevServer.mjs && electron .\"",
+    "desktop": "npm run build && node scripts/installElectron.mjs && electron .",
+    "desktop:dist": "npm run build && node scripts/installElectron.mjs && electron-builder --win"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -37,6 +43,8 @@
     "@types/styled-components": "^5.1.36",
     "@vitejs/plugin-react": "^5.1.1",
     "concurrently": "^10.0.3",
+    "electron": "^36.2.0",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
@@ -46,5 +54,50 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
+  },
+  "build": {
+    "appId": "com.freedombets.app",
+    "productName": "FreedomBets",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "server",
+        "to": "server"
+      },
+      {
+        "from": "public",
+        "to": "public"
+      },
+      {
+        "from": "db.json",
+        "to": "db.json"
+      },
+      {
+        "from": "node_modules",
+        "to": "node_modules",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FreedomBets"
+    }
   }
 }

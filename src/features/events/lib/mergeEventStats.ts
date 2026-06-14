@@ -15,6 +15,7 @@ function storedEventToStats(event: EventRecord): EventStats {
     stages: normalizeEventStagesList(event.stages),
     winnerOrganization: event.winnerOrganization,
     winnerLogoSlug: event.winnerLogoSlug,
+    prizePool: event.prizePool,
     totalBets: 0,
     wins: 0,
     losses: 0,
@@ -57,6 +58,7 @@ export function mergeEventStatsWithStored(
       stages: stored ? normalizeEventStagesList(stored.stages) : stat.stages,
       winnerOrganization: stored?.winnerOrganization ?? stat.winnerOrganization ?? null,
       winnerLogoSlug: stored?.winnerLogoSlug ?? stat.winnerLogoSlug ?? null,
+      prizePool: stored?.prizePool ?? stat.prizePool ?? null,
     });
   }
 
@@ -75,6 +77,7 @@ export function mergeEventStatsWithStored(
         stages: normalizeEventStagesList(event.stages),
         winnerOrganization: event.winnerOrganization ?? existing.winnerOrganization ?? null,
         winnerLogoSlug: event.winnerLogoSlug ?? existing.winnerLogoSlug ?? null,
+        prizePool: event.prizePool ?? existing.prizePool ?? null,
       });
       continue;
     }

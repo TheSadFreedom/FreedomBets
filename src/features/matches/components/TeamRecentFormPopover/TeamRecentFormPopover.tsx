@@ -1,4 +1,6 @@
+import type { RankingBaseline } from "@/entities/ranking";
 import type { TeamRecentMatchItem } from "@/features/matches/lib/getTeamRecentMatches";
+import { findBaselineTeam } from "@/features/rankings/lib/findBaselineTeam";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
 import {
   EmptyNote,
@@ -15,6 +17,9 @@ import {
   PopoverEyebrow,
   PopoverHeader,
   PopoverHeaderText,
+  PopoverRank,
+  PopoverRankLabel,
+  PopoverRankValue,
   PopoverRoot,
   PopoverTeamName,
   ScoreGroup,
@@ -25,6 +30,35 @@ import {
 interface TeamRecentFormPopoverProps {
   teamName: string;
   items: TeamRecentMatchItem[];
+  rankingBaseline?: RankingBaseline | null;
+}
+
+function PopoverHeaderBlock({
+  teamName,
+  rankingBaseline,
+}: {
+  teamName: string;
+  rankingBaseline?: RankingBaseline | null;
+}) {
+  const baselineTeam = findBaselineTeam(rankingBaseline ?? null, teamName);
+
+  return (
+    <PopoverHeader>
+      <LogoRing>
+        <TeamLogo name={teamName} size={28} />
+      </LogoRing>
+      <PopoverHeaderText>
+        <PopoverEyebrow>Форма</PopoverEyebrow>
+        <PopoverTeamName title={teamName}>{teamName}</PopoverTeamName>
+      </PopoverHeaderText>
+      {baselineTeam ? (
+        <PopoverRank>
+          <PopoverRankValue>#{baselineTeam.globalRank}</PopoverRankValue>
+          <PopoverRankLabel>Valve VRS</PopoverRankLabel>
+        </PopoverRank>
+      ) : null}
+    </PopoverHeader>
+  );
 }
 
 function formatFormSummary(items: TeamRecentMatchItem[]): string {
@@ -32,19 +66,15 @@ function formatFormSummary(items: TeamRecentMatchItem[]): string {
   return `${wins}В · ${items.length - wins}П`;
 }
 
-const TeamRecentFormPopover = ({ teamName, items }: TeamRecentFormPopoverProps) => {
+const TeamRecentFormPopover = ({
+  teamName,
+  items,
+  rankingBaseline = null,
+}: TeamRecentFormPopoverProps) => {
   if (items.length === 0) {
     return (
       <PopoverRoot onClick={(event) => event.stopPropagation()}>
-        <PopoverHeader>
-          <LogoRing>
-            <TeamLogo name={teamName} size={28} />
-          </LogoRing>
-          <PopoverHeaderText>
-            <PopoverEyebrow>Форма</PopoverEyebrow>
-            <PopoverTeamName title={teamName}>{teamName}</PopoverTeamName>
-          </PopoverHeaderText>
-        </PopoverHeader>
+        <PopoverHeaderBlock teamName={teamName} rankingBaseline={rankingBaseline} />
         <EmptyNote>Нет завершённых матчей в базе</EmptyNote>
       </PopoverRoot>
     );
@@ -54,15 +84,7 @@ const TeamRecentFormPopover = ({ teamName, items }: TeamRecentFormPopoverProps) 
 
   return (
     <PopoverRoot onClick={(event) => event.stopPropagation()}>
-      <PopoverHeader>
-        <LogoRing>
-          <TeamLogo name={teamName} size={28} />
-        </LogoRing>
-        <PopoverHeaderText>
-          <PopoverEyebrow>Форма</PopoverEyebrow>
-          <PopoverTeamName title={teamName}>{teamName}</PopoverTeamName>
-        </PopoverHeaderText>
-      </PopoverHeader>
+      <PopoverHeaderBlock teamName={teamName} rankingBaseline={rankingBaseline} />
 
       <FormSection>
         <FormDots>

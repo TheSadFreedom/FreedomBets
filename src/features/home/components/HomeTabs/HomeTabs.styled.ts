@@ -14,6 +14,7 @@ export const TabsRoot = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
   min-width: 0;
 `;
 
@@ -27,7 +28,9 @@ export const TabLabel = styled.span`
 export const TabsBar = styled.div`
   display: block;
   position: relative;
+  width: 100%;
   padding: 6px;
+  box-sizing: border-box;
   border-radius: 16px;
   background:
     radial-gradient(circle at 0% 0%, rgba(76, 175, 80, 0.1) 0%, transparent 42%),
@@ -51,12 +54,10 @@ export const TabsBar = styled.div`
   }
 
   .MuiTabs-flexContainer {
-    display: grid !important;
+    display: flex !important;
     width: 100%;
-    align-items: center;
+    align-items: stretch;
     gap: 4px;
-    grid-auto-rows: 40px;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
   .MuiTabs-indicator {
@@ -90,7 +91,8 @@ export const TabsBar = styled.div`
     letter-spacing: 0.01em;
     text-transform: none;
     color: rgba(255, 255, 255, 0.52);
-    flex: unset !important;
+    flex: 1 1 0 !important;
+    max-width: none !important;
     transition:
       color 0.18s ease,
       background 0.18s ease,

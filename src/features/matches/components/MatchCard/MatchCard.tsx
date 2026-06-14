@@ -5,6 +5,7 @@ import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import { AccordionDetails, AccordionSummary } from "@mui/material";
 import type { Bet, BetTeamSide } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
+import type { RankingBaseline } from "@/entities/ranking";
 import type { Match } from "@/entities/match";
 import { resolveEventLogoSlug } from "@/features/events/lib/eventDisplay";
 import MatchRelatedBets from "@/features/matches/components/MatchRelatedBets/MatchRelatedBets";
@@ -26,6 +27,7 @@ import {
 } from "./matchCardHelpers";
 import { useTeamHoverPopover } from "./useTeamHoverPopover";
 import {
+  BetsCountPill,
   CardIconButton,
   EventLogoWrap,
   FormatPill,
@@ -53,6 +55,14 @@ import {
   StatusBadge,
 } from "./MatchCard.styled";
 
+function formatBetCount(count: number): string {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return `${count} ставка`;
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${count} ставки`;
+  return `${count} ставок`;
+}
+
 interface MatchCardProps {
   match: Match;
   allMatches: Match[];
@@ -66,6 +76,7 @@ interface MatchCardProps {
   onSettleBets?: () => Promise<MatchSettlementResult>;
   onEditBet?: (bet: Bet) => void;
   events?: EventRecord[];
+  rankingBaseline?: RankingBaseline | null;
   readOnly?: boolean;
   externalUrl?: string;
 }
@@ -83,6 +94,7 @@ const MatchCard = ({
   onSettleBets,
   onEditBet,
   events = [],
+  rankingBaseline = null,
   readOnly = false,
   externalUrl,
 }: MatchCardProps) => {
@@ -101,6 +113,8 @@ const MatchCard = ({
 
   const {
     hoveredTeam,
+    team1AnchorEl,
+    team2AnchorEl,
     team1AnchorRef,
     team2AnchorRef,
     showTeamHover,
@@ -182,6 +196,7 @@ const MatchCard = ({
               </MatchEventRow>
 
               <MatchTopActions>
+                {hasBets ? <BetsCountPill>{formatBetCount(relatedBets.length)}</BetsCountPill> : null}
                 <StatusBadge $status={status}>{MATCH_STATUS_LABELS[status]}</StatusBadge>
                 {readOnly ? (
                   externalUrl ? (
@@ -242,8 +257,10 @@ const MatchCard = ({
                   placement="bottom-end"
                   align="end"
                   anchorRef={team1AnchorRef}
+                  anchorEl={team1AnchorEl}
                   hovered={hoveredTeam === 1}
                   recentMatches={team1RecentMatches}
+                  rankingBaseline={rankingBaseline}
                   onShowHover={() => showTeamHover(1)}
                   onScheduleHideHover={scheduleHideTeamHover}
                   onBet={onBet}
@@ -273,8 +290,10 @@ const MatchCard = ({
                   placement="bottom-start"
                   align="start"
                   anchorRef={team2AnchorRef}
+                  anchorEl={team2AnchorEl}
                   hovered={hoveredTeam === 2}
                   recentMatches={team2RecentMatches}
+                  rankingBaseline={rankingBaseline}
                   onShowHover={() => showTeamHover(2)}
                   onScheduleHideHover={scheduleHideTeamHover}
                   onBet={onBet}

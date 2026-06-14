@@ -30,15 +30,6 @@ export const StatsHeroText = styled.div`
   min-width: 0;
 `;
 
-export const StatsHeroTitle = styled.h2`
-  margin: 0;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.45);
-`;
-
 export const StatsHeroProfit = styled.div<{ $positive: boolean; $muted?: boolean }>`
   font-size: 28px;
   font-weight: 800;

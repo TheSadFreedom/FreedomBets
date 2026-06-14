@@ -21,10 +21,36 @@ export const PopoverRoot = styled.div`
 
 export const PopoverHeader = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   min-width: 0;
   margin-bottom: 12px;
+`;
+
+export const PopoverRank = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: auto;
+`;
+
+export const PopoverRankValue = styled.span`
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: #a5d6a7;
+`;
+
+export const PopoverRankLabel = styled.span`
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  white-space: nowrap;
 `;
 
 export const PopoverHeaderText = styled.div`

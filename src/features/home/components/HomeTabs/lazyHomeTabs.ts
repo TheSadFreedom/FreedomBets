@@ -9,9 +9,6 @@ export const LazyBetsHistory = lazy(
 export const LazyStatsSummary = lazy(
   () => import("@/features/summary/components/StatsSummary/StatsSummary"),
 );
-export const LazyProfileRankingTab = lazy(
-  () => import("@/features/profile/components/ProfileRankingTab/ProfileRankingTab"),
-);
 export const LazyTeamsTab = lazy(() => import("@/features/teams/components/TeamsTab/TeamsTab"));
 export const LazyEventStats = lazy(
   () => import("@/features/events/components/EventStats/EventStats"),

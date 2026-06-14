@@ -2,28 +2,39 @@ import { Accordion } from "@mui/material";
 import styled, { css } from "styled-components";
 import type { EventTier } from "@/entities/event";
 import { eventTierStyles } from "@/features/events/lib/eventTier";
-import { mobileCardSurface, mobileEmptyState } from "@/shared/styles/mobileTokens";
+
+const tierAccent: Record<EventTier, string> = {
+  Major: "rgba(255, 167, 38, 0.85)",
+  Big: "rgba(33, 150, 243, 0.85)",
+  Small: "rgba(255, 255, 255, 0.22)",
+};
 
 export const EventStatsRoot = styled.section`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   min-width: 0;
-
 `;
 
 export const EventStatsCard = styled.div`
-  ${mobileCardSurface};
-  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-radius: 16px;
   overflow: hidden;
-
+  background: linear-gradient(
+    145deg,
+    rgba(42, 42, 42, 0.98) 0%,
+    rgba(26, 26, 26, 0.99) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22);
 `;
 
 export const FiltersPanel = styled.div`
-  padding: 10px 12px;
+  padding: 14px 16px;
   background: rgba(0, 0, 0, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-
 `;
 
 export const FiltersHeader = styled.div`
@@ -35,18 +46,10 @@ export const FiltersHeader = styled.div`
   flex-wrap: wrap;
 `;
 
-export const FiltersTitle = styled.h3`
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-`;
-
 export const FiltersWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
-
 `;
 
 export const FiltersActions = styled.div`
@@ -56,89 +59,89 @@ export const FiltersActions = styled.div`
   flex-wrap: wrap;
 `;
 
-export const filterControlSx = {
-  width: "auto",
-  minWidth: 148,
-  flex: "1 1 148px",
-  "& .MuiOutlinedInput-root": {
-    backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderRadius: "10px",
-  },
-};
-
-export const filterSelectMenuProps = {
-  PaperProps: {
-    sx: {
-      maxHeight: 320,
-      backgroundImage: "none",
-    },
-  },
-};
-
-export const FilterOptionRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-  width: 100%;
-`;
-
 export const EventScrollArea = styled.div`
   min-width: 0;
-  padding: 6px 8px 8px;
-
+  padding: 14px 16px 16px;
 `;
 
 export const EventGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 15px;
   min-width: 0;
-
 `;
 
 export const EmptySearch = styled.p`
-  ${mobileEmptyState};
-
+  margin: 0;
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
 `;
 
-export const EventAccordion = styled(Accordion)`
+export const EventAccordion = styled(Accordion)<{ $tier: EventTier }>`
+  position: relative;
+  overflow: hidden !important;
   background: linear-gradient(
-    145deg,
-    rgba(42, 42, 42, 0.98) 0%,
-    rgba(26, 26, 26, 0.99) 100%
+    160deg,
+    rgba(36, 38, 42, 0.98) 0%,
+    rgba(24, 24, 26, 0.99) 55%,
+    rgba(18, 18, 20, 1) 100%
   ) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 14px !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22) !important;
-  overflow: hidden !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 2px 14px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.15s ease;
+    box-shadow 0.2s ease;
 
   &::before {
     display: none;
   }
 
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      ${({ $tier }) => tierAccent[$tier]} 35%,
+      ${({ $tier }) => tierAccent[$tier]} 65%,
+      transparent 100%
+    );
+  }
+
   &:hover {
-    border-color: rgba(76, 175, 80, 0.28) !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow:
+      0 6px 22px rgba(0, 0, 0, 0.32),
+      0 0 0 1px rgba(255, 255, 255, 0.04) !important;
   }
 
   &.Mui-expanded {
     margin: 0 !important;
-    border-color: rgba(76, 175, 80, 0.45) !important;
+    border-color: rgba(76, 175, 80, 0.35) !important;
     box-shadow:
-      0 8px 28px rgba(0, 0, 0, 0.35),
-      0 0 0 1px rgba(76, 175, 80, 0.12) !important;
+      0 10px 30px rgba(0, 0, 0, 0.38),
+      0 0 0 1px rgba(76, 175, 80, 0.1) !important;
   }
 
   .MuiAccordionSummary-root {
-    align-items: center;
-    min-height: 0 !important;
-    padding: 6px 10px 6px 12px;
-
+    align-items: stretch;
+    min-height: 0;
+    padding: 0;
   }
 
   .MuiAccordionSummary-content {
@@ -146,47 +149,51 @@ export const EventAccordion = styled(Accordion)`
   }
 
   .MuiAccordionDetails-root {
-    padding: 0 10px 10px;
-
+    padding: 0 16px 16px;
   }
 `;
 
 export const EventSummaryContent = styled.div`
   width: 100%;
   min-width: 0;
+  padding: 14px 16px 16px;
 `;
 
-const eventMetricsTileGap = 8;
-
-export const EventCardLayout = styled.div`
-  display: grid;
-  width: 100%;
-  min-width: 0;
-  gap: 6px 14px;
+export const EventTopBar = styled.div`
+  display: flex;
   align-items: center;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "head stats"
-    "tags stats";
-
-
-
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
 `;
 
-export const EventCardHead = styled.div`
-  grid-area: head;
+export const EventEventRow = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
-`;
-
-export const EventCardIdentity = styled.div`
   flex: 1;
-  min-width: 0;
 `;
 
-export const EventCardOrg = styled.div`
+export const EventLogoWrap = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+
+  .MuiAvatar-root {
+    border-radius: 0;
+  }
+`;
+
+export const EventTitleGroup = styled.div`
+  min-width: 0;
+  flex: 1;
+`;
+
+export const EventOrg = styled.div`
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -198,8 +205,7 @@ export const EventCardOrg = styled.div`
   text-overflow: ellipsis;
 `;
 
-export const EventCardName = styled.div`
-  margin-top: 1px;
+export const EventTitle = styled.div`
   font-size: 14px;
   font-weight: 700;
   line-height: 1.25;
@@ -207,98 +213,118 @@ export const EventCardName = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
 `;
 
-export const EventCardTags = styled.div`
-  grid-area: tags;
+export const StagePill = styled.span`
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-transform: lowercase;
+`;
+
+export const EventTopActions = styled.div`
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-  min-width: 0;
-
+  flex-shrink: 0;
 `;
 
-export const EventWinnerChip = styled.span`
+const tierBadgeStyles: Record<EventTier, ReturnType<typeof css>> = {
+  Major: css`
+    color: ${eventTierStyles.Major.color};
+    background: ${eventTierStyles.Major.bg};
+    border: 1px solid ${eventTierStyles.Major.border};
+  `,
+  Big: css`
+    color: ${eventTierStyles.Big.color};
+    background: ${eventTierStyles.Big.bg};
+    border: 1px solid ${eventTierStyles.Big.border};
+  `,
+  Small: css`
+    color: ${eventTierStyles.Small.color};
+    background: ${eventTierStyles.Small.bg};
+    border: 1px solid ${eventTierStyles.Small.border};
+  `,
+};
+
+export const TierBadge = styled.span<{ $tier: EventTier }>`
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-  min-height: 22px;
-  padding: 0 8px 0 4px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  color: #ffe082;
-  background: rgba(255, 213, 79, 0.1);
-  border: 1px solid rgba(255, 213, 79, 0.28);
+  font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
-  max-width: 100%;
-
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  flex-shrink: 0;
+  text-transform: lowercase;
+  ${({ $tier }) => tierBadgeStyles[$tier]}
 `;
 
-export const EventDateChip = styled.span`
+export const PrizeBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  flex-shrink: 0;
-  min-height: 22px;
-  padding: 0 8px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: rgba(255, 255, 255, 0.58);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
+  flex-shrink: 0;
+  color: #ffe082;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 213, 79, 0.28);
 
   svg {
-    font-size: 11px;
-    opacity: 0.65;
+    font-size: 14px;
+    opacity: 0.8;
     flex-shrink: 0;
   }
-
 `;
 
-export const EventCardStats = styled.div<{ $withWinner?: boolean }>`
-  grid-area: stats;
-  display: flex;
+export const ProfitBadge = styled.span<{ $positive: boolean; $muted?: boolean }>`
+  display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: ${eventMetricsTileGap}px;
-  min-width: 0;
-
-
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: ${({ $muted, $positive }) =>
+    $muted ? "rgba(255, 255, 255, 0.35)" : $positive ? "#81c784" : "#e57373"};
+  background: ${({ $muted, $positive }) =>
+    $muted
+      ? "rgba(255, 255, 255, 0.04)"
+      : $positive
+        ? "rgba(76, 175, 80, 0.12)"
+        : "rgba(239, 83, 80, 0.12)"};
+  border: 1px solid
+    ${({ $muted, $positive }) =>
+      $muted
+        ? "rgba(255, 255, 255, 0.1)"
+        : $positive
+          ? "rgba(102, 187, 106, 0.35)"
+          : "rgba(239, 83, 80, 0.35)"};
 `;
 
-export const EventCardActions = styled.div`
+export const CardIconButton = styled.button<{ $danger?: boolean }>`
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  align-self: stretch;
-  gap: 4px;
-  flex-shrink: 0;
-`;
-
-export const EventEditButton = styled.button<{ $danger?: boolean }>`
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.38);
   cursor: pointer;
   opacity: 0;
   transition: all 0.18s ease;
@@ -308,7 +334,6 @@ export const EventEditButton = styled.button<{ $danger?: boolean }>`
   ${EventAccordion}.Mui-expanded & {
     opacity: 1;
   }
-
 
   @media (hover: none) {
     opacity: 1;
@@ -321,150 +346,127 @@ export const EventEditButton = styled.button<{ $danger?: boolean }>`
   }
 `;
 
-export const EventLogoWrap = styled.div`
-  flex-shrink: 0;
+export const EventDivider = styled.div`
+  height: 1px;
+  margin: 12px 0 14px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+`;
+
+export const EventBody = styled.div`
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 16px;
+  min-width: 0;
+`;
+
+export const EventMetaCol = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-
-
-  .MuiAvatar-root {
-    border-radius: 0;
-  }
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
 `;
 
-export const EventTierBadge = styled.span<{ $tier: EventTier }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  min-height: 22px;
-  padding: 0 7px;
-  border-radius: 999px;
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: ${({ $tier }) => eventTierStyles[$tier].color};
-  background: ${({ $tier }) => eventTierStyles[$tier].bg};
-  border: 1px solid ${({ $tier }) => eventTierStyles[$tier].border};
-
+export const EventDate = styled.span`
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
 `;
 
-export const EventMetricsGrid = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  width: auto;
-
-
+export const EventMetricsCol = styled.div`
+  min-width: 0;
 `;
 
-const metricHighlight = css`
-  background: rgba(76, 175, 80, 0.08);
-  border-color: rgba(76, 175, 80, 0.2);
+export const EventMetricsRow = styled.div<{ $columns?: number; $hasWinner?: boolean }>`
+  display: grid;
+  grid-template-columns: ${({ $columns = 4, $hasWinner }) =>
+    $hasWinner
+      ? `minmax(0, 1.2fr) repeat(${Math.max($columns - 1, 1)}, minmax(0, 1fr))`
+      : `repeat(${$columns}, minmax(0, 1fr))`};
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
 `;
 
-const metricTileWidths = {
-  winner: "120px",
-  winRate: "96px",
-  record: "112px",
-  profit: "148px",
-} as const;
-
-export const MetricTile = styled.div<{
-  $accent?: string;
-  $highlight?: boolean;
-  $variant?: keyof typeof metricTileWidths;
-}>`
+export const EventMetricPanel = styled.div<{ $leading?: boolean; $accent?: string }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  min-height: 50px;
-  padding: 7px 10px;
-  border-radius: 9px;
-  flex: 0 0 auto;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: background 0.15s ease;
-  box-sizing: border-box;
-
-  ${({ $highlight }) => $highlight && metricHighlight}
-
-  ${({ $accent, $highlight }) =>
-    $accent &&
-    !$highlight &&
-    css`
-      border-color: ${$accent}33;
-      background: ${$accent}0f;
-    `}
-
-  ${({ $variant }) =>
-    $variant &&
-    css`
-    `}
-
+  gap: 4px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: ${({ $leading }) =>
+    $leading ? "rgba(76, 175, 80, 0.08)" : "rgba(255, 255, 255, 0.04)"};
+  border: 1px solid
+    ${({ $leading, $accent }) =>
+      $leading
+        ? "rgba(102, 187, 106, 0.28)"
+        : $accent
+          ? `${$accent}33`
+          : "rgba(255, 255, 255, 0.08)"};
+  ${({ $accent, $leading }) =>
+    $accent && !$leading
+      ? css`
+          background: ${$accent}0f;
+        `
+      : ""}
 `;
 
-export const MetricTileLabel = styled.div`
+export const EventMetricLabel = styled.span`
   font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.4);
-  margin-bottom: 4px;
   line-height: 1;
-
 `;
 
-export const MetricTileWinner = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  width: 100%;
-  min-width: 0;
-  min-height: 32px;
-  color: #ffe082;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1.15;
-  text-align: center;
-
-  span {
-    display: block;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-  }
-
-`;
-
-export const MetricTileValue = styled.div<{ $color?: string; $compact?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  min-height: 18px;
-  font-size: ${({ $compact }) => ($compact ? "15px" : "17px")};
+export const EventMetricValue = styled.span<{ $color?: string; $large?: boolean }>`
+  font-size: ${({ $large }) => ($large ? "20px" : "15px")};
   font-weight: 800;
   line-height: 1.1;
-  color: ${({ $color }) => $color ?? "#fff"};
   font-variant-numeric: tabular-nums;
+  color: ${({ $color }) => $color ?? "rgba(255, 255, 255, 0.92)"};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+`;
 
+export const WinnerPanel = styled(EventMetricPanel)`
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 213, 79, 0.08);
+  border-color: rgba(255, 213, 79, 0.28);
+`;
 
+export const WinnerPanelInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+`;
+
+export const WinnerPanelName = styled.span`
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffe082;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export const WldBadges = styled.div`
@@ -472,11 +474,6 @@ export const WldBadges = styled.div`
   flex-wrap: nowrap;
   gap: 4px;
   align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  min-height: 20px;
-
-
 `;
 
 export const WldBadge = styled.span<{
@@ -492,7 +489,6 @@ export const WldBadge = styled.span<{
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
-  text-align: center;
   font-variant-numeric: tabular-nums;
 
   ${({ $variant }) => {
@@ -520,13 +516,11 @@ export const WldBadge = styled.span<{
 `;
 
 export const EventDetailsPanel = styled.div`
-  min-width: 0;
-  padding: 8px;
-  border-radius: 10px;
+  padding: 12px;
+  border-radius: 12px;
   background: rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-
+  gap: 10px;
 `;
