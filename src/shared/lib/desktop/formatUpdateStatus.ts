@@ -1,5 +1,25 @@
 import type { DesktopUpdateStatus } from "@/shared/lib/desktop/desktopApp";
 
+function shortenUpdateError(message: string): string {
+  const text = message.trim();
+  if (!text) return "Ошибка проверки обновлений";
+
+  if (text.includes("latest.yml")) {
+    return "В GitHub Release нет latest.yml. Переопубликуйте: npm run desktop:publish";
+  }
+
+  if (text.includes("404") || text.includes("Not Found")) {
+    return "Релиз на GitHub не найден или опубликован не полностью";
+  }
+
+  const firstLine = text.split("\n")[0]?.trim() ?? text;
+  if (firstLine.length > 120) {
+    return `${firstLine.slice(0, 117)}…`;
+  }
+
+  return firstLine;
+}
+
 export function formatDesktopUpdateStatus(
   status: DesktopUpdateStatus | null,
   currentVersion: string
@@ -20,7 +40,7 @@ export function formatDesktopUpdateStatus(
     case "not-available":
       return "Установлена последняя версия";
     case "error":
-      return status.message ?? "Ошибка проверки обновлений";
+      return shortenUpdateError(status.message ?? "Ошибка проверки обновлений");
     default:
       return `Версия ${currentVersion}`;
   }

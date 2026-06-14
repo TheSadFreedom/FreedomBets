@@ -99,9 +99,12 @@ export function setupAutoUpdater() {
   });
 
   autoUpdater.on("error", (error) => {
-    const message = error instanceof Error ? error.message : String(error);
+    const raw = error instanceof Error ? error.message : String(error);
+    const message = raw.includes("latest.yml")
+      ? "В GitHub Release нет latest.yml"
+      : raw.split("\n")[0]?.trim() || raw;
     sendStatus({ state: "error", message });
-    console.error("Auto-update error:", message);
+    console.error("Auto-update error:", raw);
   });
 
   setTimeout(() => {

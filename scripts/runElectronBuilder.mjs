@@ -36,8 +36,31 @@ function runElectronBuilder(extraArgs) {
 function hasBuiltInstaller() {
   if (!existsSync(outputDir)) return false;
   return readdirSync(outputDir).some(
-    (name) => name.startsWith("FreedomBets Setup") && name.endsWith(".exe")
+    (name) => name.endsWith(".exe") && name.includes("Setup")
   );
+}
+
+function assertPublishArtifacts() {
+  if (!existsSync(outputDir)) {
+    throw new Error(`Папка сборки не найдена: ${outputDir}`);
+  }
+
+  const names = readdirSync(outputDir);
+  const hasLatest = names.includes("latest.yml");
+  const installer = names.find((name) => name.endsWith(".exe") && name.includes("Setup"));
+
+  if (!hasLatest || !installer) {
+    throw new Error(
+      [
+        "Нельзя публиковать релиз: не хватает артефактов electron-builder.",
+        `latest.yml: ${hasLatest ? "ok" : "нет"}`,
+        `installer: ${installer ?? "нет"}`,
+        `Папка: ${outputDir}`,
+      ].join("\n")
+    );
+  }
+
+  console.log(`Publish artifacts: ${installer}, latest.yml`);
 }
 
 function printPublishHelp() {
@@ -55,7 +78,7 @@ function mirrorArtifactsToProjectRelease() {
   mkdirSync(projectRelease, { recursive: true });
 
   for (const name of readdirSync(outputDir)) {
-    const isInstaller = name.startsWith("FreedomBets Setup") && name.endsWith(".exe");
+    const isInstaller = name.endsWith(".exe") && name.includes("Setup");
     const isBlockMap = name.endsWith(".exe.blockmap");
     const isLatest = name === "latest.yml";
 
@@ -68,7 +91,17 @@ function mirrorArtifactsToProjectRelease() {
 cleanOutputDir();
 
 const extraArgs = process.argv.slice(2);
+const publishing = extraArgs.some((arg) => arg.startsWith("--publish"));
 const exitCode = runElectronBuilder(extraArgs);
+
+if (exitCode === 0 && publishing) {
+  try {
+    assertPublishArtifacts();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+}
 
 try {
   mirrorArtifactsToProjectRelease();
