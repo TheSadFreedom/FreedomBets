@@ -1,6 +1,7 @@
 export const MAX_BET_AMOUNT = 100_000;
 export const MAX_BALANCE = 1_000_000;
 export const MAX_INPUT_LENGTH = 25;
+export const MAX_EVENT_NAME_LENGTH = 40;
 
 export function limitInputLength(value: string, max = MAX_INPUT_LENGTH): string {
   return value.slice(0, max);

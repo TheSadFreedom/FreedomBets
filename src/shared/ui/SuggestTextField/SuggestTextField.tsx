@@ -19,6 +19,7 @@ interface SuggestTextFieldProps {
   logo?: SuggestLogoKind;
   /** Имя для логотипа, если оно отличается от текста опции (напр. название турнира → организация) */
   getLogoName?: (option: string) => string;
+  maxLength?: number;
 }
 
 const renderLogo = (kind: SuggestLogoKind, name: string) => {
@@ -40,6 +41,7 @@ const SuggestTextField = ({
   sx,
   logo,
   getLogoName,
+  maxLength = MAX_INPUT_LENGTH,
 }: SuggestTextFieldProps) => {
   const logoNameForValue = (logo && value.trim() ? getLogoName?.(value) ?? value : "").trim();
 
@@ -48,9 +50,9 @@ const SuggestTextField = ({
       freeSolo
       options={options}
       inputValue={value}
-      onInputChange={(_, newValue) => onChange(limitInputLength(newValue))}
+      onInputChange={(_, newValue) => onChange(limitInputLength(newValue, maxLength))}
       onChange={(_, newValue) =>
-        onChange(limitInputLength(typeof newValue === "string" ? newValue : ""))
+        onChange(limitInputLength(typeof newValue === "string" ? newValue : "", maxLength))
       }
       slotProps={{
         paper: { sx: { mt: 0.5 } },
@@ -80,7 +82,7 @@ const SuggestTextField = ({
           slotProps={{
             htmlInput: {
               ...params.inputProps,
-              maxLength: MAX_INPUT_LENGTH,
+              maxLength,
             },
             input: {
               ...params.InputProps,

@@ -4,46 +4,47 @@ import type { EventRecord } from "@/entities/eventRecord";
 import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
 
 /** Major — если в названии есть «major»; иначе Small */
-export function inferEventTier(eventOrganization: string, eventName: string): EventTier {
-  if (/major/i.test(`${eventOrganization} ${eventName}`)) return "Major";
+export function inferEventTier(_eventOrganization: string, eventName: string): EventTier {
+  if (/major/i.test(eventName)) return "Major";
+  if (/blast|katowice|cologne|masters|championship/i.test(eventName)) return "Big";
   return "Small";
 }
 
 export function resolveEventTier(
   value: unknown,
-  eventOrganization: string,
+  eventId: string,
   eventName: string
 ): EventTier {
   if (isEventTier(value)) return value;
-  return inferEventTier(eventOrganization, eventName);
+  return inferEventTier(eventId, eventName);
 }
 
 export function findEventTier(
   events: EventRecord[],
-  eventOrganization: string,
+  eventId: string,
   eventName: string
 ): EventTier | undefined {
-  const record = findStoredEvent({ eventOrganization, eventName }, events);
-  return record?.eventTier;
+  const record = findStoredEvent({ id: eventId, name: eventName }, events);
+  if (!record) return undefined;
+  if (isEventTier(record.size)) return record.size;
+  if (isEventTier(record.eventTier)) return record.eventTier;
+  return inferEventTier("", record.name);
 }
 
 export function resolveEventTierForEvent(
   events: EventRecord[],
-  eventOrganization: string,
+  eventId: string,
   eventName: string
 ): EventTier {
-  return (
-    findEventTier(events, eventOrganization, eventName) ??
-    inferEventTier(eventOrganization, eventName)
-  );
+  return findEventTier(events, eventId, eventName) ?? inferEventTier("", eventName);
 }
 
 /** Тир турнира для ставки — из сохранённой записи турнира */
 export function resolveBetEventTier(
-  bet: Pick<Bet, "eventOrganization" | "eventName" | "majorStage">,
+  bet: Pick<Bet, "eventId" | "eventName">,
   events: EventRecord[] = []
 ): EventTier {
-  return resolveEventTierForEvent(events, bet.eventOrganization, bet.eventName);
+  return resolveEventTierForEvent(events, bet.eventId, bet.eventName);
 }
 
 export const eventTierStyles: Record<

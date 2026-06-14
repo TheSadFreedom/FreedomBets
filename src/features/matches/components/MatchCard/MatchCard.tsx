@@ -51,7 +51,6 @@ import {
   SettleBetsButton,
   SettleBetsRow,
   SettlementNote,
-  StagePill,
   StatusBadge,
 } from "./MatchCard.styled";
 
@@ -98,9 +97,12 @@ const MatchCard = ({
   readOnly = false,
   externalUrl,
 }: MatchCardProps) => {
+  const team1Name = match.organization1 ?? "";
+  const team2Name = match.organization2 ?? "";
+
   const eventLogoSlug = resolveEventLogoSlug(
-    match.eventOrganization,
-    match.eventName,
+    match.eventId,
+    match.eventName ?? "",
     events,
   );
   const eventTitle = formatMatchEventTitle(match);
@@ -122,12 +124,12 @@ const MatchCard = ({
   } = useTeamHoverPopover();
 
   const team1RecentMatches = useMemo(
-    () => getTeamRecentMatches(allMatches, match.organization1, match.id),
-    [allMatches, match.id, match.organization1],
+    () => getTeamRecentMatches(allMatches, team1Name, match.id),
+    [allMatches, match.id, team1Name],
   );
   const team2RecentMatches = useMemo(
-    () => getTeamRecentMatches(allMatches, match.organization2, match.id),
-    [allMatches, match.id, match.organization2],
+    () => getTeamRecentMatches(allMatches, team2Name, match.id),
+    [allMatches, match.id, team2Name],
   );
 
   const status = getMatchEffectiveStatus(match);
@@ -187,12 +189,11 @@ const MatchCard = ({
                 <EventLogoWrap>
                   <EventLogo
                     logoSlug={eventLogoSlug}
-                    label={match.eventName || match.eventOrganization}
+                    label={match.eventName ?? ""}
                     size={28}
                   />
                 </EventLogoWrap>
                 <MatchEventTitle title={eventTitle}>{eventTitle}</MatchEventTitle>
-                {match.majorStage ? <StagePill>{match.majorStage}</StagePill> : null}
               </MatchEventRow>
 
               <MatchTopActions>
@@ -251,7 +252,7 @@ const MatchCard = ({
               <MatchTeamsCol>
                 <MatchCardTeamPanel
                   team={1}
-                  teamName={match.organization1}
+                  teamName={team1Name}
                   leading={team1Leading}
                   readOnly={readOnly}
                   placement="bottom-end"
@@ -284,7 +285,7 @@ const MatchCard = ({
 
                 <MatchCardTeamPanel
                   team={2}
-                  teamName={match.organization2}
+                  teamName={team2Name}
                   leading={team2Leading}
                   readOnly={readOnly}
                   placement="bottom-start"
@@ -338,7 +339,7 @@ const MatchCard = ({
         <ConfirmDialog
           open={deleteOpen}
           title="Удалить матч?"
-          message={`Матч ${match.organization1} vs ${match.organization2} будет удалён без возможности восстановления.`}
+          message={`Матч ${team1Name} vs ${team2Name} будет удалён без возможности восстановления.`}
           confirming={deleting}
           onClose={() => setDeleteOpen(false)}
           onConfirm={handleDeleteConfirm}

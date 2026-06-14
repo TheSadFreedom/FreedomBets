@@ -26,7 +26,13 @@ FreedomBets можно запускать как **Windows-приложение*
 | Что | Где |
 |-----|-----|
 | Программа | Папка, выбранная при установке (например `C:\Program Files\FreedomBets\`) |
-| База и загрузки | `%AppData%\Roaming\freedombets\` |
+| База и загрузки | `%AppData%\Roaming\FreedomBets\` |
+
+> **Не путать с папкой установки.** Файл `resources\db.json` внутри `.exe`/Program Files — только **шаблон при первом запуске**. Дальше приложение читает и пишет **`%AppData%\Roaming\FreedomBets\db.json`**. Переустановка и обновление **не заменяют** эту базу.
+
+В настройках профиля (десктоп): **Данные приложения → Открыть папку данных**.
+
+Чтобы подставить базу из разработки: закройте приложение, сделайте бэкап `db.json` в AppData, скопируйте нужный `db.json` на его место.
 
 В userData:
 
@@ -56,23 +62,29 @@ FreedomBets можно запускать как **Windows-приложение*
 
 `electron-builder` загружает файлы через GitHub API. Для этого нужен **Personal Access Token** (PAT) — отдельный «пароль для программ», не ваш обычный пароль от GitHub.
 
-### Вариант A — Classic token (проще)
+### Вариант A — Classic token (рекомендуется для `desktop:publish`)
+
+С fine-grained токенами часто приходит `403 Resource not accessible by personal access token` — для Releases надёжнее Classic.
 
 1. Откройте: [github.com/settings/tokens](https://github.com/settings/tokens)
 2. **Generate new token → Generate new token (classic)**
 3. **Note:** например `FreedomBets publish`
 4. **Expiration:** на ваш выбор (90 days / No expiration)
-5. Отметьте галочку **`repo`** (полный доступ к репозиториям — нужен для создания Releases)
+5. Отметьте галочку **`repo`** (полный доступ к репозиториям — **обязательно** для создания Releases)
 6. **Generate token**
 7. **Скопируйте токен сразу** — он показывается **один раз**, начинается с `ghp_`
 
-### Вариант B — Fine-grained token (безопаснее)
+> Не ставьте только `public_repo`, если репозиторий приватный. Для FreedomBets достаточно **`repo`**.
+
+### Вариант B — Fine-grained token (если Classic недоступен)
 
 1. Откройте: [github.com/settings/personal-access-tokens](https://github.com/settings/personal-access-tokens)
 2. **Generate new token**
 3. **Repository access:** Only select repositories → **FreedomBets**
-4. **Repository permissions → Contents:** Read and write
+4. **Repository permissions → Contents:** **Read and write** (не Read-only)
 5. Создайте токен — начинается с `github_pat_`
+
+Если после этого всё равно `403 Resource not accessible by personal access token` — используйте **Classic token с `repo`** (вариант A).
 
 ### Безопасность
 
@@ -123,6 +135,21 @@ $env:GH_TOKEN = "ghp_..."
 npx electron-builder --win --publish always
 ```
 
+### Проверка токена перед publish
+
+В PowerShell (подставьте свой токен):
+
+```powershell
+$env:GH_TOKEN = "ghp_..."
+curl.exe -s -H "Authorization: Bearer $env:GH_TOKEN" https://api.github.com/repos/TheSadFreedom/FreedomBets/releases | Select-Object -First 5
+```
+
+- **`[]`** или список релизов — токен читает репозиторий, ок.
+- **`401 Bad credentials`** — неверный или отозванный токен.
+- **`404`** — токен не видит репозиторий (не тот аккаунт или нет доступа).
+
+Создание Release проверяется только командой `desktop:publish`; если снова `403`, пересоздайте **Classic** token с галочкой **`repo`**.
+
 ### Шаг 4. Проверка
 
 Откройте [github.com/TheSadFreedom/FreedomBets/releases](https://github.com/TheSadFreedom/FreedomBets/releases) — должен появиться релиз с `.exe` и `latest.yml`.
@@ -132,7 +159,8 @@ npx electron-builder --win --publish always
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
 | `GitHub Personal Access Token is not set` | Не задан `GH_TOKEN` | `$env:GH_TOKEN = "..."` в том же окне PowerShell |
-| `403` / `Bad credentials` | Неверный или отозванный токен | Создайте новый, проверьте права `repo` или Contents |
+| `403` / `Resource not accessible by personal access token` | Fine-grained без **Contents: Read and write**, или Classic без **`repo`**, или токен другого аккаунта | Создайте **Classic token** с галочкой **`repo`**, задайте заново в том же терминале |
+| `403` / `Bad credentials` | Неверный или отозванный токен | Создайте новый токен |
 | Release пустой на сайте | Запускали только `desktop:dist` | Нужен `desktop:publish` с токеном |
 
 ---

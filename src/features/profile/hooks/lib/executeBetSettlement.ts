@@ -1,6 +1,6 @@
-import type { Bet } from "@/entities/bet";
+import type { Bet, StoredBet } from "@/entities/bet";
 import type { BetSettlementPlan } from "@/features/matches/lib/settleBetsForMatch";
-import { normalizeBet } from "@/features/profile/lib/normalizeBet";
+import { normalizeStoredBet } from "@/features/profile/lib/normalizeBet";
 import { httpClient } from "@/shared/api/httpClient";
 
 export async function executeBetSettlementPlan(plan: BetSettlementPlan[]): Promise<Bet[]> {
@@ -8,8 +8,9 @@ export async function executeBetSettlementPlan(plan: BetSettlementPlan[]): Promi
 
   return Promise.all(
     plan.map(async ({ bet, nextStatus }) => {
-      const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { status: nextStatus });
-      return normalizeBet(res.data, bet);
+      const res = await httpClient.patch<StoredBet>(`/bets/${bet.id}`, { status: nextStatus });
+      const stored = normalizeStoredBet(res.data);
+      return { ...bet, status: stored.status };
     }),
   );
 }

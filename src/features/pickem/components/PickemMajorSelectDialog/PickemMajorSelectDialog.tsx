@@ -31,7 +31,7 @@ interface PickemMajorSelectDialogProps {
   events: EventRecord[];
   pickems: PickemMajor[];
   onClose: () => void;
-  onSubmit: (eventOrganization: string, eventName: string) => Promise<void>;
+  onSubmit: (eventName: string) => Promise<void>;
 }
 
 const PickemMajorSelectDialog = ({
@@ -60,7 +60,7 @@ const PickemMajorSelectDialog = ({
     if (!selected || saving) return;
     setSaving(true);
     try {
-      await onSubmit(selected.eventOrganization, selected.eventName);
+      await onSubmit(selected.eventName);
       onClose();
     } finally {
       setSaving(false);
@@ -103,11 +103,11 @@ const PickemMajorSelectDialog = ({
                   <MenuItem key={option.key} value={option.key}>
                     <EventLogo
                       logoSlug={resolveEventLogoSlug(
-                        option.eventOrganization,
+                        option.eventId ?? "",
                         option.eventName,
                         events
                       )}
-                      label={option.eventName || option.eventOrganization}
+                      label={option.eventName}
                       size={24}
                       showName
                     />

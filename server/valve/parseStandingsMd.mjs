@@ -7,6 +7,24 @@ export function parseSnapshotDateFromFilename(filename) {
   return `${match[1]}-${match[2]}-${match[3]}`;
 }
 
+function parseRankingPoints(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number(value.trim().replace(/\s/g, "").replace(/,/g, ""));
+    return Number.isFinite(parsed) ? parsed : NaN;
+  }
+  return NaN;
+}
+
+function parseGlobalRank(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number.parseInt(value.trim(), 10);
+    return Number.isFinite(parsed) ? parsed : NaN;
+  }
+  return NaN;
+}
+
 export function parseStandingsMarkdown(content) {
   const teams = [];
 
@@ -14,8 +32,8 @@ export function parseStandingsMarkdown(content) {
     const row = line.match(/^\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*([^|]+)\|\s*([^|]+)\|/);
     if (!row) continue;
 
-    const globalRank = Number(row[1]);
-    const points = Number(row[2]);
+    const globalRank = parseGlobalRank(row[1]);
+    const points = parseRankingPoints(row[2]);
     const teamName = row[3].trim();
     const roster = row[4].trim();
 

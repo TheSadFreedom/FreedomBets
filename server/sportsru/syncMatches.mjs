@@ -11,6 +11,7 @@ import {
   attachTeamFieldsToMatch,
   migrateTeamFieldsInDb,
 } from "../teams/teamsStore.mjs";
+import { dedupeTeamsInDb } from "../teams/dedupeTeamsInDb.mjs";
 
 const TRACKED_FIELDS = [
   "date",
@@ -191,6 +192,7 @@ export async function syncSportsRuMatchesToDb(db, { force = false, dates } = {})
 
   db.data.matches = existing;
   migrateTeamFieldsInDb(db);
+  dedupeTeamsInDb(db);
   await db.write();
 
   const recalculated =

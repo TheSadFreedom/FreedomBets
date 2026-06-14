@@ -4,7 +4,7 @@ import HowToVoteOutlinedIcon from "@mui/icons-material/HowToVoteOutlined";
 import type { Bet } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
-import type { PickemMajor } from "@/entities/pickem";
+import type { PickemMajor, PickemStageName, PickemStagePresetId } from "@/entities/pickem";
 import PickemMajorCard from "@/features/pickem/components/PickemMajorCard/PickemMajorCard";
 import PickemMedalsBlock from "@/features/pickem/components/PickemMedalsBlock/PickemMedalsBlock";
 import PickemMajorSelectDialog from "@/features/pickem/components/PickemMajorSelectDialog/PickemMajorSelectDialog";
@@ -34,8 +34,9 @@ interface PickemTabProps {
   events: EventRecord[];
   pickems: PickemMajor[];
   medals: ProfileMedal[];
-  onAddMajor: (eventOrganization: string, eventName: string) => Promise<void>;
-  onUploadStageImage: (major: PickemMajor, stage: string, file: File) => Promise<void>;
+  onAddMajor: (eventName: string) => Promise<void>;
+  onConfigureStages: (major: PickemMajor, presetId: PickemStagePresetId) => Promise<void>;
+  onUploadStageImage: (major: PickemMajor, stage: PickemStageName, file: File) => Promise<void>;
   onDeleteMajor: (major: PickemMajor) => Promise<void>;
   onUploadMedal: (imageData: string) => Promise<void>;
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
@@ -47,6 +48,7 @@ const PickemTab = ({
   pickems,
   medals,
   onAddMajor,
+  onConfigureStages,
   onUploadStageImage,
   onDeleteMajor,
   onUploadMedal,
@@ -71,7 +73,7 @@ const PickemTab = ({
             </HeroIcon>
             <HeroText>
               <HeroTitle>Pick&apos;em</HeroTitle>
-              <HeroHint>скриншоты по стадиям major-турниров</HeroHint>
+              <HeroHint>скриншоты pick&apos;em по стадиям major-турнира</HeroHint>
             </HeroText>
           </HeroLeft>
           <AddButton
@@ -104,7 +106,7 @@ const PickemTab = ({
           <EmptyState>
             Пока нет pick&apos;em
             <EmptyStateHint>
-              Нажмите «Выбрать major» — появятся блоки загрузки по стадиям турнира
+              Нажмите «Выбрать major» — затем выберите формат стадий и загрузите скрины
             </EmptyStateHint>
           </EmptyState>
         ) : (
@@ -116,6 +118,7 @@ const PickemTab = ({
                 events={events}
                 defaultExpanded={index === 0}
                 onDelete={onDeleteMajor}
+                onConfigureStages={onConfigureStages}
                 onUploadStageImage={onUploadStageImage}
               />
             ))}

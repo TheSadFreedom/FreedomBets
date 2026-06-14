@@ -1,14 +1,15 @@
-import type { Bet } from "@/entities/bet";
-import { normalizeBet } from "@/features/profile/lib/normalizeBet";
+import type { Bet, StoredBet } from "@/entities/bet";
+import { normalizeStoredBet } from "@/features/profile/lib/normalizeBet";
 import { httpClient } from "@/shared/api/httpClient";
 
 export async function patchBetStatus(
   id: string,
   status: Bet["status"],
-  previous?: Bet,
+  previous: Bet,
 ): Promise<Bet> {
-  const res = await httpClient.patch<Bet>(`/bets/${id}`, { status });
-  return normalizeBet(res.data, previous);
+  const res = await httpClient.patch<StoredBet>(`/bets/${id}`, { status });
+  const stored = normalizeStoredBet(res.data);
+  return { ...previous, status: stored.status };
 }
 
 export function replaceBetInLists(
@@ -20,12 +21,4 @@ export function replaceBetInLists(
     nextBets: bets.map((item) => (item.id === saved.id ? saved : item)),
     nextAllBets: allBets.map((item) => (item.id === saved.id ? saved : item)),
   };
-}
-
-export async function patchBetMajorStage(
-  bet: Bet,
-  majorStage: string | null,
-): Promise<Bet> {
-  const res = await httpClient.patch<Bet>(`/bets/${bet.id}`, { majorStage });
-  return normalizeBet(res.data, bet);
 }

@@ -4,9 +4,10 @@ import type { EventEditInput, EventIdentity } from "@/entities/event";
 import type { Match, MatchCreateInput } from "@/entities/match";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
-import type { PickemMajor, PickemStageName } from "@/entities/pickem";
+import type { PickemMajor, PickemStagePresetId } from "@/entities/pickem";
 import type { RankingBaseline } from "@/entities/ranking";
 import type { Profile } from "@/entities/profile";
+import type { Team, TeamEditInput } from "@/entities/team";
 import ScrollToTopButton from "@/features/home/components/ScrollToTopButton/ScrollToTopButton";
 import HomeTabPanels from "./HomeTabPanels";
 import { HOME_TABS, homeTabShowsScrollToTop } from "./homeTabsConfig";
@@ -35,18 +36,17 @@ interface HomeTabsProps {
   onUpdateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
   onDeleteEvent: (identity: EventIdentity) => Promise<void>;
   pickems: PickemMajor[];
-  onAddPickemMajor: (eventOrganization: string, eventName: string) => Promise<void>;
-  onUploadPickemStageImage: (
-    major: PickemMajor,
-    stage: PickemStageName,
-    file: File,
-  ) => Promise<void>;
+  onAddPickemMajor: (eventName: string) => Promise<void>;
+  onConfigurePickemStages: (major: PickemMajor, presetId: PickemStagePresetId) => Promise<void>;
+  onUploadPickemStageImage: (major: PickemMajor, stage: string, file: File) => Promise<void>;
   onDeletePickemMajor: (major: PickemMajor) => Promise<void>;
   medals: ProfileMedal[];
   onUploadMedal: (imageData: string) => Promise<void>;
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
+  teams: Team[];
   rankingBaseline: RankingBaseline | null;
   onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
+  onUpdateTeam: (teamId: string, data: TeamEditInput) => Promise<void>;
   onSyncSportsRu?: (options?: { force?: boolean; dates?: string[] }) => Promise<void>;
 }
 

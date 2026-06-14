@@ -163,7 +163,7 @@ ID в URL должен существовать. ID в `db.json` могут бы
 
 При запуске API (`npm run server` или десктоп-приложение) сервер создаёт dated-бэкапы:
 
-- **Папка:** `backups/` рядом с `db.json` (в десктопе — в `%AppData%\Roaming\freedombets\backups\`)
+- **Папка:** `backups/` рядом с `db.json` (в десктопе — в `%AppData%\Roaming\FreedomBets\backups\`)
 - **Имя:** `db-2026-06-14.json` (один файл на календарный день)
 - **Хранение:** последние **5 дней**, старые удаляются
 - **Полночь:** новый бэкап, пока процесс API работает
@@ -249,6 +249,10 @@ npm run migrate:pickems
 ### `GH_TOKEN is not set` при publish
 
 Задайте токен в **том же** окне PowerShell перед командой: `$env:GH_TOKEN = "ghp_..."`. Как получить токен — [07-desktop-i-releases.md § 7.4](07-desktop-i-releases.md#74-github-personal-access-token-gh_token).
+
+### `403 Resource not accessible by personal access token`
+
+Токен не может **создавать** Releases. Чаще всего fine-grained с **Contents: Read** вместо Read and write, или Classic без полной галочки **`repo`**. Решение: новый **Classic token** → только **`repo`** → снова `$env:GH_TOKEN` и `npm run desktop:publish`.
 
 ---
 

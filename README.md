@@ -70,7 +70,7 @@ npm run desktop:dist
 
 Данные приложения хранятся отдельно от установки:
 
-`C:\Users\<имя>\AppData\Roaming\freedombets\`
+`C:\Users\<имя>\AppData\Roaming\FreedomBets\`
 
 Там лежат `db.json`, папка `backups/` (ежедневные копии базы) и загруженные картинки Pick'em.
 

@@ -196,6 +196,12 @@ export const ChipRow = styled.div`
   gap: 6px;
 `;
 
+export const MarketChipGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+`;
+
 const chipActive = css`
   color: #c8e6c9;
   background: rgba(76, 175, 80, 0.22);
@@ -247,7 +253,12 @@ export const FormatChip = styled(ChoiceChip)<{ $format: MatchFormat }>`
   font-weight: 700;
 `;
 
-export const MarketChip = styled(ChoiceChip)<{ $market: BetMarket }>``;
+export const MarketChip = styled(ChoiceChip)<{ $market: BetMarket; $fullWidth?: boolean }>`
+  width: 100%;
+  justify-content: flex-start;
+  min-height: 36px;
+  grid-column: ${({ $fullWidth }) => ($fullWidth ? "1 / -1" : "auto")};
+`;
 
 export const AmountPresetChip = styled(ChoiceChip)`
   min-width: 40px;

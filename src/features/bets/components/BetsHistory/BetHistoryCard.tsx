@@ -36,10 +36,7 @@ import {
 } from "./BetsHistory.styled";
 
 function formatEventTitle(bet: Bet): string {
-  const label = formatEventLabel(bet.eventOrganization, bet.eventName, {
-    majorStage: bet.majorStage,
-  });
-  return label || "Турнир";
+  return formatEventLabel("", bet.eventName) || "Турнир";
 }
 
 function scoreTone(
@@ -91,7 +88,7 @@ const BetHistoryCard = ({
       <BetCardHeaderLeft>
         <BetCardHeaderEvent>
           <EventLogo
-            logoSlug={resolveEventLogoSlug(bet.eventOrganization, bet.eventName, events)}
+            logoSlug={resolveEventLogoSlug(bet.eventId, bet.eventName, events)}
             label={formatEventTitle(bet)}
             size={18}
           />

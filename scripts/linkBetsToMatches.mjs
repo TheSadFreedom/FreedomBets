@@ -1,8 +1,9 @@
-import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { createDatabase } from "../server/db/sqliteStore.mjs";
 
-const dbPath = resolve(process.argv[2] ?? "db.json");
-const db = JSON.parse(readFileSync(dbPath, "utf-8"));
+const dbPath = resolve(process.argv[2] ?? "freedom.db");
+const db = createDatabase(dbPath);
+await db.read();
 
 const norm = (value) => value.trim().toLowerCase();
 
@@ -50,8 +51,8 @@ let linked = 0;
 let synced = 0;
 const unmatched = [];
 
-for (const bet of db.bets) {
-  const match = findMatchForBet(bet, db.matches);
+for (const bet of db.data.bets) {
+  const match = findMatchForBet(bet, db.data.matches);
   if (!match) {
     unmatched.push(bet.id);
     continue;
@@ -69,7 +70,8 @@ for (const bet of db.bets) {
   }
 }
 
-writeFileSync(dbPath, `${JSON.stringify(db, null, 2)}\n`, "utf-8");
+await db.write();
+db.close();
 
 console.log(`Updated ${dbPath}`);
 console.log(`Linked matchId: ${linked}`);

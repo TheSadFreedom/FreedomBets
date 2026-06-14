@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Bet } from "@/entities/bet";
 import type { EventEditInput } from "@/entities/event";
 import type { Match } from "@/entities/match";
+import type { Team, TeamEditInput } from "@/entities/team";
+import { resolveTeamIdFromName } from "@/entities/team";
 import BetFormDialog, {
   type BetFormSeed,
 } from "@/features/bets/components/BetFormDialog/BetFormDialog";
@@ -9,6 +11,8 @@ import EventFormDialog from "@/features/events/components/EventFormDialog/EventF
 import HomeTabs from "@/features/home/components/HomeTabs/HomeTabs";
 import MatchFormDialog from "@/features/matches/components/MatchFormDialog/MatchFormDialog";
 import { matchToBetSeed } from "@/features/matches/lib/matchToBetSeed";
+import TeamFormDialog from "@/features/teams/components/TeamFormDialog/TeamFormDialog";
+import type { AppCreateActions } from "@/layouts/ProfileHeader/types";
 import PageError from "@/shared/ui/PageError/PageError";
 import PageLoader from "@/shared/ui/PageLoader/PageLoader";
 import type { ProfileBetsState } from "./types";
@@ -16,9 +20,18 @@ import { Container } from "./HomePage.styled";
 
 interface HomePageProps {
   profileBets: ProfileBetsState;
+  onRegisterCreateActions?: (actions: AppCreateActions) => void;
 }
 
-const HomePage = ({ profileBets }: HomePageProps) => {
+const emptyCreateTeam = (): Team => ({
+  id: "",
+  name: "",
+  synonyms: [],
+  logoSlug: "",
+  vrsPoints: 0,
+});
+
+const HomePage = ({ profileBets, onRegisterCreateActions }: HomePageProps) => {
   const {
     profile,
     profiles,
@@ -45,25 +58,41 @@ const HomePage = ({ profileBets }: HomePageProps) => {
     events,
     pickems,
     addPickemMajor,
+    configurePickemStages,
     uploadPickemStageImage,
     deletePickemMajor,
     medals,
     uploadMedal,
     deleteMedal,
     rankingBaseline,
+    teams,
     refreshRankingBaseline,
+    updateTeam,
   } = profileBets;
 
   const [createBetOpen, setCreateBetOpen] = useState(false);
   const [createMatchOpen, setCreateMatchOpen] = useState(false);
   const [createEventOpen, setCreateEventOpen] = useState(false);
+  const [createTeamOpen, setCreateTeamOpen] = useState(false);
+  const createTeamDraft = useMemo(() => emptyCreateTeam(), []);
   const [editingBet, setEditingBet] = useState<Bet | null>(null);
   const [betSeed, setBetSeed] = useState<BetFormSeed | undefined>();
 
-  const openCreateBet = (seed?: BetFormSeed) => {
+  const openCreateBet = useCallback((seed?: BetFormSeed) => {
     setBetSeed(seed);
     setCreateBetOpen(true);
-  };
+  }, []);
+
+  useEffect(() => {
+    onRegisterCreateActions?.({
+      onNewTeam: () => setCreateTeamOpen(true),
+      onNewMatch: () => setCreateMatchOpen(true),
+      onNewBet: () => openCreateBet(),
+      onNewEvent: () => setCreateEventOpen(true),
+    });
+
+    return () => onRegisterCreateActions?.({});
+  }, [onRegisterCreateActions, openCreateBet]);
 
   const handleBetFromMatch = (match: Match, team: 1 | 2) => {
     openCreateBet(matchToBetSeed(match, team));
@@ -72,6 +101,13 @@ const HomePage = ({ profileBets }: HomePageProps) => {
   const handleNewEventSubmit = async (values: EventEditInput) => {
     await addEvent(values);
     setCreateEventOpen(false);
+  };
+
+  const handleCreateTeamSubmit = async (_teamId: string, values: TeamEditInput) => {
+    const teamId = resolveTeamIdFromName(values.name);
+    if (!teamId) return;
+    await updateTeam(teamId, values);
+    setCreateTeamOpen(false);
   };
 
   if (loading) return <PageLoader />;
@@ -104,21 +140,22 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         onDeleteEvent={deleteEvent}
         pickems={pickems}
         onAddPickemMajor={addPickemMajor}
+        onConfigurePickemStages={configurePickemStages}
         onUploadPickemStageImage={uploadPickemStageImage}
         onDeletePickemMajor={deletePickemMajor}
         medals={medals}
         onUploadMedal={uploadMedal}
         onDeleteMedal={deleteMedal}
+        teams={teams}
         rankingBaseline={rankingBaseline}
         onRefreshRankingBaseline={refreshRankingBaseline}
+        onUpdateTeam={updateTeam}
         onSyncSportsRu={syncSportsRuMatches}
       />
 
       <MatchFormDialog
         open={createMatchOpen}
         bets={bets}
-        allBets={allBets}
-        matches={matches}
         events={events}
         onClose={() => setCreateMatchOpen(false)}
         onSubmit={async (values) => {
@@ -132,6 +169,15 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         bets={bets}
         onClose={() => setCreateEventOpen(false)}
         onSubmit={handleNewEventSubmit}
+      />
+
+      <TeamFormDialog
+        open={createTeamOpen}
+        team={createTeamDraft}
+        title="Новая команда"
+        submitLabel="Добавить"
+        onClose={() => setCreateTeamOpen(false)}
+        onSubmit={handleCreateTeamSubmit}
       />
 
       <BetFormDialog

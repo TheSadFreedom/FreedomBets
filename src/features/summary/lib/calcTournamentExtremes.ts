@@ -28,7 +28,7 @@ export interface TournamentStatsSummary {
 }
 
 function tournamentKey(bet: Bet): string {
-  return eventStatsKey(bet.eventOrganization, bet.eventName, null);
+  return eventStatsKey(bet.eventId, bet.eventName);
 }
 
 export function calcTournamentStatsGrouped(
@@ -46,16 +46,16 @@ export function calcTournamentStatsGrouped(
 
   return Array.from(byTournament.entries()).map(([key, tournamentBets]) => {
     const parts = key.split("\0");
-    const eventOrganization = parts[0] ?? "";
+    const eventId = parts[0] ?? "";
     const eventName = parts[1] ?? "";
     const settled = getSettledBets(tournamentBets);
 
     return {
       key,
-      eventOrganization,
+      eventOrganization: eventName,
       eventName,
-      logoSlug: resolveEventLogoSlug(eventOrganization, eventName, events),
-      label: formatEventLabel(eventOrganization, eventName),
+      logoSlug: resolveEventLogoSlug(eventId, eventName, events),
+      label: formatEventLabel("", eventName),
       profit: calcSettledProfit(tournamentBets),
       winRate: calcWinRate(tournamentBets),
       wins: countByStatus(tournamentBets, "WIN"),

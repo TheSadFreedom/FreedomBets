@@ -16,7 +16,7 @@ const BetDescriptionCell = ({ bet }: BetDescriptionCellProps) => {
   return (
     <BetDescriptionStack title={formatBetDescription(bet)}>
       <BetDescriptionMarket>{market}</BetDescriptionMarket>
-      <BetDescriptionTeam>{team}</BetDescriptionTeam>
+      {team ? <BetDescriptionTeam>{team}</BetDescriptionTeam> : null}
     </BetDescriptionStack>
   );
 };

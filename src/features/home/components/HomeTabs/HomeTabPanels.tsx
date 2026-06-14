@@ -4,10 +4,11 @@ import type { EventEditInput, EventIdentity } from "@/entities/event";
 import type { Match, MatchCreateInput } from "@/entities/match";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
-import type { PickemMajor, PickemStageName } from "@/entities/pickem";
+import type { PickemMajor, PickemStagePresetId } from "@/entities/pickem";
 import { MAJOR_EVENT_TIERS, NON_MAJOR_EVENT_TIERS } from "@/entities/event";
 import type { RankingBaseline } from "@/entities/ranking";
 import type { Profile } from "@/entities/profile";
+import type { Team, TeamEditInput } from "@/entities/team";
 import { resolveBalanceTotals } from "@/features/profile/lib/profileBalance";
 import HomeTabLoader from "./HomeTabLoader";
 import {
@@ -29,6 +30,7 @@ export interface HomeTabPanelsProps {
   matches: Match[];
   events: EventRecord[];
   profiles: Profile[];
+  teams: Team[];
   activeProfileId: number;
   pickems: PickemMajor[];
   medals: ProfileMedal[];
@@ -47,17 +49,15 @@ export interface HomeTabPanelsProps {
   onRevert: (id: string) => void;
   onUpdateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
   onDeleteEvent: (identity: EventIdentity) => Promise<void>;
-  onAddPickemMajor: (eventOrganization: string, eventName: string) => Promise<void>;
-  onUploadPickemStageImage: (
-    major: PickemMajor,
-    stage: PickemStageName,
-    file: File,
-  ) => Promise<void>;
+  onAddPickemMajor: (eventName: string) => Promise<void>;
+  onConfigurePickemStages: (major: PickemMajor, presetId: PickemStagePresetId) => Promise<void>;
+  onUploadPickemStageImage: (major: PickemMajor, stage: string, file: File) => Promise<void>;
   onDeletePickemMajor: (major: PickemMajor) => Promise<void>;
   onUploadMedal: (imageData: string) => Promise<void>;
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
   rankingBaseline: RankingBaseline | null;
   onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
+  onUpdateTeam: (teamId: string, data: TeamEditInput) => Promise<void>;
   onSyncSportsRu?: (options?: { force?: boolean; dates?: string[] }) => Promise<void>;
 }
 
@@ -89,12 +89,15 @@ const HomeTabPanels = ({
   onUpdateEvent,
   onDeleteEvent,
   onAddPickemMajor,
+  onConfigurePickemStages,
   onUploadPickemStageImage,
   onDeletePickemMajor,
   onUploadMedal,
   onDeleteMedal,
+  teams,
   rankingBaseline,
   onRefreshRankingBaseline,
+  onUpdateTeam,
   onSyncSportsRu,
 }: HomeTabPanelsProps) => {
   const activeProfile = profiles.find((item) => item.id === activeProfileId);
@@ -177,8 +180,10 @@ const HomeTabPanels = ({
         <Suspense fallback={<HomeTabLoader />}>
           <LazyTeamsTab
             allBets={allBets}
+            teams={teams}
             rankingBaseline={rankingBaseline}
             onRefreshRankingBaseline={onRefreshRankingBaseline}
+            onUpdateTeam={onUpdateTeam}
           />
         </Suspense>
       </TabsPanel>
@@ -247,6 +252,7 @@ const HomeTabPanels = ({
             pickems={pickems}
             medals={medals}
             onAddMajor={onAddPickemMajor}
+            onConfigureStages={onConfigurePickemStages}
             onUploadStageImage={onUploadPickemStageImage}
             onDeleteMajor={onDeletePickemMajor}
             onUploadMedal={onUploadMedal}

@@ -1,10 +1,50 @@
 import styled from "styled-components";
 export const ProfileHeaderRoot = styled.div`
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   max-width: 100%;
+`;
 
+export const SettingsButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(
+    145deg,
+    rgba(42, 42, 42, 0.96) 0%,
+    rgba(24, 24, 24, 0.98) 100%
+  );
+  color: rgba(255, 255, 255, 0.58);
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
 
+  &:hover {
+    color: #a5d6a7;
+    border-color: rgba(129, 199, 132, 0.32);
+    background: rgba(76, 175, 80, 0.1);
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #66bb6a;
+    outline-offset: 2px;
+  }
+
+  svg {
+    font-size: 22px;
+  }
 `;
 
 export const ProfileCard = styled.div`

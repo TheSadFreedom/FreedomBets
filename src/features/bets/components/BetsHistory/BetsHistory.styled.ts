@@ -17,16 +17,29 @@ export const HistoryCard = styled.div`
 `;
 
 export const FiltersPanel = styled.div`
-  padding: 10px 12px;
+  padding: 14px 16px;
   background: rgba(0, 0, 0, 0.18);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+`;
 
+export const FiltersHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+export const FiltersActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
 export const FiltersWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 export const BetList = styled.div`

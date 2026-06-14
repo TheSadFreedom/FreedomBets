@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+const COMPACT_CELL = 52;
+const COMPACT_GAP = 6;
+const COMPACT_ICON_ROWS = 2;
+
 export const PickerRoot = styled.div`
   display: flex;
   flex-direction: column;
@@ -17,24 +21,32 @@ export const PickerHint = styled.div`
   color: rgba(255, 255, 255, 0.45);
 `;
 
-export const LogoGrid = styled.div<{ $compact?: boolean }>`
+export const LogoGrid = styled.div<{ $compact?: boolean; $rows?: number }>`
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
-    minmax(${({ $compact }) => ($compact ? "72px" : "88px")}, 1fr)
+    minmax(${({ $compact }) => ($compact ? `${COMPACT_CELL}px` : "88px")}, 1fr)
   );
-  gap: ${({ $compact }) => ($compact ? "6px" : "8px")};
-  max-height: ${({ $compact }) => ($compact ? "140px" : "220px")};
+  gap: ${({ $compact }) => ($compact ? `${COMPACT_GAP}px` : "8px")};
+  max-height: ${({ $compact, $rows }) => {
+    if (!$compact) return "220px";
+    if ($rows === COMPACT_ICON_ROWS) {
+      return `${COMPACT_ICON_ROWS * COMPACT_CELL + (COMPACT_ICON_ROWS - 1) * COMPACT_GAP}px`;
+    }
+    return "140px";
+  }};
   overflow: auto;
   padding: 2px;
 `;
 
-export const LogoOption = styled.button<{ $active?: boolean }>`
+export const LogoOption = styled.button<{ $active?: boolean; $iconOnly?: boolean }>`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 8px 6px;
+  justify-content: center;
+  flex-direction: ${({ $iconOnly }) => ($iconOnly ? "row" : "column")};
+  gap: ${({ $iconOnly }) => ($iconOnly ? "0" : "6px")};
+  min-height: ${({ $iconOnly }) => ($iconOnly ? `${COMPACT_CELL}px` : "auto")};
+  padding: ${({ $iconOnly }) => ($iconOnly ? "0" : "8px 6px")};
   border-radius: 10px;
   border: 1px solid
     ${({ $active }) => ($active ? "rgba(102, 187, 106, 0.55)" : "rgba(255, 255, 255, 0.08)")};

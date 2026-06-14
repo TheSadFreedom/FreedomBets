@@ -1,11 +1,10 @@
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { useEventLogosManifest } from "@/shared/hooks/useEventLogosManifest";
 import { formatEventLogoLabel } from "@/shared/lib/logos/eventLogo";
 import EventLogo from "@/shared/ui/EventLogo/EventLogo";
 import {
   LogoGrid,
   LogoOption,
-  LogoOptionLabel,
   PickerHint,
   PickerRoot,
   PickerTitle,
@@ -29,7 +28,7 @@ const EventLogoPicker = ({ value, onChange, compact = false }: EventLogoPickerPr
           Нет файлов в public/events — добавьте картинки и перезапустите npm start
         </Typography>
       ) : (
-        <LogoGrid $compact={compact}>
+        <LogoGrid $compact={compact} $rows={compact ? 2 : undefined}>
           {logos.map((logo) => {
             const active = value === logo.id;
             return (
@@ -37,17 +36,15 @@ const EventLogoPicker = ({ value, onChange, compact = false }: EventLogoPickerPr
                 key={logo.id}
                 type="button"
                 $active={active}
+                $iconOnly={compact}
                 onClick={() => onChange(logo.id)}
                 title={formatEventLogoLabel(logo.id)}
               >
-                <Box display="flex" justifyContent="center">
-                  <EventLogo
-                    logoSlug={logo.id}
-                    label={formatEventLogoLabel(logo.id)}
-                    size={compact ? 32 : 40}
-                  />
-                </Box>
-                <LogoOptionLabel>{formatEventLogoLabel(logo.id)}</LogoOptionLabel>
+                <EventLogo
+                  logoSlug={logo.id}
+                  label={formatEventLogoLabel(logo.id)}
+                  size={compact ? 36 : 40}
+                />
               </LogoOption>
             );
           })}

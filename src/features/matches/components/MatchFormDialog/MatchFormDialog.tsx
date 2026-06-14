@@ -19,8 +19,6 @@ import { MATCH_FORMATS, type MatchFormat } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match, MatchCreateInput, MatchMap } from "@/entities/match";
 import { getBetFormSuggestions } from "@/features/bets/lib/formSuggestions";
-import EventStageSelect from "@/features/events/components/EventStageSelect/EventStageSelect";
-import { collectEventStages, pickEventStage } from "@/features/events/lib/eventStages";
 import {
   eventSelectKey,
   getEventSelectOptions,
@@ -74,11 +72,9 @@ const emptyMatch = (): MatchCreateInput => ({
   date: todayIsoDateLocal(),
   time: "16:00",
   format: "BO3",
-  organization1: "",
-  organization2: "",
-  eventOrganization: "",
-  eventName: "",
-  majorStage: null,
+  team1Id: "",
+  team2Id: "",
+  eventId: "",
   maps: createEmptyMaps("BO3"),
 });
 
@@ -86,11 +82,9 @@ const matchToFormInput = (match: Match): MatchCreateInput => ({
   date: match.date,
   time: match.time,
   format: match.format,
-  organization1: match.organization1,
-  organization2: match.organization2,
-  eventOrganization: match.eventOrganization,
-  eventName: match.eventName,
-  majorStage: match.majorStage,
+  team1Id: match.team1Id,
+  team2Id: match.team2Id,
+  eventId: match.eventId,
   maps: resizeMapsForFormat(match.maps ?? [], match.format),
 });
 
@@ -106,8 +100,6 @@ function mapsHaveData(maps: MatchMap[]): boolean {
 interface MatchFormDialogProps {
   open: boolean;
   bets: Bet[];
-  allBets?: Bet[];
-  matches?: Match[];
   events?: EventRecord[];
   initial?: Match;
   seed?: Partial<MatchCreateInput>;
@@ -118,8 +110,6 @@ interface MatchFormDialogProps {
 const MatchFormDialog = ({
   open,
   bets,
-  allBets,
-  matches = [],
   events = [],
   initial,
   seed,
@@ -137,49 +127,24 @@ const MatchFormDialog = ({
   const eventSource = useMemo(() => {
     if (!initial) return null;
     return {
-      eventOrganization: initial.eventOrganization,
-      eventName: initial.eventName,
-      majorStage: initial.majorStage,
+      eventId: initial.eventId,
+      eventName: "",
     };
   }, [initial]);
   const eventOptions = useMemo(
     () =>
       getEventSelectOptions(bets, events, eventSource, {
         excludeFinished: !initial,
-        collapseMajorStages: true,
       }),
     [bets, events, eventSource, initial]
   );
   const selectedEventKey =
-    form.eventOrganization.trim() || form.eventName.trim()
-      ? eventSelectKey(
-          {
-            eventOrganization: form.eventOrganization,
-            eventName: form.eventName,
-            majorStage: form.majorStage,
-          },
-          events,
-          true
-        )
+    form.eventId.trim()
+      ? eventSelectKey({
+          eventId: form.eventId,
+          eventName: "",
+        })
       : "";
-  const selectedEventStages = useMemo(
-    () =>
-      collectEventStages(form.eventOrganization, form.eventName, events, {
-        currentStage: form.majorStage,
-        bets: allBets ?? bets,
-        matches,
-      }),
-    [
-      allBets,
-      bets,
-      events,
-      form.eventOrganization,
-      form.eventName,
-      form.majorStage,
-      matches,
-    ]
-  );
-  const eventRequiresStage = selectedEventStages.length > 0;
 
   const updateMap = (index: number, patch: Partial<MatchMap>) => {
     setForm((prev) => ({
@@ -226,11 +191,9 @@ const MatchFormDialog = ({
   };
 
   const canSubmit =
-    form.organization1.trim() &&
-    form.organization2.trim() &&
-    form.eventOrganization.trim() &&
-    form.eventName.trim() &&
-    (!eventRequiresStage || form.majorStage);
+    form.team1Id.trim() &&
+    form.team2Id.trim() &&
+    form.eventId.trim();
 
   const handleSubmit = async () => {
     if (!canSubmit || saving) return;
@@ -243,11 +206,9 @@ const MatchFormDialog = ({
         date,
         time,
         maps: sanitizeMapsForSave(form.maps, form.format),
-        organization1: form.organization1.trim(),
-        organization2: form.organization2.trim(),
-        eventOrganization: form.eventOrganization.trim(),
-        eventName: form.eventName.trim(),
-        majorStage: form.majorStage?.trim() || null,
+        team1Id: form.team1Id.trim(),
+        team2Id: form.team2Id.trim(),
+        eventId: form.eventId.trim(),
       });
       onClose();
     } finally {
@@ -305,14 +266,7 @@ const MatchFormDialog = ({
                     if (!option) return;
                     setForm((prev) => ({
                       ...prev,
-                      eventOrganization: option.eventOrganization,
-                      eventName: option.eventName,
-                      majorStage: pickEventStage(
-                        option.eventOrganization,
-                        option.eventName,
-                        events,
-                        prev.majorStage
-                      ),
+                      eventId: option.eventId,
                     }));
                   }}
                   renderValue={(value) => {
@@ -323,7 +277,7 @@ const MatchFormDialog = ({
                       <Box display="flex" alignItems="center" gap={1} minWidth={0}>
                         <EventLogo
                           logoSlug={option.logoSlug}
-                          label={option.eventOrganization}
+                          label={option.eventName}
                           size={20}
                         />
                         <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, fontSize: 13 }}>
@@ -338,24 +292,13 @@ const MatchFormDialog = ({
                       <Box display="flex" alignItems="center" gap={1.25} minWidth={0}>
                         <EventLogo
                           logoSlug={option.logoSlug}
-                          label={option.eventOrganization}
+                          label={option.eventName}
                           size={22}
                         />
                         <Box minWidth={0}>
-                          <Typography variant="body2" noWrap title={option.eventOrganization}>
-                            {option.eventOrganization}
+                          <Typography variant="body2" noWrap title={option.eventName}>
+                            {option.eventName}
                           </Typography>
-                          {option.eventName ? (
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                              noWrap
-                              display="block"
-                              title={option.eventName}
-                            >
-                              {option.eventName}
-                            </Typography>
-                          ) : null}
                         </Box>
                       </Box>
                     </MenuItem>
@@ -369,13 +312,6 @@ const MatchFormDialog = ({
                     : "Нет активных турниров. Создайте новый или укажите дату окончания."}
                 </HintText>
               ) : null}
-              {eventRequiresStage ? (
-                <EventStageSelect
-                  stages={selectedEventStages}
-                  value={form.majorStage}
-                  onChange={(stage) => update("majorStage", stage)}
-                />
-              ) : null}
             </FieldsStack>
           </Section>
 
@@ -384,8 +320,8 @@ const MatchFormDialog = ({
             <TeamsRow>
               <SuggestTextField
                 label="Команда 1"
-                value={form.organization1}
-                onChange={(v) => update("organization1", v)}
+                value={form.team1Id}
+                onChange={(v) => update("team1Id", v)}
                 options={suggestions.teams}
                 logo="team"
                 sx={compactFieldSx}
@@ -393,8 +329,8 @@ const MatchFormDialog = ({
               <VsBadge>VS</VsBadge>
               <SuggestTextField
                 label="Команда 2"
-                value={form.organization2}
-                onChange={(v) => update("organization2", v)}
+                value={form.team2Id}
+                onChange={(v) => update("team2Id", v)}
                 options={suggestions.teams}
                 logo="team"
                 sx={compactFieldSx}
@@ -468,7 +404,7 @@ const MatchFormDialog = ({
                     />
                     <ScoreFields className="map-scores">
                       <TextField
-                        label={form.organization1.trim().slice(0, 8) || "1"}
+                        label={form.team1Id.trim().slice(0, 8) || "1"}
                         type="number"
                         size="small"
                         value={map.score1 ?? ""}
@@ -481,7 +417,7 @@ const MatchFormDialog = ({
                       />
                       <ScoreColon>:</ScoreColon>
                       <TextField
-                        label={form.organization2.trim().slice(0, 8) || "2"}
+                        label={form.team2Id.trim().slice(0, 8) || "2"}
                         type="number"
                         size="small"
                         value={map.score2 ?? ""}

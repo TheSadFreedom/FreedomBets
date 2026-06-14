@@ -1,17 +1,24 @@
 import type { PickemStageName, PickemStageResult } from "./constants";
 
-export interface PickemStageData {
+export interface PickemStage {
   stage: PickemStageName;
   imageUrl: string | null;
-  result: PickemStageResult | null;
+  result?: PickemStageResult | null;
 }
 
-export interface PickemMajor {
+export interface Pickem {
   id: string;
   profileId: number;
-  eventOrganization: string;
   eventName: string;
-  stages: PickemStageData[];
+  stages: PickemStage[];
+  /** @deprecated legacy single image */
+  imageUrl?: string | null;
+  /** @deprecated legacy field */
+  eventOrganization?: string;
 }
 
-export type PickemMajorCreateInput = Pick<PickemMajor, "eventOrganization" | "eventName">;
+export type PickemMajor = Pickem;
+
+export type PickemCreateInput = Pick<Pickem, "eventName" | "stages">;
+
+export type PickemMajorCreateInput = PickemCreateInput;

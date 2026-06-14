@@ -3,7 +3,6 @@ import type { Profile } from "@/entities/profile";
 import {
   calcProfileBalance,
   calcWinRate,
-  resolveBalanceBase,
 } from "@/features/bets/lib/calculations";
 import { roundMoney } from "@/shared/lib/limits";
 
@@ -11,15 +10,10 @@ export function resolveBalanceTotals(profile: Profile): {
   totalDeposited: number;
   totalWithdrawn: number;
 } {
-  const balanceBase =
-    typeof profile.balanceBase === "number" && Number.isFinite(profile.balanceBase)
-      ? roundMoney(profile.balanceBase)
-      : 0;
-
   const totalDeposited =
     typeof profile.totalDeposited === "number" && Number.isFinite(profile.totalDeposited)
       ? roundMoney(profile.totalDeposited)
-      : roundMoney(Math.max(0, balanceBase));
+      : 0;
 
   const totalWithdrawn =
     typeof profile.totalWithdrawn === "number" && Number.isFinite(profile.totalWithdrawn)
@@ -35,12 +29,14 @@ export function betsForProfile(bets: Bet[], profileId: number): Bet[] {
 
 export function enrichProfileWithBets(profile: Profile, bets: Bet[]): Profile {
   const profileBets = betsForProfile(bets, profile.id);
-  const balanceBase = resolveBalanceBase(profile.balance, profile.balanceBase, profileBets);
+  const { totalDeposited, totalWithdrawn } = resolveBalanceTotals(profile);
+  const netDeposits = roundMoney(totalDeposited - totalWithdrawn);
 
   return {
     ...profile,
-    balanceBase,
-    balance: calcProfileBalance(balanceBase, profileBets),
+    totalDeposited,
+    totalWithdrawn,
+    balance: calcProfileBalance(netDeposits, profileBets),
     totalBets: profileBets.length,
     winRate: calcWinRate(profileBets),
   };
@@ -52,9 +48,12 @@ export function enrichProfilesWithBets(profiles: Profile[], allBets: Bet[]): Pro
 
 export function profileNeedsBalanceSync(profile: Profile, bets: Bet[]): boolean {
   const enriched = enrichProfileWithBets(profile, bets);
+  const { totalDeposited, totalWithdrawn } = resolveBalanceTotals(profile);
+
   return (
     profile.balance !== enriched.balance ||
-    profile.balanceBase !== enriched.balanceBase ||
+    profile.totalDeposited !== totalDeposited ||
+    profile.totalWithdrawn !== totalWithdrawn ||
     profile.totalBets !== enriched.totalBets ||
     profile.winRate !== enriched.winRate
   );

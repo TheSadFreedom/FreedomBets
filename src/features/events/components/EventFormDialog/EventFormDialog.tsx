@@ -1,22 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Dialog, IconButton, TextField } from "@mui/material";
+import { Box, Dialog, IconButton, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import type { Bet } from "@/entities/bet";
 import type { EventEditInput, EventStats } from "@/entities/event";
+import { EVENT_TIERS } from "@/entities/event";
 import {
-  getBetFormSuggestions,
   getEventNameSuggestions,
   getEventTeamSuggestions,
 } from "@/features/bets/lib/formSuggestions";
 import EventLogoPicker from "@/features/events/components/EventLogoPicker/EventLogoPicker";
-import EventStagesEditor from "@/features/events/components/EventStagesEditor/EventStagesEditor";
-import EventTierSelect from "@/features/events/components/EventTierSelect/EventTierSelect";
 import TeamLogoPicker from "@/features/events/components/TeamLogoPicker/TeamLogoPicker";
-import { defaultStagesForTier } from "@/features/events/lib/eventStages";
 import { inferEventTier } from "@/features/events/lib/eventTier";
+import { storedEventTitle } from "@/features/events/lib/eventTitle";
+import { MAX_EVENT_NAME_LENGTH } from "@/shared/lib/limits";
 import { useTeamLogosManifest } from "@/shared/hooks/useTeamLogosManifest";
 import { teamLogoSlug } from "@/shared/lib/logos/teamLogo";
 import DateInput, { type DateInputHandle } from "@/shared/ui/DateInput/DateInput";
@@ -46,14 +45,13 @@ import {
 } from "./EventFormDialog.styled";
 
 const eventToFormInput = (event: EventStats): EventEditInput => ({
-  eventOrganization: event.eventOrganization,
-  eventName: event.eventName,
+  name: storedEventTitle(event),
+  eventName: storedEventTitle(event),
   logoSlug: event.logoSlug,
   date: event.date,
   endDate: event.endDate ?? "",
-  eventTier: event.eventTier,
-  majorStage: event.majorStage,
-  stages: event.stages ?? [],
+  size: event.size,
+  winnerTeamId: event.winnerTeamId,
   winnerOrganization: event.winnerOrganization,
   winnerLogoSlug: event.winnerLogoSlug,
   prizePool: event.prizePool,
@@ -68,18 +66,27 @@ const resolveWinnerLogoSlug = (
 };
 
 function hasExtrasData(form: EventEditInput): boolean {
-  return Boolean(
-    form.winnerOrganization?.trim() || form.stages.length > 0
-  );
+  return Boolean(form.winnerOrganization?.trim());
 }
+
+const emptyForm = (): EventEditInput => ({
+  name: "",
+  eventName: "",
+  logoSlug: null,
+  date: "",
+  endDate: "",
+  size: "Small",
+  winnerTeamId: null,
+  winnerOrganization: null,
+  winnerLogoSlug: null,
+  prizePool: null,
+});
 
 interface EventFormDialogProps {
   open: boolean;
   bets: Bet[];
   title?: string;
   initial?: EventStats;
-  /** Показывать и сохранять даты турнира (не стадии major) */
-  editEventDates?: boolean;
   onClose: () => void;
   onSubmit: (values: EventEditInput) => Promise<void>;
 }
@@ -89,26 +96,11 @@ const EventFormDialog = ({
   bets,
   title,
   initial,
-  editEventDates = true,
   onClose,
   onSubmit,
 }: EventFormDialogProps) => {
   const [form, setForm] = useState<EventEditInput>(() =>
-    initial
-      ? eventToFormInput(initial)
-      : {
-          eventOrganization: "",
-          eventName: "",
-          logoSlug: null,
-          date: "",
-          endDate: "",
-          eventTier: "Small",
-          majorStage: null,
-          stages: [],
-          winnerOrganization: null,
-          winnerLogoSlug: null,
-          prizePool: null,
-        }
+    initial ? eventToFormInput(initial) : emptyForm()
   );
   const [saving, setSaving] = useState(false);
   const [extrasOpen, setExtrasOpen] = useState(() =>
@@ -119,11 +111,7 @@ const EventFormDialog = ({
   const endDateRef = useRef<DateInputHandle>(null);
   const formInitialized = useRef(false);
 
-  const suggestions = useMemo(() => getBetFormSuggestions(bets), [bets]);
-  const eventNameOptions = useMemo(
-    () => getEventNameSuggestions(bets, form.eventOrganization),
-    [bets, form.eventOrganization]
-  );
+  const eventNameOptions = useMemo(() => getEventNameSuggestions(bets, ""), [bets]);
 
   useEffect(() => {
     if (!open) {
@@ -133,73 +121,45 @@ const EventFormDialog = ({
     if (formInitialized.current) return;
     formInitialized.current = true;
 
-    const next = initial
-      ? eventToFormInput(initial)
-      : {
-          eventOrganization: "",
-          eventName: "",
-          logoSlug: null,
-          date: "",
-          endDate: "",
-          eventTier: "Small" as const,
-          majorStage: null,
-          stages: [],
-          winnerOrganization: null,
-          winnerLogoSlug: null,
-          prizePool: null,
-        };
-
+    const next = initial ? eventToFormInput(initial) : emptyForm();
     setForm(next);
     setExtrasOpen(hasExtrasData(next));
   }, [open, initial]);
 
+  const eventName = form.eventName ?? form.name;
+
   const teamOptions = useMemo(
-    () => getEventTeamSuggestions(bets, form.eventOrganization, form.eventName),
-    [bets, form.eventOrganization, form.eventName]
+    () => getEventTeamSuggestions(bets, "", eventName),
+    [bets, eventName]
   );
 
   const update = <K extends keyof EventEditInput>(key: K, value: EventEditInput[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const canSubmit =
-    form.eventOrganization.trim() && form.eventName.trim() && Boolean(form.logoSlug?.trim());
+  const canSubmit = eventName.trim() && Boolean(form.logoSlug?.trim());
 
-  const extrasHint = useMemo(() => {
-    const parts: string[] = [];
-    if (form.winnerOrganization?.trim()) parts.push("победитель");
-    if (form.stages.length > 0) parts.push(`${form.stages.length} стад.`);
-    return parts.length > 0 ? parts.join(", ") : "необязательно";
-  }, [form.winnerOrganization, form.stages.length]);
+  const extrasHint = form.winnerOrganization?.trim() ? "победитель" : "необязательно";
 
   const handleSubmit = async () => {
     if (!canSubmit || saving) return;
-    const date = editEventDates
-      ? (dateRef.current?.commit() ?? form.date)
-      : (initial?.date ?? form.date);
-    const endDate = editEventDates
-      ? (endDateRef.current?.commit() ?? form.endDate)
-      : (initial?.endDate ?? form.endDate);
+    const date = dateRef.current?.commit() ?? form.date;
+    const endDate = endDateRef.current?.commit() ?? form.endDate;
     setSaving(true);
     try {
       await onSubmit({
-        eventOrganization: form.eventOrganization.trim(),
-        eventName: form.eventName.trim(),
+        name: eventName.trim(),
+        eventName: eventName.trim(),
         logoSlug: form.logoSlug?.trim() ?? null,
         date,
         endDate,
-        eventTier: form.eventTier,
-        majorStage: null,
-        stages: form.stages,
-        winnerOrganization: editEventDates
-          ? form.winnerOrganization?.trim() || null
-          : (initial?.winnerOrganization ?? null),
-        winnerLogoSlug: editEventDates
-          ? form.winnerOrganization?.trim()
-            ? form.winnerLogoSlug?.trim() || null
-            : null
-          : (initial?.winnerLogoSlug ?? null),
-        prizePool: editEventDates ? form.prizePool : (initial?.prizePool ?? null),
+        size: form.size ?? form.eventTier ?? initial?.size ?? inferEventTier("", eventName.trim()),
+        winnerTeamId: form.winnerOrganization?.trim() || null,
+        winnerOrganization: form.winnerOrganization?.trim() || null,
+        winnerLogoSlug: form.winnerOrganization?.trim()
+          ? form.winnerLogoSlug?.trim() || null
+          : null,
+        prizePool: form.prizePool,
       });
       onClose();
     } finally {
@@ -243,45 +203,37 @@ const EventFormDialog = ({
             <SectionTitle>Турнир</SectionTitle>
             <FieldsStack>
               <SuggestTextField
-                label="Организация"
-                value={form.eventOrganization}
-                onChange={(v) => update("eventOrganization", v)}
-                options={suggestions.eventOrganizations}
-                sx={compactFieldSx}
-              />
-              <SuggestTextField
                 label="Название"
-                value={form.eventName}
+                value={eventName}
                 onChange={(v) => {
-                  setForm((prev) => ({
-                    ...prev,
-                    eventName: v,
-                    ...(initial
-                      ? {}
-                      : { eventTier: inferEventTier(prev.eventOrganization, v), majorStage: null }),
-                  }));
+                  update("eventName", v);
+                  update("name", v);
                 }}
                 options={eventNameOptions}
+                maxLength={MAX_EVENT_NAME_LENGTH}
                 sx={compactFieldSx}
               />
-              <EventTierSelect
-                value={form.eventTier}
-                hideLabel
-                onChange={(tier) => {
-                  setForm((prev) => ({
-                    ...prev,
-                    eventTier: tier,
-                    majorStage: null,
-                    stages:
-                      prev.stages.length > 0
-                        ? prev.stages
-                        : tier === "Major"
-                          ? defaultStagesForTier("Major")
-                          : [],
-                  }));
-                }}
-              />
             </FieldsStack>
+          </Section>
+
+          <Section>
+            <SectionTitle>Размер</SectionTitle>
+            <ToggleButtonGroup
+              value={form.size ?? form.eventTier ?? "Small"}
+              exclusive
+              fullWidth
+              size="small"
+              onChange={(_, value) => {
+                if (value) update("size", value);
+              }}
+            >
+              {EVENT_TIERS.map((tier) => (
+                <ToggleButton key={tier} value={tier} sx={{ flex: 1, textTransform: "none" }}>
+                  {tier}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+            <HintText>Major — крупнейшие турниры, Big — значимые, Small — остальные</HintText>
           </Section>
 
           <Section>
@@ -296,108 +248,97 @@ const EventFormDialog = ({
             ) : null}
           </Section>
 
-          {editEventDates ? (
-            <Section>
-              <SectionTitle>Призовой фонд</SectionTitle>
-              <TextField
-                label="Сумма ($)"
-                value={form.prizePool ?? ""}
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/\s/g, "");
-                  if (!raw) {
-                    update("prizePool", null);
-                    return;
-                  }
-                  const digits = raw.replace(/[^\d]/g, "");
-                  update("prizePool", digits ? Number(digits) : null);
-                }}
-                placeholder="Необязательно"
+          <Section>
+            <SectionTitle>Призовой фонд</SectionTitle>
+            <TextField
+              label="Сумма ($)"
+              value={form.prizePool ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/\s/g, "");
+                if (!raw) {
+                  update("prizePool", null);
+                  return;
+                }
+                const digits = raw.replace(/[^\d]/g, "");
+                update("prizePool", digits ? Number(digits) : null);
+              }}
+              placeholder="Необязательно"
+              fullWidth
+              size="small"
+              sx={compactFieldSx}
+              slotProps={{
+                htmlInput: { inputMode: "numeric", pattern: "[0-9]*" },
+              }}
+            />
+            <HintText>Указывается в долларах США</HintText>
+          </Section>
+
+          <Section>
+            <SectionTitle>Даты</SectionTitle>
+            <FieldsGrid $cols={2}>
+              <DateInput
+                ref={dateRef}
+                label="Начало"
+                value={form.date}
+                onChange={(iso) => update("date", iso)}
                 fullWidth
                 size="small"
                 sx={compactFieldSx}
-                slotProps={{
-                  htmlInput: { inputMode: "numeric", pattern: "[0-9]*" },
-                }}
               />
-              <HintText>Указывается в долларах США</HintText>
-            </Section>
-          ) : null}
+              <DateInput
+                ref={endDateRef}
+                label="Окончание"
+                value={form.endDate}
+                onChange={(iso) => update("endDate", iso)}
+                allowEmpty
+                fullWidth
+                size="small"
+                sx={compactFieldSx}
+              />
+            </FieldsGrid>
+            <HintText>Дата окончания необязательна</HintText>
+          </Section>
 
-          {editEventDates ? (
-            <Section>
-              <SectionTitle>Даты</SectionTitle>
-              <FieldsGrid $cols={2}>
-                <DateInput
-                  ref={dateRef}
-                  label="Начало"
-                  value={form.date}
-                  onChange={(iso) => update("date", iso)}
-                  fullWidth
-                  size="small"
+          <Section>
+            <MapsToggle type="button" onClick={() => setExtrasOpen((open) => !open)}>
+              <MapsToggleLabel>Дополнительно</MapsToggleLabel>
+              <Box display="flex" alignItems="center" gap={0.5}>
+                <MapsToggleHint>{extrasHint}</MapsToggleHint>
+                {extrasOpen ? (
+                  <ExpandLessIcon sx={{ fontSize: 18, color: "rgba(255,255,255,0.45)" }} />
+                ) : (
+                  <ExpandMoreIcon sx={{ fontSize: 18, color: "rgba(255,255,255,0.45)" }} />
+                )}
+              </Box>
+            </MapsToggle>
+            {extrasOpen ? (
+              <ExtrasContent>
+                <SuggestTextField
+                  label="Победитель"
+                  value={form.winnerOrganization ?? ""}
+                  onChange={(value) => {
+                    const trimmed = value.trim();
+                    setForm((prev) => ({
+                      ...prev,
+                      winnerOrganization: trimmed || null,
+                      winnerLogoSlug: trimmed ? resolveWinnerLogoSlug(trimmed, teamLogos) : null,
+                    }));
+                  }}
+                  options={teamOptions}
+                  logo="team"
+                  placeholder="Необязательно"
                   sx={compactFieldSx}
                 />
-                <DateInput
-                  ref={endDateRef}
-                  label="Окончание"
-                  value={form.endDate}
-                  onChange={(iso) => update("endDate", iso)}
-                  allowEmpty
-                  fullWidth
-                  size="small"
-                  sx={compactFieldSx}
-                />
-              </FieldsGrid>
-              <HintText>Дата окончания необязательна</HintText>
-            </Section>
-          ) : null}
-
-          {editEventDates ? (
-            <Section>
-              <MapsToggle type="button" onClick={() => setExtrasOpen((open) => !open)}>
-                <MapsToggleLabel>Дополнительно</MapsToggleLabel>
-                <Box display="flex" alignItems="center" gap={0.5}>
-                  <MapsToggleHint>{extrasHint}</MapsToggleHint>
-                  {extrasOpen ? (
-                    <ExpandLessIcon sx={{ fontSize: 18, color: "rgba(255,255,255,0.45)" }} />
-                  ) : (
-                    <ExpandMoreIcon sx={{ fontSize: 18, color: "rgba(255,255,255,0.45)" }} />
-                  )}
-                </Box>
-              </MapsToggle>
-              {extrasOpen ? (
-                <ExtrasContent>
-                  <SuggestTextField
-                    label="Победитель"
-                    value={form.winnerOrganization ?? ""}
-                    onChange={(value) => {
-                      const trimmed = value.trim();
-                      setForm((prev) => ({
-                        ...prev,
-                        winnerOrganization: trimmed || null,
-                        winnerLogoSlug: trimmed ? resolveWinnerLogoSlug(trimmed, teamLogos) : null,
-                      }));
-                    }}
-                    options={teamOptions}
-                    logo="team"
-                    placeholder="Необязательно"
-                    sx={compactFieldSx}
+                {form.winnerOrganization ? (
+                  <TeamLogoPicker
+                    teamName={form.winnerOrganization ?? ""}
+                    value={form.winnerLogoSlug ?? null}
+                    onChange={(slug) => update("winnerLogoSlug", slug)}
                   />
-                  {form.winnerOrganization ? (
-                    <TeamLogoPicker
-                      teamName={form.winnerOrganization}
-                      value={form.winnerLogoSlug}
-                      onChange={(slug) => update("winnerLogoSlug", slug)}
-                    />
-                  ) : null}
-                  <EventStagesEditor
-                    stages={form.stages}
-                    eventTier={form.eventTier}
-                    onChange={(stages) => update("stages", stages)}
-                  />
-                </ExtrasContent>
-              ) : null}
-            </Section>
-          ) : null}
+                ) : null}
+              </ExtrasContent>
+            ) : null}
+          </Section>
         </DialogBody>
 
         <DialogFooter>

@@ -1,20 +1,25 @@
-import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { migrateTeamFieldsInDb } from "../server/teams/teamsStore.mjs";
+import { createDatabase } from "../server/db/sqliteStore.mjs";
+import { dedupeTeamsInDb } from "../server/teams/dedupeTeamsInDb.mjs";
 import { reloadTeamSynonyms } from "../server/sportsru/teamNames.mjs";
+import { migrateTeamFieldsInDb } from "../server/teams/teamsStore.mjs";
+import { seedDefaultTeamsInDb } from "../server/teams/seedTeamsInDb.mjs";
 
-const dbPath = resolve(process.argv[2] ?? "db.json");
-const db = { data: JSON.parse(readFileSync(dbPath, "utf-8")) };
-
-reloadTeamSynonyms();
+const dbPath = resolve(process.argv[2] ?? "freedom.db");
+const db = createDatabase(dbPath);
+await db.read();
 
 if (!Array.isArray(db.data.teams)) {
   db.data.teams = [];
 }
 
-const result = migrateTeamFieldsInDb(db);
+seedDefaultTeamsInDb(db);
+reloadTeamSynonyms(db.data.teams);
+dedupeTeamsInDb(db);
 
-writeFileSync(dbPath, `${JSON.stringify(db.data, null, 2)}\n`, "utf-8");
+const result = migrateTeamFieldsInDb(db);
+await db.write();
+db.close();
 
 console.log(`Updated ${dbPath}`);
 console.log(`Teams: ${result.teamsCount}`);

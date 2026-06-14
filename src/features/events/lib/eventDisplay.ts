@@ -3,130 +3,94 @@ import type { EventTier } from "@/entities/event";
 import type { EventRecord } from "@/entities/eventRecord";
 import { isEventFinished } from "@/features/events/lib/eventStatus";
 import { resolveEventTierForEvent } from "@/features/events/lib/eventTier";
-import { formatMajorStageLabel } from "@/features/events/lib/majorStage";
 import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
+import { mergeEventTitle } from "@/features/events/lib/eventTitle";
 
-export function parseLegacyEvent(event: string): Pick<Bet, "eventOrganization" | "eventName"> {
+export function parseLegacyEvent(event: string): Pick<Bet, "eventId" | "eventName"> {
   const trimmed = event.trim();
-  if (!trimmed) return { eventOrganization: "", eventName: "" };
-  const space = trimmed.indexOf(" ");
-  if (space === -1) return { eventOrganization: trimmed, eventName: "" };
-  return {
-    eventOrganization: trimmed.slice(0, space),
-    eventName: trimmed.slice(space + 1).trim(),
-  };
+  return { eventId: "", eventName: trimmed };
 }
 
 export function formatEventLabel(
-  eventOrganization: string,
+  _eventOrganization: string,
   eventName: string,
-  options?: { eventTier?: EventTier; majorStage?: string | null }
+  _options?: { eventTier?: EventTier }
 ): string {
-  const org = eventOrganization.trim();
-  const name = eventName.trim();
-  const base = name ? `${org} — ${name}` : org;
-  if (options?.majorStage) {
-    return `${base} · ${formatMajorStageLabel(options.majorStage)}`;
-  }
-  return base;
+  return mergeEventTitle("", eventName);
 }
 
-export function eventStatsKey(
-  eventOrganization: string,
-  eventName: string,
-  majorStage?: string | null
-): string {
-  const base = `${eventOrganization.trim()}\0${eventName.trim()}`;
-  return majorStage ? `${base}\0${majorStage}` : base;
+export function eventStatsKey(eventId: string, eventName: string): string {
+  return `${eventId.trim()}\0${eventName.trim()}`;
 }
 
-export function eventKeyFromBet(
-  bet: Pick<Bet, "eventOrganization" | "eventName" | "majorStage">
-): string {
-  return eventStatsKey(bet.eventOrganization, bet.eventName, bet.majorStage);
+export function eventKeyFromBet(bet: Pick<Bet, "eventId" | "eventName">): string {
+  return eventStatsKey(bet.eventId, bet.eventName);
 }
 
 export interface EventSelectOption {
   key: string;
-  eventOrganization: string;
+  eventId: string;
   eventName: string;
+  /** @deprecated legacy UI label */
+  eventOrganization?: string;
   logoSlug: string | null;
   eventTier: EventTier;
-  majorStage: string | null;
   label: string;
 }
 
 export function resolveEventLogoSlug(
-  eventOrganization: string,
+  eventId: string,
   eventName: string,
   storedEvents: EventRecord[] = []
 ): string | null {
-  return findStoredEvent({ eventOrganization, eventName }, storedEvents)?.logoSlug ?? null;
+  return findStoredEvent({ id: eventId, name: eventName }, storedEvents)?.logoSlug ?? null;
 }
 
 export interface GetEventSelectOptionsParams {
   excludeFinished?: boolean;
-  /** Одна строка на турнир со стадиями; стадия выбирается отдельно */
-  collapseMajorStages?: boolean;
 }
 
 type EventSelectSource = {
-  eventOrganization: string;
+  eventId: string;
   eventName: string;
-  majorStage?: string | null;
   eventTier?: EventTier;
 };
 
-function resolveSourceTier(
-  item: EventSelectSource,
-  storedEvents: EventRecord[]
-): EventTier {
+function resolveSourceTier(item: EventSelectSource, storedEvents: EventRecord[]): EventTier {
   if (item.eventTier) return item.eventTier;
-  return resolveEventTierForEvent(storedEvents, item.eventOrganization, item.eventName);
+  return resolveEventTierForEvent(storedEvents, item.eventId, item.eventName);
 }
 
 export function eventSelectKey(
-  item: Pick<Bet, "eventOrganization" | "eventName" | "majorStage"> & { eventTier?: EventTier },
-  _storedEvents: EventRecord[],
-  collapseMajorStages = false
+  item: Pick<Bet, "eventId" | "eventName"> & { eventTier?: EventTier }
 ): string {
-  if (collapseMajorStages) {
-    return eventStatsKey(item.eventOrganization, item.eventName, null);
-  }
-  return eventKeyFromBet(item);
+  return eventStatsKey(item.eventId, item.eventName);
 }
 
 export function getEventSelectOptions(
   bets: Bet[],
   storedEvents: EventRecord[] = [],
-  extra?: Pick<Bet, "eventOrganization" | "eventName" | "majorStage"> | null,
+  extra?: Pick<Bet, "eventId" | "eventName"> | null,
   params?: GetEventSelectOptionsParams
 ): EventSelectOption[] {
   const excludeFinished = params?.excludeFinished ?? false;
-  const collapseMajorStages = params?.collapseMajorStages ?? false;
   const map = new Map<
     string,
     {
-      eventOrganization: string;
+      eventId: string;
       eventName: string;
       eventTier: EventTier;
-      majorStage: string | null;
     }
   >();
 
   const add = (item: EventSelectSource) => {
     const eventTier = resolveSourceTier(item, storedEvents);
-    const key = eventSelectKey(
-      { ...item, majorStage: item.majorStage ?? null },
-      storedEvents,
-      collapseMajorStages
-    );
+    const key = eventSelectKey(item);
     if (!map.has(key)) {
       map.set(key, {
-        eventOrganization: item.eventOrganization,
+        eventId: item.eventId,
         eventName: item.eventName,
         eventTier,
-        majorStage: !collapseMajorStages ? item.majorStage ?? null : null,
       });
     }
   };
@@ -135,18 +99,16 @@ export function getEventSelectOptions(
 
   for (const event of storedEvents) {
     add({
-      eventOrganization: event.eventOrganization,
-      eventName: event.eventName,
-      eventTier: event.eventTier,
-      majorStage: null,
+      eventId: event.id,
+      eventName: event.name,
+      eventTier: event.size ?? event.eventTier,
     });
   }
 
-  if (extra && (extra.eventOrganization.trim() || extra.eventName.trim())) {
+  if (extra && (extra.eventId.trim() || extra.eventName.trim())) {
     add({
-      eventOrganization: extra.eventOrganization,
+      eventId: extra.eventId,
       eventName: extra.eventName,
-      majorStage: extra.majorStage ?? null,
     });
   }
 
@@ -156,25 +118,20 @@ export function getEventSelectOptions(
       const isExtra =
         extra &&
         key ===
-          eventSelectKey(
-            {
-              eventOrganization: extra.eventOrganization,
-              eventName: extra.eventName,
-              majorStage: extra.majorStage ?? null,
-            },
-            storedEvents,
-            collapseMajorStages
-          );
+          eventSelectKey({
+            eventId: extra.eventId,
+            eventName: extra.eventName,
+          });
       if (isExtra) return true;
-      return !isEventFinished(item.eventOrganization, item.eventName, storedEvents);
+      return !isEventFinished(item.eventId, item.eventName, storedEvents);
     })
     .map(([key, item]) => ({
       key,
       ...item,
-      logoSlug: resolveEventLogoSlug(item.eventOrganization, item.eventName, storedEvents),
-      label: formatEventLabel(item.eventOrganization, item.eventName, {
+      eventOrganization: item.eventName,
+      logoSlug: resolveEventLogoSlug(item.eventId, item.eventName, storedEvents),
+      label: formatEventLabel("", item.eventName, {
         eventTier: item.eventTier,
-        majorStage: collapseMajorStages ? null : item.majorStage,
       }),
     }))
     .sort((a, b) => a.label.localeCompare(b.label, "ru"));

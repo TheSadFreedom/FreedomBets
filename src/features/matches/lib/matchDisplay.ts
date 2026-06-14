@@ -8,7 +8,7 @@ import { formatIsoDateTimeDots } from "@/shared/lib/date/isoDate";
 
 export type MatchBetFields = Pick<
   Bet,
-  "date" | "format" | "eventOrganization" | "eventName" | "organization1" | "organization2"
+  "date" | "format" | "eventId" | "eventName" | "team1Id" | "team2Id"
 >;
 
 export interface MatchSelectOption {
@@ -18,15 +18,16 @@ export interface MatchSelectOption {
   secondary: string;
 }
 
-export function formatMatchTeamsLabel(match: Pick<Match, "organization1" | "organization2">): string {
-  return `${match.organization1.trim()} vs ${match.organization2.trim()}`;
+export function formatMatchTeamsLabel(
+  match: Pick<Match, "team1Id" | "team2Id"> & { organization1?: string; organization2?: string }
+): string {
+  const left = match.organization1?.trim() || match.team1Id.trim();
+  const right = match.organization2?.trim() || match.team2Id.trim();
+  return `${left} vs ${right}`;
 }
 
 export function formatMatchSecondaryLabel(match: Match): string {
-  const event = formatEventLabel(match.eventOrganization, match.eventName, {
-    eventTier: match.majorStage ? "Major" : undefined,
-    majorStage: match.majorStage,
-  });
+  const event = formatEventLabel("", (match as Match & { eventName?: string }).eventName ?? "");
   const parts = [formatIsoDateTimeDots(match.date, match.time), match.format];
   if (event.trim()) parts.push(event);
   return parts.join(" · ");
@@ -39,18 +40,18 @@ export function findMatchForBetFields(
   if (
     !fields.date?.trim() ||
     !fields.format ||
-    !fields.organization1?.trim() ||
-    !fields.organization2?.trim()
+    !fields.team1Id?.trim() ||
+    !fields.team2Id?.trim()
   ) {
     return undefined;
   }
   const probe = {
     date: fields.date,
     format: fields.format,
-    eventOrganization: fields.eventOrganization ?? "",
+    eventId: fields.eventId ?? "",
     eventName: fields.eventName ?? "",
-    organization1: fields.organization1,
-    organization2: fields.organization2,
+    team1Id: fields.team1Id ?? "",
+    team2Id: fields.team2Id ?? "",
   } as MatchBetFields;
   return matches.find((match) => isBetForMatch(probe as Bet, match));
 }

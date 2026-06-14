@@ -58,16 +58,23 @@ export async function fetchLatestValveBaseline() {
     throw new Error("Failed to parse Valve standings");
   }
 
-  const teams = parsed.map((row) => {
+  const seen = new Set();
+  const teams = [];
+
+  for (const row of parsed) {
     const teamName = resolveCanonicalTeamName(row.teamName);
-    return {
+    const team = {
       teamKey: getTeamMatchKey(teamName),
       teamName,
       globalRank: row.globalRank,
       points: row.points,
       roster: row.roster,
     };
-  });
+    const dedupeKey = `${team.globalRank}|${team.teamKey}|${team.teamName}`;
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    teams.push(team);
+  }
 
   return {
     snapshotDate,

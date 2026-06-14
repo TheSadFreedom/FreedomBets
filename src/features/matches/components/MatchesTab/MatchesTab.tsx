@@ -100,8 +100,6 @@ const MatchesTab = ({
     return map;
   }, [filteredMatches, allBets, matches]);
 
-  const hasActiveSearch = Boolean(search.trim());
-  const hasActiveFilters = hasActiveSearch || statusFilter !== "all";
   const hasMatches = matches.length > 0;
   const hasFilteredMatches =
     liveMatches.length > 0 || scheduledMatches.length > 0 || finishedMatches.length > 0;
@@ -138,11 +136,6 @@ const MatchesTab = ({
           onSearchChange={setSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={setStatusFilter}
-          hasActiveFilters={hasActiveFilters}
-          onResetFilters={() => {
-            setSearch("");
-            setStatusFilter("all");
-          }}
           onSyncSportsRu={onSyncSportsRu}
         />
 

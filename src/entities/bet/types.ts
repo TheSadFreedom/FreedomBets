@@ -2,39 +2,38 @@ import type { BetMarket, BetStatus, MatchFormat } from "./constants";
 
 export type BetTeamSide = 1 | 2;
 
-export interface Bet {
+/** Запись в БД */
+export interface StoredBet {
   id: string;
-  /** Явная связь с матчем (надёжнее сопоставления по дате и командам) */
-  matchId?: string | null;
   profileId: number;
   date: string;
   time: string;
-  format: MatchFormat;
-  team1Id?: string | null;
-  team2Id?: string | null;
-  organization1: string;
-  organization2: string;
-  betMarket: BetMarket;
-  betTeam: BetTeamSide;
-  /** Id команды, на которую ставка (teamKey) */
-  betTeamId?: string | null;
-  /** Номер карты (1…N по формату); null для ставки на матч */
-  mapNumber: number | null;
-  /** Номер пистолетного раунда на карте (1 или 2); null вне рынка «пистолет» */
-  pistolRound: 1 | 2 | null;
-  /** Да/нет для рынка «возьмёт хотя бы одну карту»; null вне этого рынка */
-  yesNo: boolean | null;
-  /** Карты команды 1 в ставке на точный счёт BO3; null вне этого рынка */
-  exactScore1: number | null;
-  /** Карты команды 2 в ставке на точный счёт BO3; null вне этого рынка */
-  exactScore2: number | null;
-  /** Человекочитаемое описание (дублирует структуру для API и истории) */
-  betType: string;
+  matchId: string;
+  status: BetStatus;
   amount: number;
   odds: number;
-  eventOrganization: string;
+  betType: string;
+}
+
+/** Обогащённая ставка для UI и расчёта (не хранится целиком в БД) */
+export interface Bet extends StoredBet {
+  format: MatchFormat;
+  team1Id: string;
+  team2Id: string;
+  organization1: string;
+  organization2: string;
+  eventId: string;
   eventName: string;
-  /** Стадия турнира; null если турнир без стадий */
-  majorStage: string | null;
-  status: BetStatus;
+  betMarket: BetMarket;
+  betTeam: BetTeamSide;
+  betTeamId: string | null;
+  mapNumber: number | null;
+  pistolRound: number | null;
+  yesNo: boolean | null;
+  exactScore1: number | null;
+  exactScore2: number | null;
+  /** @deprecated legacy UI field */
+  eventOrganization?: string;
+  /** @deprecated legacy UI field */
+  majorStage?: string | null;
 }

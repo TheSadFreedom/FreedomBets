@@ -1,3 +1,5 @@
+import { mergeEventTitle, normalizeStoredEvent } from "./eventTitle.mjs";
+
 function normalizeText(value) {
   return String(value ?? "")
     .toLowerCase()
@@ -58,19 +60,22 @@ function sportsRuLabels(match) {
   ].filter((label) => label.trim());
 }
 
+function storedEventTitle(event) {
+  return mergeEventTitle(event?.eventOrganization, event?.eventName);
+}
+
 export function dedupeEvents(events) {
   const seen = new Set();
   const result = [];
 
   for (const event of events ?? []) {
-    const org = String(event?.eventOrganization ?? "").trim();
-    const name = String(event?.eventName ?? "").trim();
-    if (!org && !name) continue;
+    const normalized = normalizeStoredEvent(event);
+    if (!normalized) continue;
 
-    const key = `${org.toLowerCase()}\0${name.toLowerCase()}`;
+    const key = normalized.eventName.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
-    result.push({ eventOrganization: org, eventName: name });
+    result.push(normalized);
   }
 
   return result;
@@ -80,8 +85,7 @@ export function findMatchingEvent(match, events) {
   const labels = sportsRuLabels(match);
   if (labels.length === 0) return null;
 
-  const eventTokens = (event) =>
-    tokenize(`${event.eventOrganization} ${event.eventName}`.trim());
+  const eventTokens = (event) => tokenize(storedEventTitle(event));
 
   for (const event of events) {
     const expectedTokens = eventTokens(event);
@@ -90,6 +94,7 @@ export function findMatchingEvent(match, events) {
     const matched = labels.some((label) => {
       const sources = orgSourcesForMatch(match, label);
       if (
+        event.eventOrganization &&
         sources.length > 0 &&
         !sources.some((source) => orgMatches(event.eventOrganization, source))
       ) {
@@ -112,9 +117,10 @@ export function findMatchingEvent(match, events) {
 
 export function applyMatchedEvent(match, event) {
   if (!event) return match;
+  const eventName = storedEventTitle(event);
   return {
     ...match,
-    eventOrganization: event.eventOrganization,
-    eventName: event.eventName,
+    eventOrganization: "",
+    eventName,
   };
 }

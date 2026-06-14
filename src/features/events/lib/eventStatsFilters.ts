@@ -1,23 +1,22 @@
 import type { EventStats, EventTier } from "@/entities/event";
+
 import { formatEventLabel } from "@/features/events/lib/eventDisplay";
-import type { MajorEventGroup } from "@/features/events/lib/majorEventStats";
+
+import { matchesSearchQuery } from "@/shared/lib/search/textSearch";
+
 import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
 
 export type EventLifecycleFilter = "all" | "active" | "finished";
 
 export interface EventStatsFilterState {
   search: string;
-  filterOrganization: string;
   filterTier: EventTier | "";
-  filterMajorStage: string;
   filterLifecycle: EventLifecycleFilter;
 }
 
 export const DEFAULT_EVENT_STATS_FILTERS: EventStatsFilterState = {
   search: "",
-  filterOrganization: "",
   filterTier: "",
-  filterMajorStage: "",
   filterLifecycle: "all",
 };
 
@@ -31,29 +30,22 @@ export function isEventStatsFinished(
 }
 
 export function matchesEventStatsSearch(
-  item: Pick<EventStats, "eventOrganization" | "eventName" | "eventTier" | "majorStage">,
+  item: Pick<EventStats, "name" | "size">,
   query: string
 ): boolean {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
+  const label = formatEventLabel("", item.name, {
+    eventTier: item.size,
+  });
 
-  const org = item.eventOrganization.toLowerCase();
-  const name = item.eventName.toLowerCase();
-  const label = formatEventLabel(item.eventOrganization, item.eventName, {
-    eventTier: item.eventTier,
-    majorStage: item.majorStage,
-  }).toLowerCase();
-
-  return org.includes(q) || name.includes(q) || label.includes(q);
+  return matchesSearchQuery(
+    [item.name, label, item.size],
+    query
+  );
 }
 
 export function hasActiveEventStatsFilters(filters: EventStatsFilterState): boolean {
   return Boolean(
-    filters.search.trim() ||
-      filters.filterOrganization ||
-      filters.filterTier ||
-      filters.filterMajorStage ||
-      filters.filterLifecycle !== "all"
+    filters.search.trim() || filters.filterTier || filters.filterLifecycle !== "all"
   );
 }
 
@@ -63,41 +55,11 @@ export function filterEventStatsList(
   today = todayIsoDateLocal()
 ): EventStats[] {
   return items
-    .filter(
-      (item) => !filters.filterOrganization || item.eventOrganization === filters.filterOrganization
-    )
-    .filter((item) => !filters.filterTier || item.eventTier === filters.filterTier)
-    .filter((item) => !filters.filterMajorStage || item.majorStage === filters.filterMajorStage)
+    .filter((item) => !filters.filterTier || item.size === filters.filterTier)
     .filter((item) => {
       if (filters.filterLifecycle === "all") return true;
       const finished = isEventStatsFinished(item, today);
       return filters.filterLifecycle === "finished" ? finished : !finished;
     })
     .filter((item) => matchesEventStatsSearch(item, filters.search));
-}
-
-export function filterMajorEventGroups(
-  items: MajorEventGroup[],
-  filters: Omit<EventStatsFilterState, "filterTier">,
-  today = todayIsoDateLocal()
-): MajorEventGroup[] {
-  return items
-    .filter(
-      (item) => !filters.filterOrganization || item.eventOrganization === filters.filterOrganization
-    )
-    .filter((item) => {
-      if (!filters.filterMajorStage) return true;
-      return item.stages.some((stage) => stage.majorStage === filters.filterMajorStage);
-    })
-    .filter((item) => {
-      if (filters.filterLifecycle === "all") return true;
-      const finished = isEventStatsFinished(item, today);
-      return filters.filterLifecycle === "finished" ? finished : !finished;
-    })
-    .filter((item) =>
-      matchesEventStatsSearch(
-        { ...item, majorStage: null },
-        filters.search
-      )
-    );
 }

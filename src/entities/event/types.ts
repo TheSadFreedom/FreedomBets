@@ -1,39 +1,34 @@
 import type { Bet } from "@/entities/bet";
 import type { EventTier } from "./constants";
+
 export interface EventIdentity {
-  eventOrganization: string;
-  eventName: string;
-  majorStage?: string | null;
-  /** Все стадии турнира (без фильтра по стадии) */
-  allMajorStages?: boolean;
+  id: string;
 }
 
 export interface EventEditInput {
-  eventOrganization: string;
-  eventName: string;
+  name: string;
   logoSlug: string | null;
   date: string;
   endDate: string;
-  eventTier: EventTier;
-  majorStage: string | null;
-  stages: string[];
-  winnerOrganization: string | null;
-  winnerLogoSlug: string | null;
-  /** Призовой фонд турнира, USD */
+  size: EventTier;
+  winnerTeamId: string | null;
   prizePool: number | null;
+  /** @deprecated legacy aliases */
+  eventName?: string;
+  /** @deprecated use size */
+  eventTier?: EventTier;
+  winnerOrganization?: string | null;
+  winnerLogoSlug?: string | null;
 }
 
-export interface EventStats extends EventIdentity {
+export interface EventStats {
+  id: string;
+  name: string;
   logoSlug: string | null;
-  /** Дата начала турнира или последней ставки */
   date: string;
-  /** Дата окончания турнира (из сохранённой записи) */
   endDate: string;
-  eventTier: EventTier;
-  majorStage: string | null;
-  stages: string[];
-  winnerOrganization: string | null;
-  winnerLogoSlug: string | null;
+  size: EventTier;
+  winnerTeamId: string | null;
   prizePool: number | null;
   totalBets: number;
   wins: number;
@@ -43,4 +38,10 @@ export interface EventStats extends EventIdentity {
   profit: number;
   pendingExposure: number;
   bets: Bet[];
+  /** @deprecated use size */
+  eventTier?: EventTier;
+  eventOrganization?: string;
+  eventName?: string;
+  winnerOrganization?: string | null;
+  winnerLogoSlug?: string | null;
 }

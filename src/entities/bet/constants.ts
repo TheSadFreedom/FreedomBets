@@ -45,6 +45,7 @@ export const BET_MARKETS = [
   "mapsTotal",
   "atLeastOneMap",
   "exactScore",
+  "custom",
 ] as const;
 export type BetMarket = (typeof BET_MARKETS)[number];
 
@@ -57,7 +58,10 @@ export const BET_MARKET_LABELS: Record<BetMarket, string> = {
   mapsTotal: "Количество карт",
   atLeastOneMap: "Возьмёт карту",
   exactScore: "Точный счёт",
+  custom: "Другая ставка",
 };
+
+export const CUSTOM_BET_PREFIX = "Другая — ";
 
 /** Допустимые счета серии в BO3. */
 export const BO3_EXACT_SCORES = [

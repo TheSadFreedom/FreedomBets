@@ -1,27 +1,22 @@
-import type { PickemMajor, PickemStageData } from "@/entities/pickem";
-import {
-  PICKEM_STAGE_RESULTS,
-  createDefaultPickemStages,
-  type PickemStageResult,
-} from "@/entities/pickem";
+import type { Pickem, PickemStage } from "@/entities/pickem";
+import { PICKEM_STAGE_RESULTS, type PickemStageResult } from "@/entities/pickem";
+import { limitInputLength, MAX_EVENT_NAME_LENGTH } from "@/shared/lib/limits";
 
 function isPickemStageResult(value: unknown): value is PickemStageResult {
   return typeof value === "string" && PICKEM_STAGE_RESULTS.includes(value as PickemStageResult);
 }
 
-function normalizeImageUrl(data: Partial<PickemStageData> & { imageData?: unknown }): string | null {
+function normalizeImageUrl(data: Partial<PickemStage> & { imageData?: unknown }): string | null {
   if (typeof data.imageUrl === "string" && data.imageUrl.trim()) {
     return data.imageUrl.trim();
   }
-
   if (typeof data.imageData === "string" && data.imageData.trim()) {
     return data.imageData.trim();
   }
-
   return null;
 }
 
-function normalizeStage(data: Partial<PickemStageData>): PickemStageData | null {
+function normalizeStage(data: Partial<PickemStage>): PickemStage | null {
   const stage = typeof data.stage === "string" ? data.stage.trim() : "";
   if (!stage) return null;
 
@@ -32,28 +27,39 @@ function normalizeStage(data: Partial<PickemStageData>): PickemStageData | null 
   };
 }
 
-function normalizeStages(stages: unknown): PickemStageData[] {
-  if (!Array.isArray(stages)) return createDefaultPickemStages();
+function normalizeStages(data: Pickem & { stages?: unknown }): PickemStage[] {
+  if (Array.isArray(data.stages)) {
+    const result: PickemStage[] = [];
+    const seen = new Set<string>();
 
-  const result: PickemStageData[] = [];
-  const seen = new Set<string>();
+    for (const item of data.stages) {
+      if (!item || typeof item !== "object") continue;
+      const normalized = normalizeStage(item as Partial<PickemStage>);
+      if (!normalized || seen.has(normalized.stage)) continue;
+      seen.add(normalized.stage);
+      result.push(normalized);
+    }
 
-  for (const item of stages) {
-    if (!item || typeof item !== "object") continue;
-    const normalized = normalizeStage(item as Partial<PickemStageData>);
-    if (!normalized || seen.has(normalized.stage)) continue;
-    seen.add(normalized.stage);
-    result.push(normalized);
+    if (result.length > 0) return result;
   }
 
-  return result.length > 0 ? result : createDefaultPickemStages();
+  const legacyUrl =
+    typeof data.imageUrl === "string" && data.imageUrl.trim() ? data.imageUrl.trim() : null;
+  if (legacyUrl) {
+    return [{ stage: "Pick'em", imageUrl: legacyUrl, result: null }];
+  }
+
+  return [];
 }
 
-export function normalizePickemMajor(data: PickemMajor): PickemMajor {
+export function normalizePickem(data: Pickem): Pickem {
   return {
-    ...data,
-    eventOrganization: (data.eventOrganization ?? "").trim(),
-    eventName: (data.eventName ?? "").trim(),
-    stages: normalizeStages(data.stages),
+    id: String(data.id),
+    profileId: Number(data.profileId),
+    eventName: limitInputLength(String(data.eventName ?? "").trim(), MAX_EVENT_NAME_LENGTH),
+    stages: normalizeStages(data),
   };
 }
+
+/** @deprecated */
+export const normalizePickemMajor = normalizePickem;

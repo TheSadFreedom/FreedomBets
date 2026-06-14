@@ -48,6 +48,7 @@ const MatchRelatedBets = ({
     <RelatedList>
       {bets.map((bet) => {
         const { market, team } = formatBetDescriptionLines(bet);
+        const description = team ? `${market} — ${team}` : market;
         const profileName = profileNameById.get(bet.profileId) ?? `Профиль ${bet.profileId}`;
         const isOwnBet = bet.profileId === activeProfileId;
         return (
@@ -55,8 +56,8 @@ const MatchRelatedBets = ({
             <BetStatusChip $status={bet.status}>{bet.status}</BetStatusChip>
             <BetInfo>
               <BetProfile $own={isOwnBet}>{profileName}</BetProfile>
-              <BetMarket title={`${market} — ${team}`}>
-                {market} — {team}
+              <BetMarket title={description}>
+                {description}
               </BetMarket>
               <BetMeta>{formatBetMeta(bet)}</BetMeta>
             </BetInfo>

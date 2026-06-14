@@ -18,6 +18,7 @@ import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import GpsFixedOutlinedIcon from "@mui/icons-material/GpsFixedOutlined";
 import FilterListOutlinedIcon from "@mui/icons-material/FilterListOutlined";
 import LooksOneOutlinedIcon from "@mui/icons-material/LooksOneOutlined";
+import EditNoteOutlinedIcon from "@mui/icons-material/EditNoteOutlined";
 import ScoreboardOutlinedIcon from "@mui/icons-material/ScoreboardOutlined";
 import type { Bet, BetMarket, BetTeamSide, MatchFormat } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
@@ -33,9 +34,11 @@ import {
   MATCH_FORMATS,
   PISTOL_ROUNDS_PER_MAP,
   exactScoreWinnerSide,
+  customBetText,
   formatBetDescription,
   formatExactScoreLabel,
   getMapCount,
+  isCustomBetType,
   normalizeBetTargets,
 } from "@/entities/bet";
 import {
@@ -44,11 +47,6 @@ import {
 } from "@/features/bets/lib/amountPresets";
 import { getBetFormSuggestions } from "@/features/bets/lib/formSuggestions";
 import { eventSelectKey, getEventSelectOptions } from "@/features/events/lib/eventDisplay";
-import {
-  collectEventStages,
-  findEventStages,
-  pickEventStage,
-} from "@/features/events/lib/eventStages";
 import {
   findMatchForBetFields,
   formatMatchSecondaryLabel,
@@ -77,6 +75,7 @@ import {
   HeaderText,
   HeaderTitle,
   MarketChip,
+  MarketChipGrid,
   PreviewCard,
   PreviewLabel,
   PreviewMeta,
@@ -97,6 +96,8 @@ import {
 const normalizeFormat = (value: string): MatchFormat =>
   MATCH_FORMATS.includes(value as MatchFormat) ? (value as MatchFormat) : "BO3";
 
+const MAX_CUSTOM_BET_TYPE_LENGTH = 80;
+
 const MARKET_ICONS: Record<BetMarket, typeof EmojiEventsOutlinedIcon> = {
   match: EmojiEventsOutlinedIcon,
   map: MapOutlinedIcon,
@@ -104,7 +105,10 @@ const MARKET_ICONS: Record<BetMarket, typeof EmojiEventsOutlinedIcon> = {
   mapsTotal: FilterListOutlinedIcon,
   atLeastOneMap: LooksOneOutlinedIcon,
   exactScore: ScoreboardOutlinedIcon,
+  custom: EditNoteOutlinedIcon,
 };
+
+const isCustomMarket = (market: BetMarket) => market === "custom";
 
 const isMapsTotalMarket = (market: BetMarket) => market === "mapsTotal";
 const isAtLeastOneMapMarket = (market: BetMarket) => market === "atLeastOneMap";
@@ -180,13 +184,19 @@ interface BetFormDialogProps {
 const emptyForm = (profileId: number): BetFormValues => {
   const base: BetFormValues = {
     profileId,
+    matchId: "",
     date: "",
     time: "12:00",
     format: "BO3",
+    team1Id: "",
+    team2Id: "",
     organization1: "",
     organization2: "",
+    eventId: "",
+    eventName: "",
     betMarket: "match",
     betTeam: 1,
+    betTeamId: null,
     mapNumber: null,
     pistolRound: null,
     yesNo: null,
@@ -196,7 +206,6 @@ const emptyForm = (profileId: number): BetFormValues => {
     amount: 100,
     odds: 1.5,
     eventOrganization: "",
-    eventName: "",
     majorStage: null,
     status: "WAIT",
   };
@@ -230,28 +239,25 @@ const BetFormDialog = ({
 
   const suggestions = useMemo(() => getBetFormSuggestions(bets), [bets]);
   const eventSource = useMemo(():
-    | Pick<Bet, "eventOrganization" | "eventName" | "majorStage">
+    | Pick<Bet, "eventId" | "eventName">
     | null => {
     if (initial) return initial;
-    if (seed?.eventOrganization?.trim() || seed?.eventName?.trim()) {
+    if (seed?.eventName?.trim()) {
       return {
-        eventOrganization: seed.eventOrganization ?? "",
+        eventId: "",
         eventName: seed.eventName ?? "",
-        majorStage: seed.majorStage ?? null,
       };
     }
     return null;
   }, [initial, seed]);
   const eventOptions = useMemo(
     () =>
-      getEventSelectOptions(bets, events, eventSource, {
-        collapseMajorStages: true,
-      }),
+      getEventSelectOptions(bets, events, eventSource),
     [bets, events, eventSource]
   );
   const selectedEventKey =
-    form.eventOrganization.trim() || form.eventName.trim()
-      ? eventSelectKey(form, events, true)
+    form.eventId.trim() || form.eventName.trim()
+      ? eventSelectKey(form)
       : "";
   const matchOptions = useMemo(() => {
     const includeIds = [...new Set([seed?.matchId, selectedMatchId].filter(Boolean))] as string[];
@@ -259,78 +265,22 @@ const BetFormDialog = ({
       ...(form.date.trim() ? { onDate: form.date.trim() } : {}),
       includeIds: includeIds.length > 0 ? includeIds : undefined,
     });
-    if (!seed?.eventOrganization?.trim() && !seed?.eventName?.trim()) return options;
-    const org = (seed.eventOrganization ?? "").trim().toLowerCase();
+    if (!seed?.eventName?.trim()) return options;
     const name = (seed.eventName ?? "").trim().toLowerCase();
     return options.filter(
       ({ match }) =>
-        match.eventOrganization.trim().toLowerCase() === org &&
-        match.eventName.trim().toLowerCase() === name
+        (match.eventName ?? "").trim().toLowerCase() === name
     );
   }, [matches, seed, selectedMatchId, form.date]);
   const selectedMatchOption = useMemo(
     () => matchOptions.find((item) => item.id === selectedMatchId),
     [matchOptions, selectedMatchId]
   );
-  const selectedEventStages = useMemo(
-    () =>
-      collectEventStages(form.eventOrganization, form.eventName, events, {
-        currentStage: form.majorStage,
-        bets,
-        matches,
-      }),
-    [bets, events, form.eventOrganization, form.eventName, form.majorStage, matches]
-  );
-  const eventRequiresStage = selectedEventStages.length > 0;
 
-  useEffect(() => {
-    if (!open) return;
-
-    const org = form.eventOrganization.trim();
-    const name = form.eventName.trim();
-    if (!org && !name) {
-      setForm((prev) => (prev.majorStage === null ? prev : { ...prev, majorStage: null }));
-      return;
-    }
-
-    const stages = collectEventStages(org, name, events, { bets, matches });
-    if (stages.length === 0) {
-      setForm((prev) => (prev.majorStage === null ? prev : { ...prev, majorStage: null }));
-      return;
-    }
-
-    const matchStage = selectedMatchOption?.match.majorStage?.trim() || null;
-    const configured = findEventStages(org, name, events);
-    let next: string | null = null;
-
-    if (matchStage && stages.includes(matchStage)) {
-      next = matchStage;
-    } else if (configured.length === 1) {
-      next = configured[0]!;
-    } else if (matchStage) {
-      next = matchStage;
-    } else {
-      next = pickEventStage(org, name, events, null);
-      if (next && !stages.includes(next)) {
-        next = stages[0] ?? null;
-      }
-    }
-
-    setForm((prev) => (prev.majorStage === next ? prev : { ...prev, majorStage: next }));
-  }, [
-    open,
-    form.eventOrganization,
-    form.eventName,
-    selectedMatchId,
-    selectedMatchOption,
-    events,
-    matches,
-    bets,
-  ]);
-
-  const availableMarkets = useMemo(
+  const presetMarkets = useMemo(
     () =>
       BET_MARKETS.filter((market) => {
+        if (market === "custom") return false;
         if (market === "mapsTotal" || market === "exactScore") return form.format === "BO3";
         if (market === "atLeastOneMap") return isMultiMapFormat(form.format);
         return true;
@@ -353,19 +303,18 @@ const BetFormDialog = ({
     setForm((prev) => {
       const next: BetFormValues = {
         ...prev,
+        matchId: match.id,
         date: match.date,
         time: match.time,
         format: match.format,
-        organization1: match.organization1,
-        organization2: match.organization2,
-        eventOrganization: match.eventOrganization,
-        eventName: match.eventName,
-        majorStage: pickEventStage(
-          match.eventOrganization,
-          match.eventName,
-          events,
-          match.majorStage
-        ),
+        team1Id: match.team1Id,
+        team2Id: match.team2Id,
+        organization1: match.organization1 ?? "",
+        organization2: match.organization2 ?? "",
+        eventId: match.eventId,
+        eventName: match.eventName ?? "",
+        eventOrganization: match.eventName ?? "",
+        majorStage: null,
         betMarket: marketForFormat(match.format, prev.betMarket),
       };
       const targets = normalizeBetTargets(next);
@@ -388,26 +337,32 @@ const BetFormDialog = ({
     if (initial) {
       setSelectedMatchId(initial.matchId?.trim() ?? "");
       const format = normalizeFormat(initial.format);
+      const isCustom =
+        initial.betMarket === "custom" || isCustomBetType(initial.betType ?? "");
       const draft: BetFormValues = {
         profileId: initial.profileId,
-        matchId: initial.matchId ?? null,
+        matchId: initial.matchId?.trim() ?? "",
         date: initial.date,
         time: initial.time,
         format,
+        team1Id: initial.team1Id,
+        team2Id: initial.team2Id,
         organization1: initial.organization1,
         organization2: initial.organization2,
-        betMarket: initial.betMarket,
+        eventId: initial.eventId,
+        eventName: initial.eventName,
+        betTeamId: initial.betTeamId,
+        betMarket: isCustom ? "custom" : initial.betMarket,
         betTeam: initial.betTeam,
         mapNumber: initial.mapNumber,
         pistolRound: initial.pistolRound,
         yesNo: initial.yesNo,
         exactScore1: initial.exactScore1,
         exactScore2: initial.exactScore2,
-        betType: initial.betType,
+        betType: isCustom ? customBetText(initial.betType ?? "") : initial.betType,
         amount: initial.amount,
         odds: initial.odds,
         eventOrganization: initial.eventOrganization,
-        eventName: initial.eventName,
         majorStage: initial.majorStage,
         status: initial.status,
       };
@@ -415,7 +370,9 @@ const BetFormDialog = ({
       const merged = {
         ...draft,
         ...targets,
-        betType: formatBetDescription({ ...draft, ...targets }),
+        betType: isCustom
+          ? draft.betType
+          : formatBetDescription({ ...draft, ...targets }),
       };
       setForm(merged);
       setAmountInput(toAmountInput(merged.amount));
@@ -428,19 +385,18 @@ const BetFormDialog = ({
         : findMatchForBetFields(seed ?? draft, matches);
       if (seededMatch) {
         Object.assign(draft, {
+          matchId: seededMatch.id,
+          team1Id: seededMatch.team1Id,
+          team2Id: seededMatch.team2Id,
+          eventId: seededMatch.eventId,
           date: seededMatch.date,
           time: seededMatch.time,
           format: normalizeFormat(seededMatch.format),
-          organization1: seededMatch.organization1,
-          organization2: seededMatch.organization2,
-          eventOrganization: seededMatch.eventOrganization,
-          eventName: seededMatch.eventName,
-          majorStage: pickEventStage(
-            seededMatch.eventOrganization,
-            seededMatch.eventName,
-            events,
-            seededMatch.majorStage
-          ),
+          organization1: seededMatch.organization1 ?? "",
+          organization2: seededMatch.organization2 ?? "",
+          eventOrganization: seededMatch.eventName ?? "",
+          eventName: seededMatch.eventName ?? "",
+          majorStage: null,
         });
       }
       const targets = normalizeBetTargets(draft);
@@ -476,6 +432,21 @@ const BetFormDialog = ({
   const update = <K extends keyof BetFormValues>(key: K, value: BetFormValues[K]) => {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
+      if (key === "betMarket") {
+        const market = value as BetMarket;
+        if (market === "custom") {
+          const targets = normalizeBetTargets({ ...next, betMarket: "custom" });
+          return {
+            ...next,
+            betMarket: "custom",
+            ...targets,
+            betType: customBetText(next.betType) || "",
+          };
+        }
+      }
+      if (key === "betType" && next.betMarket === "custom") {
+        return { ...next, betType: String(value).trim() };
+      }
       if (key === "format") {
         const format = value as MatchFormat;
         const withFormat = {
@@ -499,6 +470,9 @@ const BetFormDialog = ({
         key === "organization1" ||
         key === "organization2"
       ) {
+        if (next.betMarket === "custom") {
+          return next;
+        }
         const targets = normalizeBetTargets(next);
         const merged = { ...next, ...targets };
         if (
@@ -538,7 +512,8 @@ const BetFormDialog = ({
       amount: parsedAmount,
       odds: parsedOdds,
     };
-    const matchId = selectedMatchId.trim() || seed?.matchId?.trim() || null;
+    const matchId =
+      selectedMatchId.trim() || seed?.matchId?.trim() || form.matchId.trim() || "";
     return {
       ...merged,
       matchId,
@@ -552,7 +527,6 @@ const BetFormDialog = ({
       !isValidBetAmount(payload.amount) ||
       !Number.isFinite(payload.odds) ||
       payload.odds <= 0 ||
-      !payload.eventOrganization.trim() ||
       !payload.eventName.trim() ||
       (!isEdit && !parseIsoDate(payload.date.trim()))
     ) {
@@ -575,18 +549,18 @@ const BetFormDialog = ({
   const valid =
     isValidBetAmount(parsedAmount) &&
     parsedOdds > 0 &&
-    form.eventOrganization.trim() &&
     form.eventName.trim() &&
     form.organization1.trim() &&
     form.organization2.trim() &&
     (isEdit || (Boolean(parseIsoDate(form.date.trim())) && Boolean(selectedMatchId))) &&
-    (!eventRequiresStage || Boolean(form.majorStage)) &&
-    (isMapsTotalMarket(form.betMarket) ||
-      form.betMarket === "match" ||
-      isAtLeastOneMapMarket(form.betMarket) ||
-      isExactScoreMarket(form.betMarket) ||
-      (form.mapNumber != null && form.mapNumber >= 1 && form.mapNumber <= mapCount)) &&
-    (form.betMarket !== "pistol" || form.pistolRound === 1 || form.pistolRound === 2);
+    (isCustomMarket(form.betMarket)
+      ? Boolean(form.betType.trim())
+      : (isMapsTotalMarket(form.betMarket) ||
+          form.betMarket === "match" ||
+          isAtLeastOneMapMarket(form.betMarket) ||
+          isExactScoreMarket(form.betMarket) ||
+          (form.mapNumber != null && form.mapNumber >= 1 && form.mapNumber <= mapCount)) &&
+        (form.betMarket !== "pistol" || form.pistolRound === 1 || form.pistolRound === 2));
 
   return (
     <Dialog
@@ -691,8 +665,9 @@ const BetFormDialog = ({
                         if (!option) return;
                     setForm((prev) => ({
                       ...prev,
-                      eventOrganization: option.eventOrganization,
+                      eventId: option.eventId,
                       eventName: option.eventName,
+                      eventOrganization: option.eventName,
                     }));
                   }}
                   renderValue={(value) => {
@@ -742,9 +717,6 @@ const BetFormDialog = ({
                   ))}
                 </Select>
               </FormControl>
-              {form.majorStage ? (
-                <SectionHint>Стадия: {form.majorStage}</SectionHint>
-              ) : null}
                   <SectionHint>
                     На каждой карте по {PISTOL_ROUNDS_PER_MAP} пистолетных раунда.
                   </SectionHint>
@@ -824,11 +796,11 @@ const BetFormDialog = ({
                       if (!option) return value;
                       return (
                         <Box display="flex" alignItems="center" gap={1} minWidth={0}>
-                          <TeamLogo name={option.match.organization1} size={22} />
+                          <TeamLogo name={option.match.organization1 ?? ""} size={22} />
                           <Typography variant="body2" noWrap sx={{ flexShrink: 0 }}>
                             vs
                           </Typography>
-                          <TeamLogo name={option.match.organization2} size={22} />
+                          <TeamLogo name={option.match.organization2 ?? ""} size={22} />
                           <Typography variant="body2" noWrap sx={{ flex: 1, minWidth: 0, ml: 0.5 }}>
                             {formatMatchTeamsLabel(option.match)}
                           </Typography>
@@ -839,11 +811,11 @@ const BetFormDialog = ({
                     {matchOptions.map((option) => (
                       <MenuItem key={option.id} value={option.id} sx={{ py: 0.75 }}>
                         <Box display="flex" alignItems="center" gap={1.25} minWidth={0} width="100%">
-                          <TeamLogo name={option.match.organization1} size={24} />
+                          <TeamLogo name={option.match.organization1 ?? ""} size={24} />
                           <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
                             vs
                           </Typography>
-                          <TeamLogo name={option.match.organization2} size={24} />
+                          <TeamLogo name={option.match.organization2 ?? ""} size={24} />
                           <Box minWidth={0} flex={1}>
                             <Typography variant="body2" noWrap title={option.primary}>
                               {option.primary}
@@ -874,9 +846,6 @@ const BetFormDialog = ({
                     <SectionHint>
                       {formatMatchSecondaryLabel(selectedMatchOption.match)}
                     </SectionHint>
-                    {form.majorStage ? (
-                      <SectionHint>Стадия: {form.majorStage}</SectionHint>
-                    ) : null}
                   </>
                 ) : null}
                 </FieldsStack>
@@ -887,8 +856,8 @@ const BetFormDialog = ({
           <Section>
             <SectionTitle>Тип ставки</SectionTitle>
             <FieldsStack>
-              <ChipRow>
-                {availableMarkets.map((market) => {
+              <MarketChipGrid>
+                {presetMarkets.map((market) => {
                   const Icon = MARKET_ICONS[market];
                   return (
                     <MarketChip
@@ -903,9 +872,31 @@ const BetFormDialog = ({
                     </MarketChip>
                   );
                 })}
-              </ChipRow>
+                <MarketChip
+                  type="button"
+                  $market="custom"
+                  $fullWidth
+                  $active={form.betMarket === "custom"}
+                  onClick={() => update("betMarket", "custom")}
+                >
+                  <EditNoteOutlinedIcon />
+                  {BET_MARKET_LABELS.custom}
+                </MarketChip>
+              </MarketChipGrid>
 
-              {isMapsTotalMarket(form.betMarket) ? (
+              {isCustomMarket(form.betMarket) ? (
+                <TextField
+                  label="Описание ставки"
+                  placeholder="Например: тотал раундов больше 26"
+                  value={form.betType}
+                  onChange={(e) => update("betType", e.target.value)}
+                  fullWidth
+                  sx={fieldSx}
+                  slotProps={{
+                    htmlInput: { maxLength: MAX_CUSTOM_BET_TYPE_LENGTH },
+                  }}
+                />
+              ) : isMapsTotalMarket(form.betMarket) ? (
                 <>
                   <SectionTitle style={{ marginTop: 4, marginBottom: 8 }}>
                     Вариант

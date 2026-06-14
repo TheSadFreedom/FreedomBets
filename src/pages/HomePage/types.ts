@@ -4,10 +4,10 @@ import type { Match, MatchCreateInput } from "@/entities/match";
 import type { MatchSettlementResult } from "@/features/matches/lib/settleBetsForMatch";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { ProfileMedal } from "@/entities/medal";
-import type { PickemMajor, PickemStageName } from "@/entities/pickem";
+import type { PickemMajor, PickemStagePresetId } from "@/entities/pickem";
 import type { RankingBaseline } from "@/entities/ranking";
 import type { Profile } from "@/entities/profile";
-import type { Team } from "@/entities/team";
+import type { Team, TeamEditInput } from "@/entities/team";
 
 export interface ProfileBetsState {
   profile: Profile | null;
@@ -21,6 +21,7 @@ export interface ProfileBetsState {
   rankingBaseline: RankingBaseline | null;
   teams: Team[];
   refreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
+  updateTeam: (teamId: string, data: TeamEditInput) => Promise<void>;
   loading: boolean;
   error: string | null;
   reload: () => Promise<void>;
@@ -44,12 +45,9 @@ export interface ProfileBetsState {
   updateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;
   deleteEvent: (identity: EventIdentity) => Promise<void>;
   addEvent: (data: EventEditInput) => Promise<void>;
-  addPickemMajor: (eventOrganization: string, eventName: string) => Promise<void>;
-  uploadPickemStageImage: (
-    major: PickemMajor,
-    stage: PickemStageName,
-    file: File
-  ) => Promise<void>;
+  addPickemMajor: (eventName: string) => Promise<void>;
+  configurePickemStages: (major: PickemMajor, presetId: PickemStagePresetId) => Promise<void>;
+  uploadPickemStageImage: (major: PickemMajor, stage: string, file: File) => Promise<void>;
   deletePickemMajor: (major: PickemMajor) => Promise<void>;
   uploadMedal: (imageData: string) => Promise<void>;
   deleteMedal: (medal: ProfileMedal) => Promise<void>;

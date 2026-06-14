@@ -10,5 +10,10 @@ export function findBaselineTeam(
   const key = getTeamMatchKey(teamName);
   if (!key) return null;
 
-  return baseline.teams.find((team) => team.teamKey === key) ?? null;
+  const matches = baseline.teams.filter((team) => team.teamKey === key);
+  if (matches.length === 0) return null;
+
+  return matches.reduce((best, team) =>
+    team.globalRank < best.globalRank ? team : best
+  );
 }

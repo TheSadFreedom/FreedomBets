@@ -1,1 +1,7 @@
-export type { EventRecord, EventRecordCreateInput } from "./types";
+export type {
+  EventRecord,
+  EventRecordCreateInput,
+  Tournament,
+  TournamentCreateInput,
+  TournamentSize,
+} from "./types";

@@ -1,14 +1,14 @@
 import type { MatchCreateInput } from "@/entities/match";
-import { attachTeamIds } from "@/entities/team";
-import { resolveCanonicalTeamName } from "@/shared/lib/teams/teamNames";
+import { sanitizeMapsForSave } from "@/features/matches/lib/matchMaps";
 
-export function prepareMatchPayload<T extends MatchCreateInput>(data: T): T & {
-  team1Id: string;
-  team2Id: string;
-} {
-  return attachTeamIds({
+export function prepareMatchPayload<T extends MatchCreateInput>(data: T): T {
+  return {
     ...data,
-    organization1: resolveCanonicalTeamName(data.organization1),
-    organization2: resolveCanonicalTeamName(data.organization2),
-  });
+    eventId: String(data.eventId ?? "").trim(),
+    team1Id: String(data.team1Id ?? "").trim(),
+    team2Id: String(data.team2Id ?? "").trim(),
+    date: String(data.date ?? "").trim(),
+    time: String(data.time ?? "").trim(),
+    maps: sanitizeMapsForSave(data.maps, data.format),
+  };
 }

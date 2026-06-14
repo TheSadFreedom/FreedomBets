@@ -1,5 +1,5 @@
+import { mergeEventTitle } from "@/features/events/lib/eventTitle";
 import type { Match } from "@/entities/match";
-import { formatEventLabel } from "@/features/events/lib/eventDisplay";
 import type { MouseEvent } from "react";
 
 export const MATCH_STATUS_LABELS: Record<Match["status"], string> = {
@@ -9,11 +9,8 @@ export const MATCH_STATUS_LABELS: Record<Match["status"], string> = {
 };
 
 export function formatMatchEventTitle(match: Match): string {
-  return formatEventLabel(match.eventOrganization, match.eventName, {
-    majorStage: match.majorStage,
-  });
+  return mergeEventTitle("", match.eventName ?? "");
 }
-
 export function matchScoreTone(
   side: 1 | 2,
   leadingSide: 1 | 2 | null,

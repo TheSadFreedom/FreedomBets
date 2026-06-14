@@ -1,71 +1,62 @@
-import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   isDataUrl,
   savePickemImageFromDataUrl,
 } from "../server/pickemFiles.mjs";
+import { createDatabase } from "../server/db/sqliteStore.mjs";
 
 const ROOT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const DB_PATH = path.join(ROOT_DIR, "db.json");
-
-const PICKEM_STAGES = ["Stage 1", "Stage 2", "Stage 3", "Playoff"];
+const DB_PATH = path.join(ROOT_DIR, "freedom.db");
 
 async function migrate() {
-  const raw = await readFile(DB_PATH, "utf-8");
-  const db = JSON.parse(raw);
-  const pickems = Array.isArray(db.pickems) ? db.pickems : [];
+  const db = createDatabase(DB_PATH);
+  await db.read();
+  const pickems = Array.isArray(db.data.pickems) ? db.data.pickems : [];
   let migratedCount = 0;
 
   for (const major of pickems) {
-    const stages = Array.isArray(major.stages) ? major.stages : [];
-
-    for (const stageData of stages) {
-      const legacyData = stageData.imageData;
-      const hasUrl = typeof stageData.imageUrl === "string" && stageData.imageUrl.trim();
-
-      if (hasUrl) {
-        delete stageData.imageData;
-        continue;
-      }
-
-      if (!isDataUrl(legacyData)) {
-        stageData.imageUrl = null;
-        delete stageData.imageData;
-        continue;
-      }
-
-      const imageUrl = await savePickemImageFromDataUrl(
-        major.id,
-        stageData.stage,
-        legacyData
-      );
-
-      if (!imageUrl) {
-        console.warn(`Skipped ${major.id} / ${stageData.stage}: invalid image data`);
-        continue;
-      }
-
-      stageData.imageUrl = imageUrl;
-      delete stageData.imageData;
-      migratedCount += 1;
-      console.log(`Migrated ${major.id} / ${stageData.stage} -> ${imageUrl}`);
+    if (typeof major.imageUrl === "string" && major.imageUrl.trim()) {
+      delete major.stages;
+      continue;
     }
 
-    major.stages = PICKEM_STAGES.map((stageName) => {
-      const current = stages.find((item) => item?.stage === stageName);
-      return (
-        current ?? {
-          stage: stageName,
-          imageUrl: null,
-          result: null,
-        }
-      );
-    });
+    const stages = Array.isArray(major.stages) ? major.stages : [];
+    let imageUrl = null;
+
+    for (const stageData of stages) {
+      const legacyData = stageData?.imageData;
+      const existingUrl =
+        typeof stageData?.imageUrl === "string" && stageData.imageUrl.trim()
+          ? stageData.imageUrl.trim()
+          : null;
+
+      if (existingUrl) {
+        imageUrl = existingUrl;
+        break;
+      }
+
+      if (!isDataUrl(legacyData)) continue;
+
+      const savedUrl = await savePickemImageFromDataUrl(major.id, legacyData);
+      if (!savedUrl) {
+        console.warn(`Skipped ${major.id}: invalid image data`);
+        continue;
+      }
+
+      imageUrl = savedUrl;
+      migratedCount += 1;
+      console.log(`Migrated ${major.id} -> ${savedUrl}`);
+      break;
+    }
+
+    major.imageUrl = imageUrl;
+    delete major.stages;
   }
 
-  db.pickems = pickems;
-  await writeFile(DB_PATH, `${JSON.stringify(db, null, 2)}\n`, "utf-8");
+  db.data.pickems = pickems;
+  await db.write();
+  db.close();
   console.log(`Done. Migrated ${migratedCount} image(s).`);
 }
 

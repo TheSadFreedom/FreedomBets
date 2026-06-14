@@ -1,31 +1,38 @@
-import type { EventRecord } from "@/entities/eventRecord";
+import type { Tournament, TournamentSize } from "@/entities/eventRecord";
 import { isEventTier } from "@/entities/event";
-import { normalizeEventStagesList } from "@/features/events/lib/eventStages";
-import { limitInputLength } from "@/shared/lib/limits";
+import { inferEventTier } from "@/features/events/lib/eventTier";
+import { limitInputLength, MAX_EVENT_NAME_LENGTH } from "@/shared/lib/limits";
 import { parsePrizePool } from "@/shared/lib/format/prizePool";
 
-export function normalizeEventRecord(data: EventRecord & { profileId?: unknown }): EventRecord {
+function resolveSize(data: Tournament & { eventName?: string }): TournamentSize {
+  const title = String(data.name ?? data.eventName ?? "");
+  if (isEventTier(data.size)) return data.size;
+  if (isEventTier(data.eventTier)) return data.eventTier;
+  return inferEventTier("", title);
+}
+
+export function normalizeTournament(
+  data: Tournament & { profileId?: unknown; eventName?: string }
+): Tournament {
+  const name = limitInputLength(
+    String(data.name ?? data.eventName ?? "").trim(),
+    MAX_EVENT_NAME_LENGTH
+  );
+
   return {
     id: String(data.id),
-    eventOrganization: limitInputLength((data.eventOrganization ?? "").trim()),
-    eventName: limitInputLength((data.eventName ?? "").trim()),
-    logoSlug:
-      typeof data.logoSlug === "string" && data.logoSlug.trim() ? data.logoSlug.trim() : null,
-    date: (data.date ?? "").trim(),
-    endDate: (data.endDate ?? "").trim(),
-    eventTier: isEventTier(data.eventTier) ? data.eventTier : "Small",
-    stages: normalizeEventStagesList(data.stages).map((stage) => limitInputLength(stage)),
-    winnerOrganization:
-      typeof data.winnerOrganization === "string" && data.winnerOrganization.trim()
-        ? limitInputLength(data.winnerOrganization.trim())
-        : null,
-    winnerLogoSlug:
-      typeof data.winnerOrganization === "string" &&
-      data.winnerOrganization.trim() &&
-      typeof data.winnerLogoSlug === "string" &&
-      data.winnerLogoSlug.trim()
-        ? data.winnerLogoSlug.trim()
+    name,
+    date: String(data.date ?? "").trim(),
+    endDate: String(data.endDate ?? "").trim(),
+    logoSlug: typeof data.logoSlug === "string" && data.logoSlug.trim() ? data.logoSlug.trim() : null,
+    size: resolveSize({ ...data, name }),
+    winnerTeamId:
+      typeof data.winnerTeamId === "string" && data.winnerTeamId.trim()
+        ? data.winnerTeamId.trim()
         : null,
     prizePool: parsePrizePool(data.prizePool),
   };
 }
+
+/** @deprecated */
+export const normalizeEventRecord = normalizeTournament;

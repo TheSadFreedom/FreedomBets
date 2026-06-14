@@ -102,10 +102,10 @@ const PickemMedalsBlock = ({ medals, onUpload, onDelete }: PickemMedalsBlockProp
               type="button"
               aria-label="Развернуть медаль"
               onClick={() =>
-                setExpandedImage({ src: medal.imageData, alt: "Загруженная медаль" })
+                setExpandedImage({ src: medal.imageUrl, alt: "Загруженная медаль" })
               }
             >
-              <img src={medal.imageData} alt="" />
+              <img src={medal.imageUrl} alt="" />
             </MedalImageButton>
           </UserMedalTile>
         ))}

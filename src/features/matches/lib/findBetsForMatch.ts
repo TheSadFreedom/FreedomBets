@@ -20,10 +20,13 @@ function eventTeamsFormatMatch(
   match: Match,
   options?: { ignoreStage?: boolean }
 ): boolean {
+  const eventMatch =
+    bet.eventId && match.eventId
+      ? bet.eventId === match.eventId
+      : norm(bet.eventName) === norm(match.eventName ?? "");
   return (
     bet.format === match.format &&
-    norm(bet.eventOrganization) === norm(match.eventOrganization) &&
-    norm(bet.eventName) === norm(match.eventName) &&
+    eventMatch &&
     (options?.ignoreStage || stagesEqual(bet.majorStage, match.majorStage)) &&
     teamsMatch(bet, match)
   );

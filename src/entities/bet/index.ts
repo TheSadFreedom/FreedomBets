@@ -1,8 +1,9 @@
-export type { Bet, BetTeamSide } from "./types";
+export type { Bet, StoredBet, BetTeamSide } from "./types";
 export {
   BET_STATUSES,
   BET_MARKETS,
   BET_MARKET_LABELS,
+  CUSTOM_BET_PREFIX,
   AT_LEAST_ONE_MAP_LABELS,
   BO3_EXACT_SCORES,
   MAPS_TOTAL_LINE,
@@ -17,7 +18,9 @@ export { normalizeBetStatus } from "./constants";
 export {
   formatBetDescription,
   formatBetDescriptionLines,
+  customBetText,
   inferMarketFromLegacy,
+  isCustomBetType,
   mapsTotalSideLabel,
   atLeastOneMapSideLabel,
   formatExactScoreLabel,

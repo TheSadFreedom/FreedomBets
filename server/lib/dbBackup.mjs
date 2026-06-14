@@ -2,7 +2,7 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from "no
 import { dirname, join } from "node:path";
 
 const DEFAULT_RETENTION_DAYS = 5;
-const DATE_KEY_RE = /^db-(\d{4}-\d{2}-\d{2})\.json$/;
+const DATE_KEY_RE = /^db-(\d{4}-\d{2}-\d{2})\.(json|db)$/;
 
 function formatDateKey(date = new Date()) {
   const year = date.getFullYear();
@@ -23,7 +23,8 @@ export function getDailyBackupDir(dbPath) {
 }
 
 export function getDailyBackupPath(dbPath, dateKey = formatDateKey()) {
-  return join(getDailyBackupDir(dbPath), `db-${dateKey}.json`);
+  const ext = dbPath.toLowerCase().endsWith(".db") ? "db" : "json";
+  return join(getDailyBackupDir(dbPath), `db-${dateKey}.${ext}`);
 }
 
 export function backupDbFile(dbPath) {

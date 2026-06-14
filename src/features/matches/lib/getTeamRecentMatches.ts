@@ -17,8 +17,8 @@ export interface TeamRecentMatchItem {
 const RECENT_MATCH_LIMIT = 5;
 
 function getTeamSide(match: Match, teamName: string): 1 | 2 | null {
-  if (teamNamesMatch(match.organization1, teamName)) return 1;
-  if (teamNamesMatch(match.organization2, teamName)) return 2;
+  if (teamNamesMatch(match.organization1 ?? "", teamName)) return 1;
+  if (teamNamesMatch(match.organization2 ?? "", teamName)) return 2;
   return null;
 }
 
@@ -48,7 +48,7 @@ export function getTeamRecentMatches(
 
     const teamScore = side === 1 ? series.score1 : series.score2;
     const opponentScore = side === 1 ? series.score2 : series.score1;
-    const opponent = side === 1 ? match.organization2 : match.organization1;
+    const opponent = (side === 1 ? match.organization2 : match.organization1) ?? "";
 
     return {
       matchId: match.id,

@@ -15,20 +15,19 @@ interface EventStatCardProps {
 }
 
 const EventStatCard = ({ item, onEdit, onDelete }: EventStatCardProps) => (
-  <EventAccordion disableGutters $tier={item.eventTier}>
+  <EventAccordion disableGutters $tier={item.size}>
     <AccordionSummary expandIcon={false}>
       <EventSummaryContent>
         <EventTournamentCardSummary
           logoSlug={item.logoSlug}
-          eventOrganization={item.eventOrganization}
-          eventName={item.eventName}
-          eventTier={item.eventTier}
+          eventOrganization={item.id}
+          eventName={item.name}
+          size={item.size}
           date={item.date}
           endDate={item.endDate}
-          majorStage={item.majorStage}
-          winnerOrganization={item.majorStage ? null : item.winnerOrganization}
-          winnerLogoSlug={item.majorStage ? null : item.winnerLogoSlug}
-          prizePool={item.majorStage ? null : item.prizePool}
+          winnerOrganization={item.winnerTeamId}
+          winnerLogoSlug={null}
+          prizePool={item.prizePool}
           metrics={item}
           onEdit={onEdit}
           onDelete={onDelete}

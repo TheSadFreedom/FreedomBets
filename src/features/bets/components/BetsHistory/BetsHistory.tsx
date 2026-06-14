@@ -1,16 +1,19 @@
 import { useMemo, useState } from "react";
-import { InputAdornment, TextField } from "@mui/material";
+import { Button, InputAdornment, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import type { Bet } from "@/entities/bet";
 import type { EventRecord } from "@/entities/eventRecord";
 import type { Match } from "@/entities/match";
 import { sortBetsByDateTime } from "@/features/bets/lib/sortBets";
+import { matchesBetSearch } from "@/features/bets/lib/matchesBetSearch";
 import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
 import BetHistoryCard from "./BetHistoryCard";
 import {
   BetList,
   BetsHistoryStyled,
   EmptyState,
+  FiltersActions,
+  FiltersHeader,
   FiltersPanel,
   FiltersWrapper,
   HistoryCard,
@@ -26,31 +29,6 @@ interface BetsHistoryProps {
   onLose: (id: string) => void;
   onRevert: (id: string) => void;
 }
-
-const matchesBetSearch = (bet: Bet, query: string) => {
-  const q = query.trim().toLowerCase();
-  if (!q) return true;
-
-  const haystack = [
-    bet.date,
-    bet.time,
-    bet.eventOrganization,
-    bet.eventName,
-    bet.organization1,
-    bet.organization2,
-    bet.betType,
-    bet.status,
-    bet.format,
-    bet.majorStage,
-    String(bet.amount),
-    String(bet.odds),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(q);
-};
 
 const BetsHistory = ({
   bets,
@@ -73,15 +51,32 @@ const BetsHistory = ({
     [bets, search]
   );
 
+  const hasActiveSearch = Boolean(search.trim());
+
   return (
     <BetsHistoryStyled>
       <HistoryCard>
         <FiltersPanel>
+          {hasActiveSearch ? (
+            <FiltersHeader>
+              <FiltersActions>
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={() => setSearch("")}
+                  sx={{ minWidth: 0 }}
+                >
+                  Сбросить
+                </Button>
+              </FiltersActions>
+            </FiltersHeader>
+          ) : null}
+
           <FiltersWrapper>
             <TextField
               size="small"
               fullWidth
-              placeholder="Поиск"
+              placeholder="Поиск по турниру, команде или виду ставки"
               value={search}
               onChange={(e) => setSearch(limitInputLength(e.target.value))}
               slotProps={{
@@ -96,7 +91,7 @@ const BetsHistory = ({
               }}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  backgroundColor: "rgba(255, 255, 255, 0.04)",
+                  backgroundColor: "#2e2e2e",
                   borderRadius: "10px",
                 },
               }}

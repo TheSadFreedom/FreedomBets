@@ -2,13 +2,15 @@ import { useMemo, useRef, useState, type MouseEvent } from "react";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import { AccordionDetails, AccordionSummary } from "@mui/material";
-import type { PickemMajor } from "@/entities/pickem";
+import type { PickemMajor, PickemStageName, PickemStagePresetId } from "@/entities/pickem";
+import { PICKEM_STAGE_PRESETS } from "@/entities/pickem";
 import PickemImageLightbox from "@/features/pickem/components/PickemImageLightbox/PickemImageLightbox";
-import MajorStageBadge from "@/features/events/components/MajorStageBadge/MajorStageBadge";
 import type { EventRecord } from "@/entities/eventRecord";
 import { resolveEventLogoSlug } from "@/features/events/lib/eventDisplay";
-import { stageStyleFor } from "@/features/events/lib/eventStages";
-import { resolvePickemStagesForMajor } from "@/features/pickem/lib/resolvePickemStages";
+import {
+  formatPresetLabel,
+  stageAccent,
+} from "@/features/pickem/lib/pickemStages";
 import EventLogo from "@/shared/ui/EventLogo/EventLogo";
 import ConfirmDialog from "@/shared/ui/ConfirmDialog/ConfirmDialog";
 import {
@@ -19,7 +21,6 @@ import {
   PickemCardTitle,
   PickemHeaderMeta,
   PickemName,
-  PickemOrg,
   PickemProgressFill,
   PickemProgressTrack,
   PickemStagesBadge,
@@ -30,8 +31,14 @@ import {
   StageCardBody,
   StageCardHeader,
   StageCardStatus,
+  StageCountButton,
+  StageCountGrid,
+  StageCountHint,
+  StageCountPanel,
+  StageCountTitle,
   StageImage,
   StageImageButton,
+  StageLabel,
   StageUploadButton,
   StagesGrid,
 } from "@/features/pickem/components/PickemTab/PickemTab.styled";
@@ -41,7 +48,8 @@ interface PickemMajorCardProps {
   events?: EventRecord[];
   defaultExpanded?: boolean;
   onDelete: (major: PickemMajor) => void;
-  onUploadStageImage: (major: PickemMajor, stage: string, file: File) => Promise<void>;
+  onConfigureStages: (major: PickemMajor, presetId: PickemStagePresetId) => Promise<void>;
+  onUploadStageImage: (major: PickemMajor, stage: PickemStageName, file: File) => Promise<void>;
 }
 
 const stopSummaryToggle = (event: MouseEvent) => {
@@ -54,28 +62,46 @@ const PickemMajorCard = ({
   events = [],
   defaultExpanded = false,
   onDelete,
+  onConfigureStages,
   onUploadStageImage,
 }: PickemMajorCardProps) => {
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
   const [expanded, setExpanded] = useState(defaultExpanded);
   const [expandedImage, setExpandedImage] = useState<{ src: string; alt: string } | null>(null);
   const [uploadingStage, setUploadingStage] = useState<string | null>(null);
+  const [configuringStages, setConfiguringStages] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const stages = useMemo(
-    () => resolvePickemStagesForMajor(major, events),
-    [major, events]
-  );
-
+  const stages = major.stages ?? [];
+  const needsStageCount = stages.length === 0;
   const uploadedCount = stages.filter((stage) => Boolean(stage.imageUrl)).length;
   const totalStages = stages.length;
-  const isComplete = uploadedCount === totalStages && totalStages > 0;
+  const isComplete = totalStages > 0 && uploadedCount === totalStages;
   const progress = totalStages > 0 ? uploadedCount / totalStages : 0;
+  const label = major.eventName;
+
+  const statusLabel = useMemo(() => {
+    if (needsStageCount) return "Выбрать стадии";
+    if (isComplete) return "Готово";
+    return `${uploadedCount}/${totalStages}`;
+  }, [needsStageCount, isComplete, uploadedCount, totalStages]);
 
   const openFilePicker = (stage: string) => {
     fileInputs.current[stage]?.click();
+  };
+
+  const handleConfigureStages = async (presetId: PickemStagePresetId) => {
+    setConfiguringStages(true);
+    setUploadError(null);
+    try {
+      await onConfigureStages(major, presetId);
+    } catch {
+      setUploadError("Не удалось сохранить стадии.");
+    } finally {
+      setConfiguringStages(false);
+    }
   };
 
   const handleFileChange = async (stage: string, fileList: FileList | null) => {
@@ -105,22 +131,21 @@ const PickemMajorCard = ({
         <PickemCardHeader>
           <EventLogoWrap>
             <EventLogo
-              logoSlug={resolveEventLogoSlug(major.eventOrganization, major.eventName, events)}
-              label={major.eventName || major.eventOrganization}
+              logoSlug={resolveEventLogoSlug("", major.eventName, events)}
+              label={label}
               size={28}
             />
           </EventLogoWrap>
           <PickemCardTitle>
-            <PickemOrg>{major.eventOrganization}</PickemOrg>
-            <PickemName>{major.eventName || major.eventOrganization}</PickemName>
+            <PickemName>{label}</PickemName>
           </PickemCardTitle>
           <PickemHeaderMeta>
-            <PickemProgressTrack>
-              <PickemProgressFill $value={progress} $complete={isComplete} />
-            </PickemProgressTrack>
-            <PickemStagesBadge $complete={isComplete}>
-              {uploadedCount}/{totalStages}
-            </PickemStagesBadge>
+            {!needsStageCount ? (
+              <PickemProgressTrack>
+                <PickemProgressFill $value={progress} $complete={isComplete} />
+              </PickemProgressTrack>
+            ) : null}
+            <PickemStagesBadge $complete={isComplete}>{statusLabel}</PickemStagesBadge>
             <DeleteMajorButton
               type="button"
               aria-label="Удалить major"
@@ -138,70 +163,93 @@ const PickemMajorCard = ({
       <AccordionDetails>
         {uploadError ? <PickemUploadError>{uploadError}</PickemUploadError> : null}
 
-        <StagesGrid>
-          {stages.map((stageData) => {
-            const hasImage = Boolean(stageData.imageUrl);
-            const accent = stageStyleFor(stageData.stage).border;
+        {needsStageCount ? (
+          <StageCountPanel>
+            <StageCountTitle>Выберите формат стадий</StageCountTitle>
+            <StageCountHint>После выбора появятся поля для загрузки скринов</StageCountHint>
+            <StageCountGrid>
+              {PICKEM_STAGE_PRESETS.map((preset) => (
+                <StageCountButton
+                  key={preset.id}
+                  type="button"
+                  disabled={configuringStages}
+                  onClick={() => void handleConfigureStages(preset.id)}
+                >
+                  <strong>{preset.stages.length}</strong>
+                  <span>{formatPresetLabel(preset.id)}</span>
+                </StageCountButton>
+              ))}
+            </StageCountGrid>
+          </StageCountPanel>
+        ) : (
+          <StagesGrid>
+            {stages.map((stageData) => {
+              const hasImage = Boolean(stageData.imageUrl);
+              const accent = stageAccent(stageData.stage);
 
-            return (
-              <StageCard key={stageData.stage} $hasImage={hasImage} $accent={accent}>
-                <StageCardHeader>
-                  <MajorStageBadge stage={stageData.stage} />
-                  <StageCardStatus $uploaded={hasImage}>
-                    {hasImage ? "Готово" : "Пусто"}
-                  </StageCardStatus>
-                </StageCardHeader>
+              return (
+                <StageCard key={stageData.stage} $hasImage={hasImage} $accent={accent}>
+                  <StageCardHeader>
+                    <StageLabel>{stageData.stage}</StageLabel>
+                    <StageCardStatus $uploaded={hasImage}>
+                      {hasImage ? "Готово" : "Пусто"}
+                    </StageCardStatus>
+                  </StageCardHeader>
 
-                <StageCardBody>
-                  <input
-                    ref={(node) => {
-                      fileInputs.current[stageData.stage] = node;
-                    }}
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={(e) => void handleFileChange(stageData.stage, e.target.files)}
-                  />
+                  <StageCardBody>
+                    <input
+                      ref={(node) => {
+                        fileInputs.current[stageData.stage] = node;
+                      }}
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(e) => void handleFileChange(stageData.stage, e.target.files)}
+                    />
 
-                  {!hasImage ? (
-                    <StageUploadButton
-                      type="button"
-                      disabled={uploadingStage === stageData.stage}
-                      onClick={() => openFilePicker(stageData.stage)}
-                    >
-                      <UploadFileOutlinedIcon sx={{ fontSize: 30, opacity: 0.8 }} />
-                      {uploadingStage === stageData.stage ? "Загрузка…" : "Загрузить скрин"}
-                    </StageUploadButton>
-                  ) : (
-                    <>
-                      <StageImageButton
+                    {!hasImage ? (
+                      <StageUploadButton
                         type="button"
-                        aria-label={`Развернуть pick'em ${stageData.stage}`}
-                        onClick={() =>
-                          setExpandedImage({
-                            src: stageData.imageUrl!,
-                            alt: `Pick'em ${stageData.stage}`,
-                          })
-                        }
+                        disabled={uploadingStage === stageData.stage}
+                        onClick={() => openFilePicker(stageData.stage)}
                       >
-                        <StageImage src={stageData.imageUrl!} alt={`Pick'em ${stageData.stage}`} />
-                      </StageImageButton>
-                      <StageActions>
-                        <ReplaceImageButton
+                        <UploadFileOutlinedIcon sx={{ fontSize: 30, opacity: 0.8 }} />
+                        {uploadingStage === stageData.stage ? "Загрузка…" : "Загрузить скрин"}
+                      </StageUploadButton>
+                    ) : (
+                      <>
+                        <StageImageButton
                           type="button"
-                          disabled={uploadingStage === stageData.stage}
-                          onClick={() => openFilePicker(stageData.stage)}
+                          aria-label={`Развернуть pick'em ${stageData.stage}`}
+                          onClick={() =>
+                            setExpandedImage({
+                              src: stageData.imageUrl!,
+                              alt: `Pick'em ${stageData.stage}`,
+                            })
+                          }
                         >
-                          {uploadingStage === stageData.stage ? "Загрузка…" : "Заменить"}
-                        </ReplaceImageButton>
-                      </StageActions>
-                    </>
-                  )}
-                </StageCardBody>
-              </StageCard>
-            );
-          })}
-        </StagesGrid>
+                          <StageImage
+                            src={stageData.imageUrl!}
+                            alt={`Pick'em ${stageData.stage}`}
+                          />
+                        </StageImageButton>
+                        <StageActions>
+                          <ReplaceImageButton
+                            type="button"
+                            disabled={uploadingStage === stageData.stage}
+                            onClick={() => openFilePicker(stageData.stage)}
+                          >
+                            {uploadingStage === stageData.stage ? "Загрузка…" : "Заменить"}
+                          </ReplaceImageButton>
+                        </StageActions>
+                      </>
+                    )}
+                  </StageCardBody>
+                </StageCard>
+              );
+            })}
+          </StagesGrid>
+        )}
       </AccordionDetails>
 
       <PickemImageLightbox
@@ -214,7 +262,7 @@ const PickemMajorCard = ({
       <ConfirmDialog
         open={deleteOpen}
         title="Удалить pick'em?"
-        message={`Турнир «${major.eventName || major.eventOrganization}» и все загруженные картинки будут удалены.`}
+        message={`Турнир «${label}» и все загруженные скрины будут удалены.`}
         confirming={deleting}
         onClose={() => setDeleteOpen(false)}
         onConfirm={async () => {

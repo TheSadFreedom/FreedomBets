@@ -219,9 +219,31 @@ const rowToneStyles: Record<RankTone, ReturnType<typeof css>> = {
   `,
 };
 
+export const EditTeamButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #a5d6a7;
+    background: rgba(76, 175, 80, 0.12);
+  }
+`;
+
 export const TeamRow = styled.div<{ $tone?: RankTone }>`
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
@@ -236,6 +258,17 @@ export const TeamRow = styled.div<{ $tone?: RankTone }>`
     background: rgba(76, 175, 80, 0.07);
     border-color: rgba(76, 175, 80, 0.18);
     transform: translateX(2px);
+  }
+
+  &:hover ${EditTeamButton},
+  &:focus-within ${EditTeamButton} {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    ${EditTeamButton} {
+      opacity: 1;
+    }
   }
 
 `;

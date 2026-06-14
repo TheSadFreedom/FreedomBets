@@ -1,27 +1,26 @@
 import type { Match } from "@/entities/match";
-import { attachTeamIds } from "@/entities/team";
 import { getMatchEffectiveStatus } from "@/features/matches/lib/getMatchEffectiveStatus";
 import { normalizeMapsForFormat } from "@/features/matches/lib/matchMaps";
-import { limitInputLength } from "@/shared/lib/limits";
-import { resolveCanonicalTeamName } from "@/shared/lib/teams/teamNames";
 
 export function normalizeMatch(data: Match): Match {
-  const maps = normalizeMapsForFormat(data.maps, data.format ?? "BO3");
-  const majorStage =
-    typeof data.majorStage === "string" && data.majorStage.trim()
-      ? limitInputLength(data.majorStage.trim())
-      : null;
+  const format = data.format ?? "BO3";
+  const maps = normalizeMapsForFormat(data.maps, format);
 
-  const withNames = {
-    ...data,
-    organization1: limitInputLength(resolveCanonicalTeamName(data.organization1 ?? "")),
-    organization2: limitInputLength(resolveCanonicalTeamName(data.organization2 ?? "")),
-    eventOrganization: limitInputLength((data.eventOrganization ?? "").trim()),
-    eventName: limitInputLength((data.eventName ?? "").trim()),
-    majorStage,
+  return {
+    id: String(data.id),
+    eventId: String(data.eventId ?? "").trim(),
+    team1Id: String(data.team1Id ?? "").trim(),
+    team2Id: String(data.team2Id ?? "").trim(),
+    date: String(data.date ?? "").trim(),
+    time: String(data.time ?? "").trim(),
+    format,
     maps,
-    status: getMatchEffectiveStatus({ ...data, maps }),
+    status: getMatchEffectiveStatus({ ...data, maps, format }),
+    sportsRuSeriesId: data.sportsRuSeriesId ?? null,
+    sportsRuUrl: data.sportsRuUrl ?? null,
+    organization1: data.organization1,
+    organization2: data.organization2,
+    eventName: data.eventName,
+    eventOrganization: data.eventOrganization,
   };
-
-  return attachTeamIds(withNames);
 }

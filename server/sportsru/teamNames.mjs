@@ -1,12 +1,3 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const SYNONYMS_PATH = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../config/teamSynonyms.json"
-);
-
 let aliasToKey = new Map();
 let keyToCanonical = new Map();
 
@@ -21,44 +12,36 @@ function normalizeKey(name) {
     .replace(/\s+/g, " ");
 }
 
-export function reloadTeamSynonyms() {
-  aliasToKey = new Map();
-  keyToCanonical = new Map();
-  loadTeamSynonyms();
-}
-
-function loadTeamSynonyms() {
-  if (aliasToKey.size > 0) return;
-
+export function reloadTeamSynonyms(teams = []) {
   aliasToKey = new Map();
   keyToCanonical = new Map();
 
-  let config;
-  try {
-    config = JSON.parse(readFileSync(SYNONYMS_PATH, "utf8"));
-  } catch (error) {
-    console.warn("teamSynonyms.json not loaded:", error.message);
-    return;
-  }
+  const sorted = [...teams].sort(
+    (left, right) => (left.synonyms?.length ?? 0) - (right.synonyms?.length ?? 0)
+  );
 
-  for (const group of config.groups ?? []) {
-    const canonical = String(group.canonical ?? "").trim();
-    if (!canonical) continue;
+  for (const team of sorted) {
+    const id = String(team?.id ?? "").trim();
+    const name = String(team?.name ?? "").trim();
+    if (!id || !name) continue;
 
-    const key = normalizeKey(canonical);
-    keyToCanonical.set(key, canonical);
+    keyToCanonical.set(id, name);
 
-    const names = [canonical, ...(Array.isArray(group.aliases) ? group.aliases : [])];
-    for (const name of names) {
-      const trimmed = String(name ?? "").trim();
+    const normalizedName = normalizeKey(name);
+    if (!aliasToKey.has(normalizedName)) {
+      aliasToKey.set(normalizedName, id);
+    }
+
+    for (const synonym of Array.isArray(team.synonyms) ? team.synonyms : []) {
+      const trimmed = String(synonym ?? "").trim();
       if (!trimmed) continue;
-      aliasToKey.set(normalizeKey(trimmed), key);
+      aliasToKey.set(normalizeKey(trimmed), id);
     }
   }
 }
 
 function ensureTeamSynonymsLoaded() {
-  if (aliasToKey.size === 0) loadTeamSynonyms();
+  // Maps are populated via reloadTeamSynonyms(db.data.teams) on server startup.
 }
 
 export function getTeamMatchKey(name) {

@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import type { Profile } from "@/entities/profile";
 import type { Bet } from "@/entities/bet";
 import { calcWinRate, getSettledBets } from "@/features/bets/lib/calculations";
-import ProfileSettingsDialog from "./components/ProfileSettingsDialog/ProfileSettingsDialog";
+import AppSettingsDialog from "./components/AppSettingsDialog/AppSettingsDialog";
+import ProfileDialog from "./components/ProfileDialog/ProfileDialog";
+import type { AppCreateActions } from "./types";
 import {
   ProfileAvatar,
   ProfileBalance,
@@ -15,11 +18,14 @@ import {
   ProfileMetrics,
   ProfileNameButton,
   ProfileWinRate,
+  SettingsButton,
 } from "./ProfileHeader.styled";
 
 interface ProfileHeaderProps {
   profile: Profile;
   bets: Bet[];
+  createActions?: AppCreateActions;
+  onSyncSportsRu?: (options: { dates: string[] }) => Promise<void>;
   onSetBalance: (balance: number) => Promise<void>;
   onUpdateName: (name: string) => Promise<void>;
   onDeleteProfile: () => Promise<void>;
@@ -34,11 +40,14 @@ const profileInitial = (name: string) => {
 const ProfileHeader = ({
   profile,
   bets,
+  createActions,
+  onSyncSportsRu,
   onSetBalance,
   onUpdateName,
   onDeleteProfile,
   onExitProfile,
 }: ProfileHeaderProps) => {
+  const [profileOpen, setProfileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const winRate = calcWinRate(bets);
   const hasSettled = getSettledBets(bets).length > 0;
@@ -54,10 +63,10 @@ const ProfileHeader = ({
           <ProfileAvatar>{profileInitial(profile.name)}</ProfileAvatar>
 
           <ProfileIdentity>
-            <ProfileNameButton type="button" onClick={() => setSettingsOpen(true)}>
+            <ProfileNameButton type="button" onClick={() => setProfileOpen(true)}>
               {profile.name}
             </ProfileNameButton>
-            <ProfileHint>Настройки</ProfileHint>
+            <ProfileHint>Профиль</ProfileHint>
           </ProfileIdentity>
 
           <ProfileMetrics>
@@ -80,16 +89,32 @@ const ProfileHeader = ({
             </ProfileMetricTile>
           </ProfileMetrics>
         </ProfileCard>
+
+        <SettingsButton
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          aria-label="Настройки"
+          title="Настройки"
+        >
+          <SettingsOutlinedIcon />
+        </SettingsButton>
       </ProfileHeaderRoot>
 
-      <ProfileSettingsDialog
-        open={settingsOpen}
+      <ProfileDialog
+        open={profileOpen}
         profile={profile}
-        onClose={() => setSettingsOpen(false)}
+        onClose={() => setProfileOpen(false)}
         onUpdateName={onUpdateName}
         onSetBalance={onSetBalance}
         onDeleteProfile={onDeleteProfile}
         onExitProfile={onExitProfile}
+      />
+
+      <AppSettingsDialog
+        open={settingsOpen}
+        createActions={createActions}
+        onSyncSportsRu={onSyncSportsRu}
+        onClose={() => setSettingsOpen(false)}
       />
     </>
   );

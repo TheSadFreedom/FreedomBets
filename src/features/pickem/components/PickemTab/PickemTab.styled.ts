@@ -338,6 +338,8 @@ export const PickemStagesBadge = styled.span<{ $complete?: boolean }>`
         `}
 `;
 
+export const PickemStatusBadge = PickemStagesBadge;
+
 export const PickemUploadError = styled.p`
   margin: 0;
   padding: 8px 10px;
@@ -380,27 +382,127 @@ export const DeleteMajorButton = styled.button`
   }
 `;
 
+export const StageCountPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+`;
+
+export const StageCountTitle = styled.p`
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+`;
+
+export const StageCountHint = styled.span`
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.42);
+`;
+
+export const StageCountGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+
+  @media (min-width: 560px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+`;
+
+export const StageCountButton = styled.button`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 72px;
+  padding: 10px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.15s ease;
+
+  strong {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    color: #ffe082;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    font-size: 10px;
+    line-height: 1.3;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: rgba(255, 213, 79, 0.42);
+    background: rgba(255, 213, 79, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: wait;
+  }
+`;
+
 export const StagesGrid = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
+  flex-direction: column;
   gap: 10px;
-  width: 100%;
-
 `;
 
 export const StageCard = styled.div<{ $hasImage?: boolean; $accent?: string }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  flex: 1 1 0;
-  min-width: 0;
   padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid
+    ${({ $hasImage, $accent }) =>
+      $hasImage ? "rgba(76, 175, 80, 0.28)" : ($accent ?? "rgba(255, 255, 255, 0.1)")};
+  box-shadow: inset 3px 0 0 ${({ $accent }) => $accent ?? "transparent"};
+`;
 
+export const StageCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+`;
+
+export const StageLabel = styled.span`
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.88);
+`;
+
+export const PickemImagePanel = styled.div<{ $hasImage?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 3px solid ${({ $accent }) => $accent ?? "rgba(255, 255, 255, 0.16)"};
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   transition:
     border-color 0.18s ease,
@@ -418,15 +520,6 @@ export const StageCard = styled.div<{ $hasImage?: boolean; $accent?: string }>`
   }
 `;
 
-export const StageCardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-width: 0;
-
-`;
-
 export const StageCardStatus = styled.span<{ $uploaded?: boolean }>`
   display: inline-flex;
   align-items: center;
@@ -437,7 +530,6 @@ export const StageCardStatus = styled.span<{ $uploaded?: boolean }>`
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: ${({ $uploaded }) => ($uploaded ? "#a5d6a7" : "rgba(255, 255, 255, 0.34)")};
-
 
   &::before {
     content: "";

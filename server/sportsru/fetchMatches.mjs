@@ -112,6 +112,7 @@ export async function fetchSportsRuMatches({ force = false, events = [], dates }
         fetchedAt: meta.fetchedAt ?? fetchedAt,
         knownEventCount: knownEvents.length,
         filteredByEvents: true,
+        parsedCount: allMatches.length,
       },
     };
   } catch (error) {

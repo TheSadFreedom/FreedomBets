@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const ScrollToTopFab = styled.button<{ $visible: boolean }>`
   position: fixed;
   right: max(16px, env(safe-area-inset-right));
-  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  bottom: max(16px, env(safe-area-inset-bottom, 0px));
   z-index: 1090;
   display: inline-flex;
   align-items: center;

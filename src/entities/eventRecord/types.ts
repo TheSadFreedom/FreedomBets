@@ -1,34 +1,31 @@
 import type { EventTier } from "@/entities/event";
 
-export interface EventRecord {
+/** Размер турнира: Major, Big или Small */
+export type TournamentSize = EventTier;
+
+/** Турнир (коллекция `events` в SQLite). */
+export interface Tournament {
   id: string;
-  eventOrganization: string;
-  eventName: string;
-  /** Имя файла без расширения из public/events */
-  logoSlug: string | null;
+  name: string;
   date: string;
   endDate: string;
-  eventTier: EventTier;
-  /** Стадии турнира; пустой массив — без деления на стадии */
-  stages: string[];
-  /** Победитель турнира (команда) */
-  winnerOrganization: string | null;
-  /** Slug файла логотипа победителя из public/teams */
-  winnerLogoSlug: string | null;
-  /** Призовой фонд турнира, USD */
+  logoSlug: string | null;
+  size: TournamentSize;
+  winnerTeamId: string | null;
   prizePool: number | null;
+  /** @deprecated legacy metadata kept for compatibility */
+  eventTier?: TournamentSize;
+  winnerOrganization?: string | null;
+  winnerLogoSlug?: string | null;
+  eventOrganization?: string;
+  eventName?: string;
 }
 
-export type EventRecordCreateInput = Pick<
-  EventRecord,
-  | "eventOrganization"
-  | "eventName"
-  | "logoSlug"
-  | "date"
-  | "endDate"
-  | "eventTier"
-  | "stages"
-  | "winnerOrganization"
-  | "winnerLogoSlug"
-  | "prizePool"
+export type EventRecord = Tournament;
+
+export type TournamentCreateInput = Pick<
+  Tournament,
+  "name" | "logoSlug" | "date" | "endDate" | "size" | "winnerTeamId" | "prizePool"
 >;
+
+export type EventRecordCreateInput = TournamentCreateInput;

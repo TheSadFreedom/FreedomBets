@@ -3,12 +3,12 @@ import { todayIsoDateLocal } from "@/shared/lib/date/isoDate";
 import { findStoredEvent } from "@/features/events/lib/mergeEventStats";
 
 export function isEventFinished(
-  eventOrganization: string,
+  eventId: string,
   eventName: string,
   storedEvents: EventRecord[],
   today = todayIsoDateLocal()
 ): boolean {
-  const record = findStoredEvent({ eventOrganization, eventName }, storedEvents);
+  const record = findStoredEvent({ id: eventId, name: eventName }, storedEvents);
   const endDate = record?.endDate?.trim() ?? "";
   if (!endDate) return false;
   return endDate < today;

@@ -16,14 +16,12 @@ import {
   EventLogoWrap,
   EventMetaCol,
   EventMetricsCol,
-  EventOrg,
   EventTitle,
   EventTitleGroup,
   EventTopActions,
   EventTopBar,
   PrizeBadge,
   ProfitBadge,
-  StagePill,
   TierBadge,
 } from "./EventStats.styled";
 
@@ -31,10 +29,9 @@ type EventTournamentCardSummaryProps = {
   logoSlug: string | null;
   eventOrganization: string;
   eventName: string;
-  eventTier: EventTier;
+  size: EventTier;
   date: string;
   endDate: string;
-  majorStage?: string | null;
   winnerOrganization?: string | null;
   winnerLogoSlug?: string | null;
   prizePool?: number | null;
@@ -47,10 +44,9 @@ const EventTournamentCardSummary = ({
   logoSlug,
   eventOrganization,
   eventName,
-  eventTier,
+  size,
   date,
   endDate,
-  majorStage,
   winnerOrganization,
   winnerLogoSlug,
   prizePool,
@@ -70,14 +66,12 @@ const EventTournamentCardSummary = ({
             <EventLogo logoSlug={logoSlug} label={displayName} size={28} />
           </EventLogoWrap>
           <EventTitleGroup>
-            {eventName ? <EventOrg>{eventOrganization}</EventOrg> : null}
             <EventTitle title={displayName}>{displayName}</EventTitle>
           </EventTitleGroup>
-          {majorStage ? <StagePill>{majorStage}</StagePill> : null}
         </EventEventRow>
 
         <EventTopActions>
-          <TierBadge $tier={eventTier}>{eventTier}</TierBadge>
+          <TierBadge $tier={size}>{size}</TierBadge>
           {prizePool != null && prizePool > 0 ? (
             <PrizeBadge>
               <EmojiEventsOutlinedIcon />

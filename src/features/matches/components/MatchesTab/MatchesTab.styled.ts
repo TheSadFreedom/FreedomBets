@@ -27,14 +27,6 @@ export const FiltersPanel = styled.div`
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 `;
 
-export const FiltersHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 8px;
-`;
-
 export const FiltersWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -96,12 +88,6 @@ export const StatusFilterChip = styled.button<{ $active?: boolean }>`
     outline: 2px solid #81c784;
     outline-offset: 2px;
   }
-`;
-
-export const FiltersActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
 `;
 
 export const MatchesScrollArea = styled.div`

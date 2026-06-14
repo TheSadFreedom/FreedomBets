@@ -1,12 +1,8 @@
-import teamSynonyms from "../../../../config/teamSynonyms.json";
-
-type SynonymGroup = {
-  canonical?: string;
-  aliases?: string[];
-};
+import type { Team } from "@/entities/team";
 
 const aliasToKey = new Map<string, string>();
 const keyToCanonical = new Map<string, string>();
+let synonymsReady = false;
 
 function normalizeKey(name: string): string {
   return name
@@ -19,27 +15,48 @@ function normalizeKey(name: string): string {
     .replace(/\s+/g, " ");
 }
 
-function loadTeamSynonyms(): void {
-  if (aliasToKey.size > 0) return;
+function applyDbTeams(teams: Team[]): void {
+  const sorted = [...teams].sort(
+    (left, right) => (left.synonyms?.length ?? 0) - (right.synonyms?.length ?? 0)
+  );
 
-  for (const group of (teamSynonyms.groups ?? []) as SynonymGroup[]) {
-    const canonical = String(group.canonical ?? "").trim();
-    if (!canonical) continue;
+  for (const team of sorted) {
+    const key = String(team.id ?? "").trim();
+    const name = String(team.name ?? "").trim();
+    if (!key || !name) continue;
 
-    const key = normalizeKey(canonical);
-    keyToCanonical.set(key, canonical);
+    keyToCanonical.set(key, name);
 
-    const names = [canonical, ...(Array.isArray(group.aliases) ? group.aliases : [])];
-    for (const name of names) {
-      const trimmed = String(name ?? "").trim();
+    const normalizedName = normalizeKey(name);
+    if (!aliasToKey.has(normalizedName)) {
+      aliasToKey.set(normalizedName, key);
+    }
+
+    for (const synonym of team.synonyms ?? []) {
+      const trimmed = String(synonym ?? "").trim();
       if (!trimmed) continue;
       aliasToKey.set(normalizeKey(trimmed), key);
     }
   }
 }
 
+function rebuildSynonymMaps(dbTeams: Team[] = []): void {
+  aliasToKey.clear();
+  keyToCanonical.clear();
+  applyDbTeams(dbTeams);
+  synonymsReady = true;
+}
+
+function ensureTeamSynonymsLoaded(): void {
+  if (!synonymsReady) rebuildSynonymMaps();
+}
+
+export function applyDbTeamSynonyms(teams: Team[]): void {
+  rebuildSynonymMaps(teams);
+}
+
 export function getTeamMatchKey(name: string): string {
-  loadTeamSynonyms();
+  ensureTeamSynonymsLoaded();
   const normalized = normalizeKey(name);
   if (!normalized) return "";
   return aliasToKey.get(normalized) ?? normalized;
@@ -53,10 +70,36 @@ export function teamNamesMatch(left: string, right: string): boolean {
 }
 
 export function resolveCanonicalTeamName(name: string): string {
-  loadTeamSynonyms();
+  ensureTeamSynonymsLoaded();
   const trimmed = String(name ?? "").trim();
   if (!trimmed) return "";
 
   const key = getTeamMatchKey(trimmed);
   return keyToCanonical.get(key) ?? trimmed;
+}
+
+export function resolveTeamSynonyms(team: Pick<Team, "synonyms">): string[] {
+  return Array.isArray(team.synonyms)
+    ? [...new Set(team.synonyms.map((item) => String(item).trim()).filter(Boolean))]
+    : [];
+}
+
+/** All normalized spellings for search, including aliases and canonical name. */
+export function getTeamSearchTerms(name: string): string[] {
+  ensureTeamSynonymsLoaded();
+  const trimmed = String(name ?? "").trim();
+  if (!trimmed) return [];
+
+  const key = getTeamMatchKey(trimmed);
+  const terms = new Set<string>([normalizeKey(trimmed)]);
+  if (key) terms.add(key);
+
+  const canonical = keyToCanonical.get(key);
+  if (canonical) terms.add(normalizeKey(canonical));
+
+  for (const [alias, aliasKey] of aliasToKey.entries()) {
+    if (aliasKey === key) terms.add(alias);
+  }
+
+  return [...terms];
 }

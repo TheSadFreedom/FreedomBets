@@ -1,7 +1,9 @@
 import type { EventRecord } from "@/entities/eventRecord";
+import { storedEventTitle } from "@/features/events/lib/eventTitle";
 
-function eventKey(event: Pick<EventRecord, "eventOrganization" | "eventName">): string {
-  return `${event.eventOrganization.trim().toLowerCase()}\0${event.eventName.trim().toLowerCase()}`;
+function eventKey(event: EventRecord): string {
+  const name = event.name || event.eventName || "";
+  return (event.id || storedEventTitle({ name })).toLowerCase();
 }
 
 /** Один турнир на пару (организатор, название) — для миграции с profileId. */

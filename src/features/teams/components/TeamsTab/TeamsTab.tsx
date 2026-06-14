@@ -1,17 +1,23 @@
 import { useMemo, useState } from "react";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
 import { InputAdornment, TextField, Tooltip } from "@mui/material";
 import type { Bet } from "@/entities/bet";
 import type { RankingBaseline } from "@/entities/ranking";
+import type { Team, TeamEditInput } from "@/entities/team";
+import TeamFormDialog from "@/features/teams/components/TeamFormDialog/TeamFormDialog";
+import { filterCanonicalTeams } from "@/features/teams/lib/filterCanonicalTeams";
 import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
-import { getTeamMatchKey } from "@/shared/lib/teams/teamNames";
+import { getTeamMatchKey, getTeamSearchTerms, resolveTeamSynonyms } from "@/shared/lib/teams/teamNames";
+import { matchesSearchQuery } from "@/shared/lib/search/textSearch";
 import TeamLogo from "@/shared/ui/TeamLogo/TeamLogo";
 import type { RankTone } from "./TeamsTab.styled";
 import {
   BetsCount,
   BetsLabel,
+  EditTeamButton,
   EmptyState,
   FiltersRow,
   HeroBadge,
@@ -43,11 +49,19 @@ import {
 
 interface TeamsTabProps {
   allBets: Bet[];
+  teams: Team[];
   rankingBaseline: RankingBaseline | null;
   onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
+  onUpdateTeam: (teamId: string, data: TeamEditInput) => Promise<void>;
 }
 
-const rankTone = (rank: number): RankTone | undefined => {
+interface TeamRowItem {
+  team: Team;
+  rank: number;
+}
+
+const rankTone = (rank: number, hasPoints: boolean): RankTone | undefined => {
+  if (!hasPoints) return undefined;
   if (rank === 1) return "gold";
   if (rank === 2) return "silver";
   if (rank === 3) return "bronze";
@@ -62,18 +76,34 @@ const formatTeamsCount = (count: number) => {
   return `${count} команд`;
 };
 
+const buildTeamRows = (teams: Team[]): TeamRowItem[] => {
+  const sorted = filterCanonicalTeams(teams).sort((left, right) => {
+      const pointsDiff = (right.vrsPoints ?? 0) - (left.vrsPoints ?? 0);
+      if (pointsDiff !== 0) return pointsDiff;
+      return left.name.localeCompare(right.name, "ru");
+    });
+
+  return sorted.map((team, index) => ({
+    team: {
+      ...team,
+      synonyms: resolveTeamSynonyms(team),
+    },
+    rank: index + 1,
+  }));
+};
+
 const TeamsTab = ({
   allBets,
+  teams,
   rankingBaseline,
   onRefreshRankingBaseline,
+  onUpdateTeam,
 }: TeamsTabProps) => {
   const [search, setSearch] = useState("");
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const rankings = useMemo(() => {
-    const teams = rankingBaseline?.teams ?? [];
-    return [...teams].sort((a, b) => a.globalRank - b.globalRank);
-  }, [rankingBaseline]);
+  const teamRows = useMemo(() => buildTeamRows(teams), [teams]);
 
   const betsByTeamKey = useMemo(() => {
     const map = new Map<string, number>();
@@ -90,13 +120,18 @@ const TeamsTab = ({
     return map;
   }, [allBets]);
 
-  const topPoints = rankings[0]?.points ?? 1;
+  const hasPoints = teamRows.some((item) => item.team.vrsPoints > 0);
+  const topPoints = teamRows[0]?.team.vrsPoints ?? 1;
 
   const displayed = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return rankings;
-    return rankings.filter((item) => item.teamName.toLowerCase().includes(q));
-  }, [rankings, search]);
+    if (!search.trim()) return teamRows;
+    return teamRows.filter(({ team }) =>
+      matchesSearchQuery(
+        [team.name, ...getTeamSearchTerms(team.name), ...team.synonyms],
+        search
+      )
+    );
+  }, [teamRows, search]);
 
   const handleRefreshBaseline = async () => {
     setRefreshing(true);
@@ -107,21 +142,17 @@ const TeamsTab = ({
     }
   };
 
-  if (rankings.length === 0) {
+  const snapshotLabel = rankingBaseline?.snapshotDate
+    ? `Valve VRS · снимок от ${rankingBaseline.snapshotDate}`
+    : "Valve VRS · обновите рейтинг";
+
+  if (teamRows.length === 0) {
     return (
       <TabRoot>
-        <EmptyState>
-          {rankingBaseline
-            ? "Нет команд в рейтинге Valve"
-            : "Загрузка рейтинга Valve…"}
-        </EmptyState>
+        <EmptyState>Нет команд в базе</EmptyState>
       </TabRoot>
     );
   }
-
-  const snapshotLabel = rankingBaseline?.snapshotDate
-    ? `снимок от ${rankingBaseline.snapshotDate}`
-    : "без даты снимка";
 
   return (
     <TabRoot>
@@ -133,11 +164,11 @@ const TeamsTab = ({
               <GroupsOutlinedIcon sx={{ fontSize: 22 }} />
             </HeroIcon>
             <HeroText>
-              <HeroTitle>Рейтинг команд</HeroTitle>
-              <HeroHint>Valve VRS · {snapshotLabel}</HeroHint>
+              <HeroTitle>Команды</HeroTitle>
+              <HeroHint>{snapshotLabel}</HeroHint>
             </HeroText>
           </HeroLeft>
-          <HeroBadge>{formatTeamsCount(rankings.length)}</HeroBadge>
+          <HeroBadge>{formatTeamsCount(teamRows.length)}</HeroBadge>
         </HeroContent>
       </HeroCard>
 
@@ -186,38 +217,60 @@ const TeamsTab = ({
           <EmptyState>Ничего не найдено</EmptyState>
         ) : (
           <ListSection>
-            {displayed.map((item) => {
-              const tone = rankTone(item.globalRank);
-              const share = item.points / topPoints;
-              const betCount = betsByTeamKey.get(item.teamKey) ?? 0;
+            {displayed.map(({ team, rank }) => {
+              const tone = rankTone(rank, hasPoints);
+              const share = hasPoints ? team.vrsPoints / topPoints : 0;
+              const betCount = betsByTeamKey.get(team.id) ?? 0;
 
               return (
-                <TeamRow key={item.teamKey} $tone={tone}>
+                <TeamRow key={team.id} $tone={tone}>
                   <RowLeft>
-                    <RankNumber $tone={tone}>{item.globalRank}</RankNumber>
+                    <RankNumber $tone={tone}>{rank}</RankNumber>
                     <LogoRing>
-                      <TeamLogo name={item.teamName} size={36} />
+                      <TeamLogo name={team.name} size={36} />
                     </LogoRing>
                     <RowInfo>
-                      <TeamName>{item.teamName}</TeamName>
+                      <TeamName>{team.name}</TeamName>
                       {betCount > 0 ? (
                         <RowStats>{betCount} ставок</RowStats>
                       ) : null}
-                      <ShareTrack>
-                        <ShareFill $share={share} $tone={tone} />
-                      </ShareTrack>
+                      {hasPoints ? (
+                        <ShareTrack>
+                          <ShareFill $share={share} $tone={tone} />
+                        </ShareTrack>
+                      ) : null}
                     </RowInfo>
                   </RowLeft>
                   <RowRight>
-                    <BetsLabel>Очки</BetsLabel>
-                    <BetsCount>{item.points}</BetsCount>
+                    {hasPoints ? (
+                      <>
+                        <BetsLabel>Очки</BetsLabel>
+                        <BetsCount>{team.vrsPoints.toLocaleString("ru-RU")}</BetsCount>
+                      </>
+                    ) : null}
                   </RowRight>
+                  <Tooltip title="Редактировать команду">
+                    <EditTeamButton
+                      type="button"
+                      aria-label={`Редактировать ${team.name}`}
+                      onClick={() => setEditingTeam(team)}
+                    >
+                      <EditOutlinedIcon sx={{ fontSize: 18 }} />
+                    </EditTeamButton>
+                  </Tooltip>
                 </TeamRow>
               );
             })}
           </ListSection>
         )}
       </TeamsCard>
+
+      <TeamFormDialog
+        open={editingTeam !== null}
+        team={editingTeam}
+        onClose={() => setEditingTeam(null)}
+        onSubmit={onUpdateTeam}
+      />
     </TabRoot>
   );
 };

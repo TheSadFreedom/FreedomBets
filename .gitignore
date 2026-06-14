@@ -30,5 +30,17 @@ release
 public/uploads/pickems/*
 !public/uploads/pickems/.gitkeep
 
+# SQLite database (local dev)
+freedom.db
+freedom.db-wal
+freedom.db-shm
+freedom.db.bak
+
+data/seed-freedom.db
+
+# Legacy JSON database (removed from project)
+db.json
+db.json.*
+
 # Daily DB backups (server + desktop userData)
 backups/

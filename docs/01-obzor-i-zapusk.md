@@ -208,7 +208,7 @@ npm run desktop:dev    # разработка
 npm run desktop:dist   # локальный .exe в release/
 ```
 
-Данные — в `%AppData%\Roaming\freedombets\`, не в папке установки.
+Данные — в `%AppData%\Roaming\FreedomBets\`, не в папке установки.
 
 Публикация на GitHub Releases, получение токена `GH_TOKEN`, автообновление и ежедневные бэкапы базы — **[07-desktop-i-releases.md](07-desktop-i-releases.md)**.
 

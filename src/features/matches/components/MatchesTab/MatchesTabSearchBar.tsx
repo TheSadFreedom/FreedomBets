@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, InputAdornment, TextField } from "@mui/material";
+import { InputAdornment, TextField } from "@mui/material";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import { buildSportsRuSyncRequest } from "@/features/sportsru/lib/sportsRuSyncOptions";
@@ -9,8 +9,6 @@ import {
 } from "@/features/matches/lib/filterMatchesByStatus";
 import { limitInputLength, MAX_INPUT_LENGTH } from "@/shared/lib/limits";
 import {
-  FiltersActions,
-  FiltersHeader,
   FiltersPanel,
   FiltersWrapper,
   MatchSyncButton,
@@ -25,8 +23,6 @@ interface MatchesTabSearchBarProps {
   onSearchChange: (value: string) => void;
   statusFilter: MatchStatusFilter;
   onStatusFilterChange: (value: MatchStatusFilter) => void;
-  hasActiveFilters: boolean;
-  onResetFilters: () => void;
   onSyncSportsRu?: (options: { dates: string[] }) => Promise<void>;
 }
 
@@ -35,8 +31,6 @@ const MatchesTabSearchBar = ({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
-  hasActiveFilters,
-  onResetFilters,
   onSyncSportsRu,
 }: MatchesTabSearchBarProps) => {
   const [syncing, setSyncing] = useState(false);
@@ -54,16 +48,6 @@ const MatchesTabSearchBar = ({
 
   return (
     <FiltersPanel>
-      {hasActiveFilters ? (
-        <FiltersHeader>
-          <FiltersActions>
-            <Button size="small" variant="text" onClick={onResetFilters} sx={{ minWidth: 0 }}>
-              Сбросить
-            </Button>
-          </FiltersActions>
-        </FiltersHeader>
-      ) : null}
-
       <FiltersWrapper>
         <SearchRow>
           <SearchFieldWrap>

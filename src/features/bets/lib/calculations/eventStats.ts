@@ -16,10 +16,9 @@ export function calcEventStatsList(bets: Bet[], events: EventRecord[] = []): Eve
   const byEvent = new Map<string, Bet[]>();
 
   for (const bet of bets) {
-    const org = bet.eventOrganization.trim() || "Без организации";
+    const eventId = bet.eventId.trim();
     const name = bet.eventName.trim();
-    const stage = bet.majorStage;
-    const key = eventStatsKey(org, name, stage);
+    const key = eventStatsKey(eventId, name);
     const group = byEvent.get(key) ?? [];
     group.push(bet);
     byEvent.set(key, group);
@@ -27,26 +26,22 @@ export function calcEventStatsList(bets: Bet[], events: EventRecord[] = []): Eve
 
   return Array.from(byEvent.entries()).map(([key, eventBets]) => {
     const parts = key.split("\0");
-    const eventOrganization = parts[0] ?? "";
+    const eventId = parts[0] ?? "";
     const eventName = parts[1] ?? "";
-    const majorStage = parts[2] ?? null;
     const sortedBets = [...eventBets].sort(compareBetsByDateTimeDesc);
 
     const earliest = sortedBets[sortedBets.length - 1];
-    const stored = findStoredEvent({ eventOrganization, eventName }, events);
+    const stored = findStoredEvent({ id: eventId, name: eventName }, events);
 
     return {
-      eventOrganization,
-      eventName,
-      logoSlug: stored?.logoSlug ?? resolveEventLogoSlug(eventOrganization, eventName, events),
-      majorStage,
-      stages: [],
-      winnerOrganization: stored?.winnerOrganization ?? null,
-      winnerLogoSlug: stored?.winnerLogoSlug ?? null,
+      id: eventId || stored?.id || "",
+      name: eventName || stored?.name || "",
+      logoSlug: stored?.logoSlug ?? resolveEventLogoSlug(eventId, eventName, events),
+      winnerTeamId: stored?.winnerTeamId ?? null,
       prizePool: stored?.prizePool ?? null,
       date: stored?.date?.trim() || earliest?.date || "",
       endDate: stored?.endDate?.trim() || "",
-      eventTier: stored?.eventTier ?? resolveEventTierForEvent(events, eventOrganization, eventName),
+      size: resolveEventTierForEvent(events, eventId, eventName),
       totalBets: sortedBets.length,
       wins: countByStatus(sortedBets, "WIN"),
       losses: countByStatus(sortedBets, "LOSE"),

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app } from "electron";
@@ -15,10 +16,20 @@ export function getAppPaths() {
     isDev: !isPackaged,
     bundledRoot: projectRoot,
     userData,
-    dbPath: path.join(userData, "db.json"),
-    bundledDbPath: path.join(projectRoot, "db.json"),
+    dbPath: path.join(userData, "freedom.db"),
+    legacyJsonPath: path.join(userData, "db.json"),
+    bundledSeedDbPath: resolveBundledSeedPath(projectRoot),
     userPublicDir: path.join(userData, "public"),
     serverEntry: path.join(projectRoot, "server", "index.mjs"),
     distDir: path.join(isPackaged ? app.getAppPath() : projectRoot, "dist"),
   };
+}
+
+function resolveBundledSeedPath(projectRoot) {
+  const candidates = [
+    path.join(projectRoot, "seed-freedom.db"),
+    path.join(projectRoot, "data", "seed-freedom.db"),
+  ];
+
+  return candidates.find((candidate) => existsSync(candidate)) ?? candidates[0];
 }
