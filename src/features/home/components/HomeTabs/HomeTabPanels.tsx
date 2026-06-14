@@ -58,6 +58,7 @@ export interface HomeTabPanelsProps {
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
   rankingBaseline: RankingBaseline | null;
   onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
+  onSyncSportsRu?: (options?: { force?: boolean; dates?: string[] }) => Promise<void>;
 }
 
 const HomeTabPanels = ({
@@ -94,6 +95,7 @@ const HomeTabPanels = ({
   onDeleteMedal,
   rankingBaseline,
   onRefreshRankingBaseline,
+  onSyncSportsRu,
 }: HomeTabPanelsProps) => {
   const activeProfile = profiles.find((item) => item.id === activeProfileId);
   const { totalDeposited, totalWithdrawn } = activeProfile
@@ -123,6 +125,7 @@ const HomeTabPanels = ({
             onDeleteMatch={onDeleteMatch}
             onBetMatch={onBetMatch}
             onEditBet={onEdit}
+            onSyncSportsRu={onSyncSportsRu}
           />
         </Suspense>
       </TabsPanel>

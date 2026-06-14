@@ -32,7 +32,9 @@ export function getSportsRuMatchPageUrl(isoDate) {
   return `${MATCHES_BASE_URL}/${isoDate}/`;
 }
 
-/** Вчера, сегодня и завтра по календарю Sports.ru (МСК), либо явные даты. */
+const MATCHES_PAST_DAYS = 3;
+
+/** Завтра, сегодня и последние 3 дня по календарю Sports.ru (МСК), либо явные даты. */
 export function getSportsRuMatchPageUrls(dates) {
   const normalized = (Array.isArray(dates) ? dates : [])
     .map(normalizeSportsRuDateInput)
@@ -42,5 +44,10 @@ export function getSportsRuMatchPageUrls(dates) {
     return [...new Set(normalized)].map(getSportsRuMatchPageUrl);
   }
 
-  return [-1, 0, 1].map((offset) => getSportsRuMatchPageUrl(moscowIsoDate(offset)));
+  const offsets = [];
+  for (let offset = -MATCHES_PAST_DAYS; offset <= 1; offset += 1) {
+    offsets.push(offset);
+  }
+
+  return offsets.map((offset) => getSportsRuMatchPageUrl(moscowIsoDate(offset)));
 }

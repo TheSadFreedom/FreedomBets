@@ -742,8 +742,8 @@ export function useProfileBets() {
     return { normalizedMatches, reloadedAllBets };
   };
 
-  const syncSportsRuMatchesFromServer = async (force = false) => {
-    await syncSportsRuMatches(force);
+  const syncSportsRuMatchesFromServer = async (options?: { force?: boolean; dates?: string[] }) => {
+    await syncSportsRuMatches({ force: options?.force ?? true, dates: options?.dates });
     await reloadMatchesAndBets();
   };
 

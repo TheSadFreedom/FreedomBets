@@ -130,15 +130,16 @@ function removeDuplicateMatches(existing, keeper, bets) {
 }
 
 export async function syncSportsRuMatchesToDb(db, { force = false, dates } = {}) {
-  reloadTeamSynonyms();
-
   await db.read();
+  reloadTeamSynonyms(db.data.teams ?? []);
+
   const events = Array.isArray(db.data.events) ? db.data.events : [];
   const { matches: parsed, meta } = await fetchSportsRuMatches({ force, events, dates });
 
   // Парсинг Sports.ru занимает время — перечитываем базу, чтобы не затереть ставки,
   // добавленные пользователем во время синхронизации.
   await db.read();
+  reloadTeamSynonyms(db.data.teams ?? []);
   const bets = Array.isArray(db.data.bets) ? db.data.bets : [];
   let existing = Array.isArray(db.data.matches) ? [...db.data.matches] : [];
   const existingIds = new Set(existing.map((match) => match.id));
@@ -152,9 +153,18 @@ export async function syncSportsRuMatchesToDb(db, { force = false, dates } = {})
     const found = findExistingMatch(existing, dto, bets);
 
     if (found) {
-      const aligned = alignTeamsToReference(record, applyCanonicalTeamNames(found));
-      // majorStage только вручную — Sports.ru не передаёт и не перезаписывает
-      let next = { ...found, ...aligned, id: found.id };
+      const canonicalFound = applyCanonicalTeamNames(found);
+      const aligned = alignTeamsToReference(record, canonicalFound);
+      const withTeams = attachTeamFieldsToMatch({
+        ...aligned,
+        organization1: aligned.organization1 || canonicalFound.organization1,
+        organization2: aligned.organization2 || canonicalFound.organization2,
+      });
+      let next = {
+        ...found,
+        ...withTeams,
+        id: found.id,
+      };
       next.majorStage = found.majorStage ?? null;
       if (!found.sportsRuSeriesId) {
         next = preserveManualFields(next, found);

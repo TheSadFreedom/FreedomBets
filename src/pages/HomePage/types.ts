@@ -38,7 +38,7 @@ export interface ProfileBetsState {
   deleteProfile: () => Promise<void>;
   addMatch: (data: MatchCreateInput) => Promise<void>;
   updateMatch: (match: Match, data: MatchCreateInput) => Promise<void>;
-  syncSportsRuMatches: (force?: boolean) => Promise<void>;
+  syncSportsRuMatches: (options?: { force?: boolean; dates?: string[] }) => Promise<void>;
   settleMatchBets: (match: Match) => Promise<MatchSettlementResult>;
   deleteMatch: (match: Match) => Promise<void>;
   updateEvent: (identity: EventIdentity, data: EventEditInput) => Promise<void>;

@@ -6,7 +6,6 @@ import BetFormDialog, {
   type BetFormSeed,
 } from "@/features/bets/components/BetFormDialog/BetFormDialog";
 import EventFormDialog from "@/features/events/components/EventFormDialog/EventFormDialog";
-import HomeQuickActions from "@/features/home/components/HomeQuickActions/HomeQuickActions";
 import HomeTabs from "@/features/home/components/HomeTabs/HomeTabs";
 import MatchFormDialog from "@/features/matches/components/MatchFormDialog/MatchFormDialog";
 import { matchToBetSeed } from "@/features/matches/lib/matchToBetSeed";
@@ -112,6 +111,7 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         onDeleteMedal={deleteMedal}
         rankingBaseline={rankingBaseline}
         onRefreshRankingBaseline={refreshRankingBaseline}
+        onSyncSportsRu={syncSportsRuMatches}
       />
 
       <MatchFormDialog
@@ -171,11 +171,6 @@ const HomePage = ({ profileBets }: HomePageProps) => {
         }}
       />
 
-      <HomeQuickActions
-        onNewMatch={() => setCreateMatchOpen(true)}
-        onSyncSportsRu={syncSportsRuMatches}
-        onNewEvent={() => setCreateEventOpen(true)}
-      />
     </Container>
   );
 };

@@ -47,6 +47,7 @@ interface HomeTabsProps {
   onDeleteMedal: (medal: ProfileMedal) => Promise<void>;
   rankingBaseline: RankingBaseline | null;
   onRefreshRankingBaseline: (force?: boolean) => Promise<RankingBaseline | null>;
+  onSyncSportsRu?: (options?: { force?: boolean; dates?: string[] }) => Promise<void>;
 }
 
 const HomeTabs = (props: HomeTabsProps) => {
