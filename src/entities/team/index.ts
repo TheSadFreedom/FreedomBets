@@ -1,8 +1,10 @@
-export type { Team, TeamSides } from "./types";
+export type { Team, TeamEditInput } from "./types";
+export type { TeamSides } from "./resolveTeam";
 export {
   attachTeamIds,
   betTeamOnMatchSide,
   buildTeamFromName,
+  inferBetTeamFromDescription,
   resolveBetTeamId,
   resolveTeamIdFromName,
   teamIdsMatch,

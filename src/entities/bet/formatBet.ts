@@ -4,9 +4,11 @@ import {
   BET_MARKET_LABELS,
   BET_MARKETS,
   BO3_EXACT_SCORES,
+  CUSTOM_BET_PREFIX,
   MAPS_TOTAL_SIDE_LABELS,
   getMapCount,
 } from "./constants";
+import { inferBetTeamFromDescription } from "@/entities/team";
 import type { Bet } from "./types";
 
 export type BetTeamSide = 1 | 2;
@@ -33,6 +35,14 @@ export function isBetTeamSide(value: unknown): value is BetTeamSide {
   return value === 1 || value === 2;
 }
 
+export function isCustomBetType(betType: string): boolean {
+  return /^другая\s*[—–-]\s*/i.test(betType.trim());
+}
+
+export function customBetText(betType: string): string {
+  return betType.replace(/^Другая\s*[—–-]\s*/i, "").trim();
+}
+
 export function inferTeamFromLegacy(betType: string): BetTeamSide {
   const t = betType.trim();
   if (/больше/i.test(t)) return 2;
@@ -44,6 +54,7 @@ export function inferTeamFromLegacy(betType: string): BetTeamSide {
 }
 
 export function inferMarketFromLegacy(betType: string): BetMarket {
+  if (isCustomBetType(betType)) return "custom";
   const t = betType.toLowerCase();
   if (t.includes("пист")) return "pistol";
   if (t.includes("количество карт") || t.includes("тотал карт") || /2[,.]5/.test(t)) {
@@ -102,7 +113,7 @@ export function teamLabel(
   bet: Pick<Bet, "betTeam" | "organization1" | "organization2">
 ): string {
   const name = bet.betTeam === 2 ? bet.organization2 : bet.organization1;
-  return name.trim() || (bet.betTeam === 2 ? "Команда 2" : "Команда 1");
+  return (name ?? "").trim() || (bet.betTeam === 2 ? "Команда 2" : "Команда 1");
 }
 
 export interface BetDescriptionLines {
@@ -116,7 +127,11 @@ export function formatBetDescriptionLines(bet: BetDescriptionInput): BetDescript
     : inferMarketFromLegacy(bet.betType ?? "");
   const betTeam = isBetTeamSide(bet.betTeam)
     ? bet.betTeam
-    : inferTeamFromLegacy(bet.betType ?? "");
+    : inferBetTeamFromDescription(
+        bet.betType ?? "",
+        bet.organization1 ?? "",
+        bet.organization2 ?? "",
+      );
   const team = teamLabel({ ...bet, betTeam });
 
   let market: string;
@@ -144,12 +159,23 @@ export function formatBetDescriptionLines(bet: BetDescriptionInput): BetDescript
       const score = normalizeBo3ExactScore(bet.exactScore1, bet.exactScore2);
       return { market, team: formatExactScoreLabel(score.score1, score.score2) };
     }
+    case "custom": {
+      const text = customBetText(bet.betType ?? "").trim();
+      if (text) {
+        return { market: `${CUSTOM_BET_PREFIX}${text}`, team: "" };
+      }
+      return { market: BET_MARKET_LABELS.custom, team: "" };
+    }
   }
 
   return { market, team };
 }
 
 export function formatBetDescription(bet: BetDescriptionInput): string {
+  if (bet.betMarket === "custom") {
+    const text = customBetText(bet.betType ?? "").trim();
+    return text ? `${CUSTOM_BET_PREFIX}${text}` : BET_MARKET_LABELS.custom;
+  }
   const { market, team } = formatBetDescriptionLines(bet);
   return `${market} — ${team}`;
 }
@@ -183,7 +209,8 @@ export function normalizeBetTargets(
   if (
     bet.betMarket === "match" ||
     bet.betMarket === "mapsTotal" ||
-    bet.betMarket === "atLeastOneMap"
+    bet.betMarket === "atLeastOneMap" ||
+    bet.betMarket === "custom"
   ) {
     return {
       mapNumber: null,

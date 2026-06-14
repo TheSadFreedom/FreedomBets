@@ -1,5 +1,7 @@
 import {
+  attachTeamIds,
   betTeamOnMatchSide,
+  inferBetTeamFromDescription,
   seriesScoreForBet,
   teamPairsMatch,
 } from "../teams/resolveTeam.mjs";
@@ -31,24 +33,8 @@ function betTeamOnMatch(bet, match) {
   return betTeamOnMatchSide(bet, match);
 }
 
-function legacyBetMatchesMatch(bet, match) {
-  if (
-    bet.format !== match.format ||
-    norm(bet.eventOrganization) !== norm(match.eventOrganization) ||
-    norm(bet.eventName) !== norm(match.eventName) ||
-    !stagesEqual(bet.majorStage, match.majorStage) ||
-    !teamPairsMatch(bet, match)
-  ) {
-    return false;
-  }
-  if (bet.date === match.date) return true;
-  return bet.time === match.time;
-}
-
 export function isBetForMatch(bet, match) {
-  const linkedMatchId = bet.matchId?.trim();
-  if (linkedMatchId) return linkedMatchId === match.id;
-  return legacyBetMatchesMatch(bet, match);
+  return String(bet.matchId ?? "").trim() === String(match.id ?? "").trim();
 }
 
 export function findBetsForMatch(match, bets) {
@@ -176,16 +162,63 @@ function resolveMapsTotalBetStatus(bet, match) {
   return null;
 }
 
+function expandStoredBetForSettlement(bet) {
+  if (bet.betMarket) return bet;
+  const text = String(bet.betType ?? "").toLowerCase();
+  const mapNumber = Number(text.match(/карта\s+(\d+)/i)?.[1] ?? "") || null;
+  const exact = text.match(/(\d)\s*[:\-]\s*(\d)/);
+  return {
+    ...bet,
+    betMarket: text.includes("точный счет")
+      ? "exactScore"
+      : text.includes("хотя бы одну")
+        ? "atLeastOneMap"
+        : text.includes("пистолет")
+          ? "pistol"
+          : text.includes("карта")
+            ? "map"
+            : text.includes("тотал") || text.includes("2.5")
+              ? "mapsTotal"
+              : "match",
+    betTeam: bet.betTeam ?? 1,
+    yesNo: text.includes("нет") ? false : text.includes("да") ? true : null,
+    exactScore1: exact ? Number(exact[1]) : null,
+    exactScore2: exact ? Number(exact[2]) : null,
+    mapNumber,
+  };
+}
+
+function enrichBetForSettlement(bet, match) {
+  const expanded = expandStoredBetForSettlement(bet);
+  const organization1 = String(match.organization1 ?? "").trim();
+  const organization2 = String(match.organization2 ?? "").trim();
+  const betTeam = inferBetTeamFromDescription(
+    expanded.betType ?? bet.betType ?? "",
+    organization1,
+    organization2,
+  );
+
+  return attachTeamIds({
+    ...expanded,
+    organization1,
+    organization2,
+    team1Id: match.team1Id,
+    team2Id: match.team2Id,
+    betTeam,
+  });
+}
+
 export function resolveExpectedBetStatus(bet, match) {
-  if (bet.betMarket === "pistol") return null;
-  if (bet.betMarket === "map") return resolveMapBetStatus(bet, match);
-  if (bet.betMarket === "mapsTotal") return resolveMapsTotalBetStatus(bet, match);
-  if (bet.betMarket === "atLeastOneMap") return resolveAtLeastOneMapBetStatus(bet, match);
-  if (bet.betMarket === "exactScore") return resolveExactScoreBetStatus(bet, match);
-  if (bet.betMarket !== "match") return null;
+  const enrichedBet = enrichBetForSettlement(bet, match);
+  if (enrichedBet.betMarket === "pistol") return null;
+  if (enrichedBet.betMarket === "map") return resolveMapBetStatus(enrichedBet, match);
+  if (enrichedBet.betMarket === "mapsTotal") return resolveMapsTotalBetStatus(enrichedBet, match);
+  if (enrichedBet.betMarket === "atLeastOneMap") return resolveAtLeastOneMapBetStatus(enrichedBet, match);
+  if (enrichedBet.betMarket === "exactScore") return resolveExactScoreBetStatus(enrichedBet, match);
+  if (enrichedBet.betMarket !== "match") return null;
   const winner = getMatchSeriesWinner(match);
   if (winner == null) return null;
-  return betTeamOnMatch(bet, match) === winner ? "WIN" : "LOSE";
+  return betTeamOnMatch(enrichedBet, match) === winner ? "WIN" : "LOSE";
 }
 
 export function planMatchBetRecalculations(match, bets) {
