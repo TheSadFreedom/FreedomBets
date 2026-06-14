@@ -199,4 +199,19 @@ node server/index.mjs db.json --port 4000
 
 ---
 
+## 1.10. Десктоп-приложение (кратко)
+
+Windows-версия на Electron — одно окно, API и React внутри.
+
+```powershell
+npm run desktop:dev    # разработка
+npm run desktop:dist   # локальный .exe в release/
+```
+
+Данные — в `%AppData%\Roaming\freedombets\`, не в папке установки.
+
+Публикация на GitHub Releases, получение токена `GH_TOKEN`, автообновление и ежедневные бэкапы базы — **[07-desktop-i-releases.md](07-desktop-i-releases.md)**.
+
+---
+
 Далее: [Архитектура →](02-arkhitektura.md)

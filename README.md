@@ -43,6 +43,7 @@ API: **http://localhost:3001**, интерфейс: **http://localhost:5173**.
 | `npm run desktop:dev` | Десктоп-приложение (Electron) в режиме разработки |
 | `npm run desktop` | Собранное десктоп-приложение без установщика |
 | `npm run desktop:dist` | Сборка установщика Windows (`.exe` в папке `release/`) |
+| `npm run desktop:publish` | Сборка + публикация на GitHub Releases (нужен `GH_TOKEN`) |
 | `npm run lint` | Проверка кода ESLint |
 | `npm run migrate:pickems` | Миграция старых изображений Pick'em (если нужно) |
 
@@ -71,7 +72,9 @@ npm run desktop:dist
 
 `C:\Users\<имя>\AppData\Roaming\freedombets\`
 
-Там лежат `db.json` и загруженные картинки Pick'em.
+Там лежат `db.json`, папка `backups/` (ежедневные копии базы) и загруженные картинки Pick'em.
+
+Подробнее о десктопе, токене GitHub и релизах: **[docs/07-desktop-i-releases.md](docs/07-desktop-i-releases.md)**.
 
 #### Автообновление
 
@@ -81,11 +84,15 @@ npm run desktop:dist
 
 В режиме разработки (`npm run desktop:dev`) автообновление отключено.
 
+> Releases на GitHub **не появляются сами** после `git push` — их нужно опубликовать командой `desktop:publish` (см. документацию ниже).
+
 #### Публикация новой версии
 
 1. Поднимите `version` в `package.json` (например `1.0.1`).
-2. Создайте [GitHub Personal Access Token](https://github.com/settings/tokens) с правом `repo` (или fine-grained: Contents — Read and write).
-3. В PowerShell:
+2. Создайте GitHub Personal Access Token — пошагово в [docs/07-desktop-i-releases.md](docs/07-desktop-i-releases.md#74-github-personal-access-token-gh_token):
+   - Classic: [github.com/settings/tokens](https://github.com/settings/tokens) → галочка **`repo`**
+   - Fine-grained: репозиторий **FreedomBets**, permission **Contents — Read and write**
+3. В PowerShell (токен показывается один раз, в git не коммитить):
 
 ```powershell
 $env:GH_TOKEN = "ghp_..."
@@ -118,6 +125,7 @@ npm run desktop:publish
 | Как устроен фронтенд | [docs/04-frontend.md](docs/04-frontend.md) |
 | Функции приложения (вкладки, ставки, admin) | [docs/05-funkcionalnost.md](docs/05-funkcionalnost.md) |
 | Разработка, отладка, FAQ | [docs/06-razrabotka.md](docs/06-razrabotka.md) |
+| Десктоп, GitHub Releases, автообновление | [docs/07-desktop-i-releases.md](docs/07-desktop-i-releases.md) |
 
 ---
 

@@ -159,7 +159,22 @@ ID в URL должен существовать. ID в `db.json` могут бы
 
 ## 6.7. Резервное копирование
 
-Перед большими изменениями:
+### Автоматически (ежедневно)
+
+При запуске API (`npm run server` или десктоп-приложение) сервер создаёт dated-бэкапы:
+
+- **Папка:** `backups/` рядом с `db.json` (в десктопе — в `%AppData%\Roaming\freedombets\backups\`)
+- **Имя:** `db-2026-06-14.json` (один файл на календарный день)
+- **Хранение:** последние **5 дней**, старые удаляются
+- **Полночь:** новый бэкап, пока процесс API работает
+
+Срок хранения: `$env:FREEDOMBETS_BACKUP_RETENTION_DAYS = "10"`.
+
+Перед синхронизацией Sports.ru дополнительно пишется `db.json.bak`.
+
+Подробнее: [07-desktop-i-releases.md → Ежедневные бэкапы](07-desktop-i-releases.md#77-ежедневные-бэкапы-базы).
+
+### Вручную (перед экспериментами)
 
 ```powershell
 copy db.json db.json.backup
@@ -227,6 +242,14 @@ npm run migrate:pickems
 
 Плагин `majorsManifest` может конфликтовать с антивирусом/индексацией Windows при записи `public/majors/manifest.json`. В проекте добавлены try/catch и debounce; при повторении — временно отключить плагин в `vite.config.ts`.
 
+### На GitHub нет Releases
+
+`git push` не создаёт Releases. Нужны `npm run desktop:publish` и переменная `GH_TOKEN`. Подробно: [07-desktop-i-releases.md](07-desktop-i-releases.md).
+
+### `GH_TOKEN is not set` при publish
+
+Задайте токен в **том же** окне PowerShell перед командой: `$env:GH_TOKEN = "ghp_..."`. Как получить токен — [07-desktop-i-releases.md § 7.4](07-desktop-i-releases.md#74-github-personal-access-token-gh_token).
+
 ---
 
 ## 6.11. Git и деплой
@@ -263,15 +286,26 @@ npm run dev -- --host
 | Admin-проверка | `src/features/profile/lib/isAdminProfile.ts` |
 | HTTP | `src/shared/api/httpClient.ts` |
 | API-сервер | `server/index.mjs` |
+| Ежедневные бэкапы | `server/lib/dbBackup.mjs` |
+| Автообновление (Electron) | `electron/autoUpdater.mjs` |
 | База | `db.json` |
 | Прокси dev | `vite.config.ts` |
 
 ---
 
-## 6.13. Куда смотреть дальше
+## 6.13. Десктоп и GitHub Releases
+
+Сборка Windows-приложения, получение `GH_TOKEN`, публикация Release и автообновление — в отдельном разделе:
+
+**[07-desktop-i-releases.md](07-desktop-i-releases.md)**
+
+---
+
+## 6.14. Куда смотреть дальше
 
 - [Обзор и запуск](01-obzor-i-zapusk.md) — если забыли, как поднять проект.
 - [База данных и API](03-baza-dannykh-i-api.md) — поля и эндпоинты.
 - [Функциональность](05-funkcionalnost.md) — поведение вкладок и бизнес-правила.
+- [Десктоп и релизы](07-desktop-i-releases.md) — `.exe`, token, автообновление.
 
 Если добавляете крупную фичу — обновите соответствующий раздел документации, чтобы новичку было проще разобраться.
