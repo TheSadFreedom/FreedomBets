@@ -25,7 +25,8 @@
     "desktop:dev": "node scripts/installElectron.mjs && concurrently -k -n web,desktop \"npm run dev\" \"node scripts/waitForDevServer.mjs && electron .\"",
     "desktop": "npm run build && node scripts/installElectron.mjs && electron .",
     "desktop:dist": "npm run build && npm run db:seed && node scripts/installElectron.mjs && node scripts/cleanRelease.mjs && node scripts/runElectronBuilder.mjs",
-    "desktop:publish": "npm run build && npm run db:seed && node scripts/installElectron.mjs && node scripts/cleanRelease.mjs && node scripts/runElectronBuilder.mjs --publish always"
+    "desktop:publish": "npm run build && npm run db:seed && node scripts/installElectron.mjs && node scripts/cleanRelease.mjs && node scripts/runElectronBuilder.mjs --publish always",
+    "desktop:upload-release": "node scripts/uploadReleaseAssets.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
